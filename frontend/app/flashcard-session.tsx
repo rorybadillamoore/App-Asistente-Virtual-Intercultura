@@ -105,7 +105,7 @@ export default function FlashcardSessionScreen() {
               />
             </View>
             <Text style={styles.resultsTitle}>
-              {¡Sesión Completada!}
+              ¡Sesión Completada!
             </Text>
             <Text style={styles.resultsScore}>
               {correctCount} / {flashcards.length}
