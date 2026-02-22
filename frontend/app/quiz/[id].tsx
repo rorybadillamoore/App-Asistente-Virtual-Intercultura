@@ -3,9 +3,9 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, SHADOWS } from '../src/constants/theme';
-import { quizAPI } from '../src/api/client';
-import { Button } from '../src/components/Button';
+import { COLORS, SPACING, SHADOWS } from '../../src/constants/theme';
+import { quizAPI } from '../../src/api/client';
+import { Button } from '../../src/components/Button';
 
 interface Quiz {
   id: string;
