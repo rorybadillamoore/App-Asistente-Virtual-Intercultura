@@ -1,26 +1,30 @@
 export const COLORS = {
-  // Primary colors
-  primary: '#4F46E5',
-  primaryDark: '#3730A3',
-  primaryLight: '#818CF8',
+  // Intercultura Brand Colors
+  primary: '#22955B',        // Dark green
+  primaryLight: '#B6C932',   // Light green
+  primaryDark: '#1a7346',    // Darker green
   
-  // Secondary colors
-  secondary: '#10B981',
-  secondaryDark: '#059669',
-  secondaryLight: '#34D399',
+  // Accent colors
+  accent: '#e34b33',         // Red
+  accentOrange: '#fa8a00',   // Orange
   
-  // Language colors
-  spanish: '#EF4444',
-  english: '#3B82F6',
-  portuguese: '#22C55E',
+  // Secondary (keeping for language differentiation)
+  secondary: '#B6C932',
+  secondaryDark: '#9ab029',
+  secondaryLight: '#c8d94d',
   
-  // Level colors
-  a1: '#22C55E',
-  a2: '#84CC16',
-  b1: '#EAB308',
-  b2: '#F97316',
-  c1: '#EF4444',
-  c2: '#DC2626',
+  // Language colors (using brand palette)
+  spanish: '#e34b33',        // Red
+  english: '#22955B',        // Dark green  
+  portuguese: '#fa8a00',     // Orange
+  
+  // Level colors (gradient from green to red)
+  a1: '#B6C932',
+  a2: '#8fb82a',
+  b1: '#fa8a00',
+  b2: '#f07800',
+  c1: '#e34b33',
+  c2: '#c43d2a',
   
   // Neutrals
   white: '#FFFFFF',
@@ -37,10 +41,10 @@ export const COLORS = {
   gray900: '#111827',
   
   // Status
-  success: '#10B981',
-  warning: '#F59E0B',
-  error: '#EF4444',
-  info: '#3B82F6',
+  success: '#22955B',
+  warning: '#fa8a00',
+  error: '#e34b33',
+  info: '#22955B',
   
   // Background
   background: '#F9FAFB',
@@ -48,9 +52,10 @@ export const COLORS = {
 };
 
 export const FONTS = {
-  regular: 'System',
-  medium: 'System',
-  bold: 'System',
+  regular: 'Aller',
+  medium: 'Aller',
+  bold: 'Aller',
+  light: 'Aller_Light',
 };
 
 export const SPACING = {
@@ -101,12 +106,12 @@ export const LANGUAGES = [
 ];
 
 export const LEVELS = [
-  { id: 'A1', name: 'A1 - Beginner', color: COLORS.a1 },
-  { id: 'A2', name: 'A2 - Elementary', color: COLORS.a2 },
-  { id: 'B1', name: 'B1 - Intermediate', color: COLORS.b1 },
-  { id: 'B2', name: 'B2 - Upper Intermediate', color: COLORS.b2 },
-  { id: 'C1', name: 'C1 - Advanced', color: COLORS.c1 },
-  { id: 'C2', name: 'C2 - Mastery', color: COLORS.c2 },
+  { id: 'A1', name: 'A1 - Principiante', color: COLORS.a1 },
+  { id: 'A2', name: 'A2 - Elemental', color: COLORS.a2 },
+  { id: 'B1', name: 'B1 - Intermedio', color: COLORS.b1 },
+  { id: 'B2', name: 'B2 - Intermedio Alto', color: COLORS.b2 },
+  { id: 'C1', name: 'C1 - Avanzado', color: COLORS.c1 },
+  { id: 'C2', name: 'C2 - Maestría', color: COLORS.c2 },
 ];
 
 export const getLanguageColor = (language: string) => {
@@ -129,3 +134,8 @@ export const getLevelColor = (level: string) => {
     default: return COLORS.primary;
   }
 };
+
+// App Branding
+export const APP_NAME = 'Intercultura';
+export const APP_TAGLINE = 'Asistente Virtual';
+export const APP_FULL_NAME = 'Intercultura Asistente Virtual';

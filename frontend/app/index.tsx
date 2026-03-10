@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Button } from '../src/components/Button';
-import { COLORS, SPACING } from '../src/constants/theme';
+import { COLORS, SPACING, APP_NAME, APP_TAGLINE } from '../src/constants/theme';
 import { useAuthStore } from '../src/store/authStore';
 import { seedData } from '../src/api/client';
 
@@ -24,31 +24,43 @@ export default function WelcomeScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.logoContainer}>
-          <View style={styles.iconCircle}>
-            <Ionicons name="language" size={60} color={COLORS.white} />
+          {/* Logo Circle with Brand Colors */}
+          <View style={styles.logoCircle}>
+            <View style={styles.logoInner}>
+              <Ionicons name="globe-outline" size={50} color={COLORS.white} />
+            </View>
           </View>
-          <Text style={styles.title}>Polyglot Academy</Text>
-          <Text style={styles.subtitle}>Aprende Español, Inglés y Portugués</Text>
+          <Text style={styles.title}>{APP_NAME}</Text>
+          <Text style={styles.tagline}>{APP_TAGLINE}</Text>
+          <Text style={styles.subtitle}>Español • English • Português</Text>
         </View>
 
         <View style={styles.featuresContainer}>
           <View style={styles.featureRow}>
             <View style={styles.feature}>
-              <Ionicons name="book" size={28} color={COLORS.spanish} />
+              <View style={[styles.featureIcon, { backgroundColor: COLORS.spanish + '20' }]}>
+                <Ionicons name="book" size={24} color={COLORS.spanish} />
+              </View>
               <Text style={styles.featureText}>Lecciones</Text>
             </View>
             <View style={styles.feature}>
-              <Ionicons name="flash" size={28} color={COLORS.english} />
+              <View style={[styles.featureIcon, { backgroundColor: COLORS.english + '20' }]}>
+                <Ionicons name="flash" size={24} color={COLORS.english} />
+              </View>
               <Text style={styles.featureText}>Flashcards</Text>
             </View>
           </View>
           <View style={styles.featureRow}>
             <View style={styles.feature}>
-              <Ionicons name="checkmark-circle" size={28} color={COLORS.portuguese} />
+              <View style={[styles.featureIcon, { backgroundColor: COLORS.portuguese + '20' }]}>
+                <Ionicons name="checkmark-circle" size={24} color={COLORS.portuguese} />
+              </View>
               <Text style={styles.featureText}>Quizzes</Text>
             </View>
             <View style={styles.feature}>
-              <Ionicons name="sparkles" size={28} color={COLORS.primary} />
+              <View style={[styles.featureIcon, { backgroundColor: COLORS.primaryLight + '20' }]}>
+                <Ionicons name="sparkles" size={24} color={COLORS.primary} />
+              </View>
               <Text style={styles.featureText}>IA Asistente</Text>
             </View>
           </View>
@@ -57,6 +69,7 @@ export default function WelcomeScreen() {
         <View style={styles.levelsContainer}>
           <Text style={styles.levelsTitle}>Niveles A1 - C2</Text>
           <Text style={styles.levelsSubtitle}>Metodología Cambridge</Text>
+          <Text style={styles.established}>Est. 1993 • Pura Vida</Text>
         </View>
 
         <View style={styles.buttonContainer}>
@@ -94,7 +107,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: SPACING.xl,
   },
-  iconCircle: {
+  logoCircle: {
     width: 120,
     height: 120,
     borderRadius: 60,
@@ -102,15 +115,31 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: SPACING.lg,
+    borderWidth: 4,
+    borderColor: COLORS.primaryLight,
+  },
+  logoInner: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
-    fontSize: 32,
+    fontSize: 36,
     fontWeight: '800',
-    color: COLORS.gray900,
+    color: COLORS.primary,
+    marginBottom: SPACING.xs,
+  },
+  tagline: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: COLORS.primaryLight,
     marginBottom: SPACING.xs,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: COLORS.gray500,
     textAlign: 'center',
   },
@@ -127,10 +156,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: 100,
   },
+  featureIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: SPACING.xs,
+  },
   featureText: {
     fontSize: 14,
     color: COLORS.gray600,
-    marginTop: SPACING.xs,
   },
   levelsContainer: {
     alignItems: 'center',
@@ -138,6 +174,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     padding: SPACING.md,
     borderRadius: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: COLORS.primary,
   },
   levelsTitle: {
     fontSize: 18,
@@ -147,6 +185,12 @@ const styles = StyleSheet.create({
   levelsSubtitle: {
     fontSize: 14,
     color: COLORS.gray500,
+  },
+  established: {
+    fontSize: 12,
+    color: COLORS.primaryLight,
+    fontWeight: '600',
+    marginTop: SPACING.xs,
   },
   buttonContainer: {
     gap: SPACING.md,
