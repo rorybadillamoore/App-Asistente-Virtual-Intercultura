@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, ViewStyle, TextStyle } from 'react-native';
+import { TouchableOpacity, Pressable, Text, StyleSheet, ActivityIndicator, ViewStyle, TextStyle, Platform } from 'react-native';
 import { COLORS, BORDER_RADIUS, SPACING } from '../constants/theme';
 
 interface ButtonProps {
@@ -83,8 +83,11 @@ export const Button: React.FC<ButtonProps> = ({
   const variantStyles = getVariantStyles();
   const sizeStyles = getSizeStyles();
 
+  // Use TouchableOpacity for mobile, Pressable for web
+  const Touchable = Platform.OS === 'web' ? Pressable : TouchableOpacity;
+
   return (
-    <TouchableOpacity
+    <Touchable
       style={[
         styles.button,
         variantStyles.button,
@@ -92,9 +95,15 @@ export const Button: React.FC<ButtonProps> = ({
         disabled && styles.disabled,
         style,
       ]}
-      onPress={onPress}
+      onPress={() => {
+        console.log('Button pressed!');
+        if (!disabled && !loading) {
+          onPress();
+        }
+      }}
       disabled={disabled || loading}
-      activeOpacity={0.8}
+      // @ts-ignore
+      accessibilityRole="button"
     >
       {loading ? (
         <ActivityIndicator color={variantStyles.text.color} />
@@ -106,7 +115,7 @@ export const Button: React.FC<ButtonProps> = ({
           </Text>
         </>
       )}
-    </TouchableOpacity>
+    </Touchable>
   );
 };
 
