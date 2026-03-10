@@ -180,6 +180,75 @@ export default function AIExerciseScreen() {
               <Text style={styles.resultPercentage}>{score.percentage}%</Text>
             </View>
 
+            {/* Questions Review with Correct Answers */}
+            <Text style={styles.reviewTitle}>Revisión de Respuestas</Text>
+            {exercise.questions.map((q, qIndex) => {
+              const userAnswer = selectedAnswers[qIndex];
+              const isCorrect = userAnswer === q.correct_answer;
+              return (
+                <View key={qIndex} style={[styles.reviewQuestionCard, { borderLeftColor: isCorrect ? COLORS.success : COLORS.error }]}>
+                  <View style={styles.reviewQuestionHeader}>
+                    <Ionicons 
+                      name={isCorrect ? "checkmark-circle" : "close-circle"} 
+                      size={20} 
+                      color={isCorrect ? COLORS.success : COLORS.error} 
+                    />
+                    <Text style={styles.reviewQuestionText}>{q.question}</Text>
+                  </View>
+                  <View style={styles.reviewOptionsContainer}>
+                    {q.options.map((option, oIndex) => {
+                      const isCorrectOption = oIndex === q.correct_answer;
+                      const isUserAnswer = oIndex === userAnswer;
+                      const isWrongUserAnswer = isUserAnswer && !isCorrectOption;
+                      
+                      return (
+                        <View 
+                          key={oIndex} 
+                          style={[
+                            styles.reviewOption,
+                            isCorrectOption && styles.reviewOptionCorrect,
+                            isWrongUserAnswer && styles.reviewOptionWrong,
+                          ]}
+                        >
+                          <View style={[
+                            styles.reviewOptionLetter,
+                            isCorrectOption && styles.reviewOptionLetterCorrect,
+                            isWrongUserAnswer && styles.reviewOptionLetterWrong,
+                          ]}>
+                            <Text style={[
+                              styles.reviewOptionLetterText,
+                              (isCorrectOption || isWrongUserAnswer) && styles.reviewOptionLetterTextActive,
+                            ]}>
+                              {String.fromCharCode(65 + oIndex)}
+                            </Text>
+                          </View>
+                          <Text style={[
+                            styles.reviewOptionText,
+                            isCorrectOption && styles.reviewOptionTextCorrect,
+                            isWrongUserAnswer && styles.reviewOptionTextWrong,
+                          ]}>
+                            {option}
+                          </Text>
+                          {isCorrectOption && (
+                            <Ionicons name="checkmark-circle" size={18} color={COLORS.success} />
+                          )}
+                          {isWrongUserAnswer && (
+                            <Ionicons name="close-circle" size={18} color={COLORS.error} />
+                          )}
+                        </View>
+                      );
+                    })}
+                  </View>
+                  {q.explanation && (
+                    <View style={styles.explanationBox}>
+                      <Ionicons name="bulb-outline" size={16} color={COLORS.warning} />
+                      <Text style={styles.explanationText}>{q.explanation}</Text>
+                    </View>
+                  )}
+                </View>
+              );
+            })}
+
             {/* Vocabulary Section */}
             {exercise.vocabulary && exercise.vocabulary.length > 0 && (
               <View style={styles.vocabSection}>
@@ -581,5 +650,99 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     width: '100%',
+  },
+  reviewTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: COLORS.gray900,
+    marginBottom: SPACING.md,
+    marginTop: SPACING.md,
+  },
+  reviewQuestionCard: {
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    padding: SPACING.md,
+    marginBottom: SPACING.md,
+    borderLeftWidth: 4,
+    ...SHADOWS.sm,
+  },
+  reviewQuestionHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: SPACING.sm,
+    marginBottom: SPACING.md,
+  },
+  reviewQuestionText: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.gray800,
+    lineHeight: 22,
+  },
+  reviewOptionsContainer: {
+    gap: SPACING.xs,
+  },
+  reviewOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: SPACING.sm,
+    borderRadius: 8,
+    backgroundColor: COLORS.gray50,
+  },
+  reviewOptionCorrect: {
+    backgroundColor: COLORS.success + '15',
+  },
+  reviewOptionWrong: {
+    backgroundColor: COLORS.error + '15',
+  },
+  reviewOptionLetter: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: COLORS.gray200,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: SPACING.sm,
+  },
+  reviewOptionLetterCorrect: {
+    backgroundColor: COLORS.success,
+  },
+  reviewOptionLetterWrong: {
+    backgroundColor: COLORS.error,
+  },
+  reviewOptionLetterText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.gray600,
+  },
+  reviewOptionLetterTextActive: {
+    color: COLORS.white,
+  },
+  reviewOptionText: {
+    flex: 1,
+    fontSize: 14,
+    color: COLORS.gray700,
+  },
+  reviewOptionTextCorrect: {
+    color: COLORS.success,
+    fontWeight: '600',
+  },
+  reviewOptionTextWrong: {
+    color: COLORS.error,
+  },
+  explanationBox: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: SPACING.xs,
+    marginTop: SPACING.sm,
+    padding: SPACING.sm,
+    backgroundColor: COLORS.warning + '10',
+    borderRadius: 8,
+  },
+  explanationText: {
+    flex: 1,
+    fontSize: 13,
+    color: COLORS.gray600,
+    fontStyle: 'italic',
   },
 });
