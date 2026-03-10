@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Animated, Platform, ActivityIndicator, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, SHADOWS, getLanguageColor } from '../src/constants/theme';
-import { flashcardsAPI } from '../src/api/client';
+import { flashcardsAPI, ttsAPI } from '../src/api/client';
 import { Button } from '../src/components/Button';
 
 interface Flashcard {
@@ -26,6 +26,8 @@ export default function FlashcardSessionScreen() {
   const [correctCount, setCorrectCount] = useState(0);
   const [sessionComplete, setSessionComplete] = useState(false);
   const [flipAnim] = useState(new Animated.Value(0));
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     fetchFlashcards();
@@ -80,6 +82,35 @@ export default function FlashcardSessionScreen() {
     setIsFlipped(false);
     setSessionComplete(false);
     flipAnim.setValue(0);
+  };
+
+  const playPronunciation = async (text: string) => {
+    if (isPlayingAudio) return;
+    
+    setIsPlayingAudio(true);
+    try {
+      const response = await ttsAPI.generate(text, language || 'spanish');
+      const { audio_base64 } = response.data;
+      
+      if (Platform.OS === 'web') {
+        // Web audio playback
+        if (audioRef.current) {
+          audioRef.current.pause();
+        }
+        const audio = new Audio(`data:audio/mp3;base64,${audio_base64}`);
+        audioRef.current = audio;
+        audio.onended = () => setIsPlayingAudio(false);
+        audio.onerror = () => setIsPlayingAudio(false);
+        await audio.play();
+      } else {
+        // For native, we would use expo-av
+        // This is a simplified web-first implementation
+        setIsPlayingAudio(false);
+      }
+    } catch (error) {
+      console.log('Error playing pronunciation:', error);
+      setIsPlayingAudio(false);
+    }
   };
 
   if (flashcards.length === 0) {
@@ -148,6 +179,7 @@ export default function FlashcardSessionScreen() {
     <>
       <Stack.Screen options={{ title: `Flashcards ${level}` }} />
       <SafeAreaView style={styles.container} edges={['bottom']}>
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Progress */}
         <View style={styles.progressContainer}>
           <View style={styles.progressBar}>
@@ -199,23 +231,36 @@ export default function FlashcardSessionScreen() {
           </Animated.View>
         </TouchableOpacity>
 
-        {/* Answer Buttons */}
-        <View style={styles.answerContainer}>
+        {/* Bottom Controls */}
+        <View style={styles.controlsContainer}>
+          {/* Audio Button */}
+          <TouchableOpacity
+            style={[styles.audioButton, isPlayingAudio && styles.audioButtonPlaying]}
+            onPress={() => playPronunciation(currentCard.word)}
+            disabled={isPlayingAudio}
+          >
+            {isPlayingAudio ? (
+              <ActivityIndicator size="small" color={COLORS.white} />
+            ) : (
+              <Ionicons name="volume-high" size={28} color={COLORS.white} />
+            )}
+          </TouchableOpacity>
+          
+          {/* Answer Buttons */}
           <TouchableOpacity
             style={[styles.answerButton, styles.wrongButton]}
             onPress={() => handleAnswer(false)}
           >
-            <Ionicons name="close" size={32} color={COLORS.white} />
-            <Text style={styles.answerButtonText}>No lo sé</Text>
+            <Ionicons name="close" size={28} color={COLORS.white} />
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.answerButton, styles.correctButton]}
             onPress={() => handleAnswer(true)}
           >
-            <Ionicons name="checkmark" size={32} color={COLORS.white} />
-            <Text style={styles.answerButtonText}>¡Lo sé!</Text>
+            <Ionicons name="checkmark" size={28} color={COLORS.white} />
           </TouchableOpacity>
         </View>
+        </ScrollView>
       </SafeAreaView>
     </>
   );
@@ -225,7 +270,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
+  },
+  scrollContent: {
     padding: SPACING.md,
+    paddingBottom: SPACING.xl,
   },
   loadingContainer: {
     flex: 1,
@@ -257,9 +305,10 @@ const styles = StyleSheet.create({
     color: COLORS.gray500,
   },
   cardContainer: {
-    flex: 1,
+    height: 320,
     justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: SPACING.md,
   },
   card: {
     position: 'absolute',
@@ -272,6 +321,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backfaceVisibility: 'hidden',
     borderTopWidth: 6,
+    overflow: 'visible',
     ...SHADOWS.lg,
   },
   cardFront: {},
@@ -311,6 +361,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: SPACING.md,
     marginTop: SPACING.lg,
+  },
+  controlsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: SPACING.md,
+    marginTop: SPACING.lg,
+    paddingHorizontal: SPACING.md,
   },
   answerButton: {
     flex: 1,
@@ -370,5 +428,29 @@ const styles = StyleSheet.create({
   },
   resultButton: {
     flex: 1,
+  },
+  audioButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...SHADOWS.md,
+  },
+  audioButtonPlaying: {
+    backgroundColor: COLORS.secondary,
+  },
+  audioHint: {
+    marginTop: SPACING.xs,
+    fontSize: 12,
+    color: COLORS.gray400,
+  },
+  audioContainer: {
+    alignItems: 'center',
+    paddingVertical: SPACING.lg,
+    backgroundColor: COLORS.gray100,
+    borderRadius: 12,
+    marginHorizontal: SPACING.md,
   },
 });

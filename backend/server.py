@@ -163,6 +163,10 @@ class FlashcardProgressUpdate(BaseModel):
     flashcard_id: str
     correct: bool
 
+class TTSRequest(BaseModel):
+    text: str
+    language: str = "spanish"  # spanish, english, portuguese
+
 # ================== AUTH HELPERS ==================
 
 def hash_password(password: str) -> str:
@@ -589,6 +593,46 @@ Generate 5 questions and 5 vocabulary items."""
     except Exception as e:
         logger.error(f"AI generation error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"AI generation failed: {str(e)}")
+
+# ================== TTS ROUTE ==================
+
+@api_router.post("/tts/generate")
+async def generate_tts(request: TTSRequest):
+    """Generate audio pronunciation for a word or phrase"""
+    try:
+        from emergentintegrations.llm.openai import OpenAITextToSpeech
+        
+        api_key = os.environ.get('EMERGENT_LLM_KEY')
+        if not api_key:
+            raise HTTPException(status_code=500, detail="TTS service not configured")
+        
+        # Select voice based on language
+        voice_map = {
+            "spanish": "nova",      # Energetic, good for Spanish
+            "english": "alloy",     # Neutral, balanced for English
+            "portuguese": "shimmer" # Bright, cheerful for Portuguese
+        }
+        voice = voice_map.get(request.language.lower(), "alloy")
+        
+        tts = OpenAITextToSpeech(api_key=api_key)
+        
+        # Generate audio as base64 for easy frontend consumption
+        audio_base64 = await tts.generate_speech_base64(
+            text=request.text,
+            model="tts-1",
+            voice=voice,
+            response_format="mp3"
+        )
+        
+        return {
+            "success": True,
+            "audio_base64": audio_base64,
+            "format": "mp3"
+        }
+        
+    except Exception as e:
+        logger.error(f"TTS generation error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"TTS generation failed: {str(e)}")
 
 @api_router.post("/ai/explain")
 async def explain_concept(language: str, level: str, concept: str, current_user: dict = Depends(get_current_user)):

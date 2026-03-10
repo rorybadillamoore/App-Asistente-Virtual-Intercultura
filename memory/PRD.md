@@ -8,11 +8,12 @@ Aplicación móvil para escuela de idiomas que enseña Español, Inglés y Portu
 - **Backend**: FastAPI (Python)
 - **Base de Datos**: MongoDB
 - **IA**: OpenAI GPT-4o (via Emergent LLM Key)
+- **TTS**: OpenAI TTS (via Emergent LLM Key)
 
 ## Estado del Contenido Educativo ✅
 - **18 cursos** (3 idiomas × 6 niveles)
 - **54 lecciones** (3 por curso)
-- **180 flashcards** (10 por idioma/nivel)
+- **180 flashcards** (10 por idioma/nivel con pronunciación escrita)
 
 ### Idiomas Soportados
 - Español (A1-C2)
@@ -24,9 +25,18 @@ Aplicación móvil para escuela de idiomas que enseña Español, Inglés y Portu
 - [x] Dashboard de estudiante
 - [x] Cursos por idioma y nivel
 - [x] Sistema de flashcards
+- [x] **Audio TTS en flashcards** (bajo demanda)
 - [x] Quizzes con IA
 - [x] Revisión de respuestas (correcto/incorrecto)
 - [x] Branding Intercultura (logo, colores)
+
+## API Endpoints
+- `POST /api/auth/register` - Registro de usuario
+- `POST /api/auth/login` - Login
+- `GET /api/courses` - Listar cursos
+- `GET /api/flashcards` - Listar flashcards
+- `POST /api/tts/generate` - Generar audio de pronunciación
+- `POST /api/ai/generate-exercise` - Generar ejercicios con IA
 
 ## Problemas Conocidos (A Resolver)
 1. **P0**: Botón de registro no responde (reportado por usuario)

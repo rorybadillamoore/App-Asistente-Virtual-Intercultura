@@ -86,5 +86,11 @@ export const aiAPI = {
     apiClient.post('/ai/explain', null, { params: { language, level, concept } }),
 };
 
+// TTS API
+export const ttsAPI = {
+  generate: (text: string, language: string) =>
+    apiClient.post('/tts/generate', { text, language }),
+};
+
 // Seed data
 export const seedData = () => apiClient.post('/seed-data');
