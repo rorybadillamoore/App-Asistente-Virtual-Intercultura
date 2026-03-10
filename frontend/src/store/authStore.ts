@@ -12,25 +12,33 @@ interface AuthState {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
-  isLoading: boolean;
   setAuth: (user: User, token: string) => void;
   clearAuth: () => void;
-  initializeAuth: () => void;
 }
 
-// Helper to safely access localStorage
-const getStoredAuth = () => {
+// Helper to safely access localStorage - only on client side
+const getInitialState = () => {
+  if (typeof window === 'undefined') {
+    return { user: null, token: null, isAuthenticated: false };
+  }
+  
   try {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      const stored = localStorage.getItem('auth-storage');
-      if (stored) {
-        return JSON.parse(stored);
+    const stored = localStorage.getItem('auth-storage');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (parsed?.isAuthenticated && parsed?.user && parsed?.token) {
+        return {
+          user: parsed.user,
+          token: parsed.token,
+          isAuthenticated: true,
+        };
       }
     }
   } catch (e) {
     console.log('Error reading auth from storage:', e);
   }
-  return null;
+  
+  return { user: null, token: null, isAuthenticated: false };
 };
 
 const saveAuth = (user: User | null, token: string | null, isAuthenticated: boolean) => {
@@ -43,30 +51,18 @@ const saveAuth = (user: User | null, token: string | null, isAuthenticated: bool
   }
 };
 
+const initialState = getInitialState();
+
 export const useAuthStore = create<AuthState>()((set) => ({
-  user: null,
-  token: null,
-  isAuthenticated: false,
-  isLoading: true,
+  user: initialState.user,
+  token: initialState.token,
+  isAuthenticated: initialState.isAuthenticated,
   setAuth: (user, token) => {
     saveAuth(user, token, true);
-    set({ user, token, isAuthenticated: true, isLoading: false });
+    set({ user, token, isAuthenticated: true });
   },
   clearAuth: () => {
     saveAuth(null, null, false);
-    set({ user: null, token: null, isAuthenticated: false, isLoading: false });
-  },
-  initializeAuth: () => {
-    const stored = getStoredAuth();
-    if (stored?.isAuthenticated && stored?.user && stored?.token) {
-      set({ 
-        user: stored.user, 
-        token: stored.token, 
-        isAuthenticated: true, 
-        isLoading: false 
-      });
-    } else {
-      set({ isLoading: false });
-    }
+    set({ user: null, token: null, isAuthenticated: false });
   },
 }));

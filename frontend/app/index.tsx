@@ -1,69 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, ActivityIndicator, Pressable } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
 import { Link } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, APP_NAME, APP_TAGLINE } from '../src/constants/theme';
-import { useAuthStore } from '../src/store/authStore';
-import { seedData } from '../src/api/client';
 
 const Logo = require('../assets/images/logo.png');
 
 export default function WelcomeScreen() {
-  const { isAuthenticated, isLoading, initializeAuth } = useAuthStore();
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    // Small delay to ensure layout is mounted
-    const timer = setTimeout(() => {
-      initializeAuth();
-      seedData().catch(() => {});
-      setReady(true);
-    }, 200);
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Show loading screen
-  if (!ready || isLoading) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <Image source={Logo} style={styles.loadingLogo} resizeMode="contain" />
-          <ActivityIndicator size="large" color={COLORS.primary} />
-          <Text style={styles.loadingText}>Cargando...</Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  // If authenticated, show link to go to dashboard
-  if (isAuthenticated) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.content}>
-          <View style={styles.logoContainer}>
-            <Image source={Logo} style={styles.logo} resizeMode="contain" />
-            <Text style={styles.title}>{APP_NAME}</Text>
-            <Text style={styles.tagline}>{APP_TAGLINE}</Text>
-          </View>
-          
-          <View style={styles.welcomeBack}>
-            <Ionicons name="checkmark-circle" size={48} color={COLORS.success} />
-            <Text style={styles.welcomeText}>¡Bienvenido de nuevo!</Text>
-          </View>
-
-          <Link href="/(tabs)" asChild>
-            <Pressable style={styles.continueButton}>
-              <Text style={styles.continueButtonText}>Continuar al Dashboard</Text>
-              <Ionicons name="arrow-forward" size={20} color={COLORS.white} />
-            </Pressable>
-          </Link>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  // Not authenticated - show login/register options
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
@@ -132,21 +76,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingLogo: {
-    width: 100,
-    height: 100,
-    marginBottom: SPACING.lg,
-  },
-  loadingText: {
-    marginTop: SPACING.md,
-    color: COLORS.gray500,
-    fontSize: 14,
-  },
   content: {
     flex: 1,
     padding: SPACING.lg,
@@ -172,31 +101,6 @@ const styles = StyleSheet.create({
     color: COLORS.secondary,
     textAlign: 'center',
     marginTop: SPACING.xs,
-  },
-  welcomeBack: {
-    alignItems: 'center',
-    marginBottom: SPACING.xl,
-  },
-  welcomeText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: COLORS.gray700,
-    marginTop: SPACING.md,
-  },
-  continueButton: {
-    backgroundColor: COLORS.primary,
-    paddingVertical: SPACING.md,
-    paddingHorizontal: SPACING.xl,
-    borderRadius: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: SPACING.sm,
-  },
-  continueButtonText: {
-    color: COLORS.white,
-    fontSize: 16,
-    fontWeight: '600',
   },
   featuresContainer: {
     marginBottom: SPACING.lg,
