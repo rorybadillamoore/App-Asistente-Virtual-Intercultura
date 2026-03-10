@@ -21,7 +21,7 @@ export default function TabLayout() {
           height: 60,
         },
         tabBarLabelStyle: {
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: '500',
         },
         headerStyle: {
@@ -52,6 +52,15 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="quizzes"
+        options={{
+          title: 'Quizzes',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="help-circle" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="flashcards"
         options={{
           title: 'Flashcards',
@@ -66,6 +75,16 @@ export default function TabLayout() {
           title: 'IA',
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="sparkles" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="teacher"
+        options={{
+          title: 'Profesor',
+          href: isTeacher ? '/teacher' : null,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="school" size={size} color={color} />
           ),
         }}
       />

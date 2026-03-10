@@ -67,15 +67,25 @@ export const flashcardsAPI = {
 
 // Quiz API
 export const quizAPI = {
+  getAll: (language?: string, level?: string) =>
+    apiClient.get('/quizzes', { params: { language, level } }),
   getOne: (id: string) => apiClient.get(`/quizzes/${id}`),
   create: (data: any) => apiClient.post('/quizzes', data),
   submit: (quizId: string, answers: number[]) =>
     apiClient.post(`/quizzes/${quizId}/submit`, { quiz_id: quizId, answers }),
+  seed: () => apiClient.post('/seed-quizzes'),
 };
 
 // Progress API
 export const progressAPI = {
   get: () => apiClient.get('/progress'),
+  byLanguage: () => apiClient.get('/progress/by-language'),
+};
+
+// Teacher API
+export const teacherAPI = {
+  getStudents: () => apiClient.get('/teacher/students'),
+  getStats: () => apiClient.get('/teacher/stats'),
 };
 
 // AI API

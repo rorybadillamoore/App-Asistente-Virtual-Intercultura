@@ -504,7 +504,148 @@ async def submit_quiz(quiz_id: str, submission: QuizSubmission, current_user: di
         results=results
     )
 
+# ================== TEACHER ROUTES ==================
+
+class StudentProgress(BaseModel):
+    user_id: str
+    name: str
+    email: str
+    lessons_completed: int
+    quizzes_taken: int
+    average_score: float
+    flashcards_reviewed: int
+
+@api_router.get("/teacher/students", response_model=List[StudentProgress])
+async def get_students(current_user: dict = Depends(get_current_user)):
+    """Get all students and their progress (teacher only)"""
+    if current_user["role"] != "teacher":
+        raise HTTPException(status_code=403, detail="Only teachers can view students")
+    
+    students = await db.users.find({"role": "student"}).to_list(100)
+    result = []
+    
+    for student in students:
+        student_id = str(student["_id"])
+        progress = await db.progress.find_one({"user_id": student_id})
+        
+        if progress:
+            quiz_scores = progress.get("quiz_scores", [])
+            avg_score = sum(q["score"] for q in quiz_scores) / len(quiz_scores) if quiz_scores else 0.0
+            result.append(StudentProgress(
+                user_id=student_id,
+                name=student["name"],
+                email=student["email"],
+                lessons_completed=len(progress.get("completed_lessons", [])),
+                quizzes_taken=len(quiz_scores),
+                average_score=round(avg_score, 1),
+                flashcards_reviewed=len(progress.get("flashcards_reviewed", []))
+            ))
+        else:
+            result.append(StudentProgress(
+                user_id=student_id,
+                name=student["name"],
+                email=student["email"],
+                lessons_completed=0,
+                quizzes_taken=0,
+                average_score=0.0,
+                flashcards_reviewed=0
+            ))
+    
+    return result
+
+class LanguageStats(BaseModel):
+    language: str
+    courses_count: int
+    students_active: int
+    avg_score: float
+
+@api_router.get("/teacher/stats")
+async def get_teacher_stats(current_user: dict = Depends(get_current_user)):
+    """Get overall statistics for teachers"""
+    if current_user["role"] != "teacher":
+        raise HTTPException(status_code=403, detail="Only teachers can view stats")
+    
+    total_students = await db.users.count_documents({"role": "student"})
+    total_courses = await db.courses.count_documents({})
+    total_quizzes = await db.quizzes.count_documents({})
+    
+    # Get average scores from all progress
+    all_progress = await db.progress.find({}).to_list(None)
+    all_scores = []
+    for p in all_progress:
+        all_scores.extend([q["score"] for q in p.get("quiz_scores", [])])
+    
+    avg_score = sum(all_scores) / len(all_scores) if all_scores else 0.0
+    
+    return {
+        "total_students": total_students,
+        "total_courses": total_courses,
+        "total_quizzes": total_quizzes,
+        "average_score": round(avg_score, 1),
+        "quizzes_completed": len(all_scores)
+    }
+
 # ================== PROGRESS ROUTES ==================
+
+class LanguageProgress(BaseModel):
+    language: str
+    lessons_completed: int
+    quizzes_taken: int
+    average_score: float
+    flashcards_reviewed: int
+
+@api_router.get("/progress/by-language")
+async def get_progress_by_language(current_user: dict = Depends(get_current_user)):
+    """Get user progress broken down by language"""
+    user_id = str(current_user["_id"])
+    progress = await db.progress.find_one({"user_id": user_id})
+    
+    if not progress:
+        return []
+    
+    # Get completed lessons with their course info
+    completed_lessons = progress.get("completed_lessons", [])
+    quiz_scores = progress.get("quiz_scores", [])
+    
+    # Build language stats
+    languages = ["spanish", "english", "portuguese", "german"]
+    result = []
+    
+    for lang in languages:
+        # Get courses for this language
+        courses = await db.courses.find({"language": lang}, {"_id": 1}).to_list(None)
+        course_ids = [str(c["_id"]) for c in courses]
+        
+        # Count lessons completed in this language
+        lang_lessons = 0
+        for lid in completed_lessons:
+            lesson = await db.lessons.find_one({"_id": ObjectId(lid)}, {"course_id": 1})
+            if lesson and lesson.get("course_id") in course_ids:
+                lang_lessons += 1
+        
+        # Count quizzes and scores for this language
+        lang_quiz_scores = []
+        for qs in quiz_scores:
+            quiz = await db.quizzes.find_one({"_id": ObjectId(qs["quiz_id"])}, {"course_id": 1})
+            if quiz and quiz.get("course_id") in course_ids:
+                lang_quiz_scores.append(qs["score"])
+        
+        avg = sum(lang_quiz_scores) / len(lang_quiz_scores) if lang_quiz_scores else 0.0
+        
+        # Get flashcards for this language
+        flashcards = await db.flashcards.find({"language": lang}, {"_id": 1}).to_list(None)
+        flashcard_ids = [str(f["_id"]) for f in flashcards]
+        reviewed = len(set(progress.get("flashcards_reviewed", [])) & set(flashcard_ids))
+        
+        result.append({
+            "language": lang,
+            "lessons_completed": lang_lessons,
+            "quizzes_taken": len(lang_quiz_scores),
+            "average_score": round(avg, 1),
+            "flashcards_reviewed": reviewed
+        })
+    
+    return result
 
 @api_router.get("/progress", response_model=ProgressResponse)
 async def get_progress(current_user: dict = Depends(get_current_user)):
@@ -688,6 +829,156 @@ Provide:
         raise HTTPException(status_code=500, detail=f"AI explanation failed: {str(e)}")
 
 # ================== SEED DATA ROUTE ==================
+
+# ================== QUIZ GENERATION ==================
+
+@api_router.post("/seed-quizzes")
+async def seed_quizzes():
+    """Seed quizzes for all courses"""
+    existing = await db.quizzes.count_documents({})
+    if existing > 0:
+        return {"message": "Quizzes already exist", "count": existing}
+    
+    courses = await db.courses.find({}).to_list(None)
+    created = 0
+    
+    quiz_templates = {
+        "spanish": {
+            "A1": [
+                {"q": "¿Cómo se dice 'hello' en español?", "opts": ["Hola", "Adiós", "Gracias", "Por favor"], "ans": 0},
+                {"q": "¿Cuál es el plural de 'libro'?", "opts": ["Libros", "Libroes", "Libras", "Libro"], "ans": 0},
+                {"q": "Completa: 'Yo ___ estudiante'", "opts": ["soy", "eres", "es", "somos"], "ans": 0},
+                {"q": "¿Qué significa 'buenos días'?", "opts": ["Good morning", "Good night", "Goodbye", "Thank you"], "ans": 0},
+                {"q": "El artículo para 'casa' es:", "opts": ["la", "el", "los", "las"], "ans": 0},
+            ],
+            "A2": [
+                {"q": "Ayer yo ___ al cine", "opts": ["fui", "voy", "iré", "iba"], "ans": 0},
+                {"q": "¿Cuál es el pasado de 'comer'?", "opts": ["comí", "como", "comeré", "comía"], "ans": 0},
+                {"q": "El superlativo de 'grande' es:", "opts": ["grandísimo", "más grande", "muy grande", "el grande"], "ans": 0},
+                {"q": "¿Qué tiempo verbal es 'hablaré'?", "opts": ["Futuro", "Presente", "Pasado", "Condicional"], "ans": 0},
+                {"q": "Completa: 'Me gusta ___ música'", "opts": ["la", "el", "un", "una"], "ans": 0},
+            ],
+        },
+        "english": {
+            "A1": [
+                {"q": "What is 'hola' in English?", "opts": ["Hello", "Goodbye", "Thanks", "Please"], "ans": 0},
+                {"q": "The plural of 'book' is:", "opts": ["Books", "Bookes", "Bookies", "Book"], "ans": 0},
+                {"q": "Complete: 'I ___ a student'", "opts": ["am", "is", "are", "be"], "ans": 0},
+                {"q": "What does 'good morning' mean?", "opts": ["Buenos días", "Buenas noches", "Adiós", "Gracias"], "ans": 0},
+                {"q": "The article for 'apple' is:", "opts": ["an", "a", "the", "none"], "ans": 0},
+            ],
+            "A2": [
+                {"q": "Yesterday I ___ to the cinema", "opts": ["went", "go", "will go", "going"], "ans": 0},
+                {"q": "The past of 'eat' is:", "opts": ["ate", "eat", "eaten", "eating"], "ans": 0},
+                {"q": "The superlative of 'big' is:", "opts": ["biggest", "bigger", "more big", "most big"], "ans": 0},
+                {"q": "What tense is 'will speak'?", "opts": ["Future", "Present", "Past", "Conditional"], "ans": 0},
+                {"q": "Complete: 'I like ___ music'", "opts": ["the", "a", "an", "some"], "ans": 0},
+            ],
+        },
+        "portuguese": {
+            "A1": [
+                {"q": "Como se diz 'hello' em português?", "opts": ["Olá", "Tchau", "Obrigado", "Por favor"], "ans": 0},
+                {"q": "O plural de 'livro' é:", "opts": ["Livros", "Livroes", "Livras", "Livro"], "ans": 0},
+                {"q": "Complete: 'Eu ___ estudante'", "opts": ["sou", "és", "é", "somos"], "ans": 0},
+                {"q": "O que significa 'bom dia'?", "opts": ["Good morning", "Good night", "Goodbye", "Thank you"], "ans": 0},
+                {"q": "O artigo para 'casa' é:", "opts": ["a", "o", "os", "as"], "ans": 0},
+            ],
+            "A2": [
+                {"q": "Ontem eu ___ ao cinema", "opts": ["fui", "vou", "irei", "ia"], "ans": 0},
+                {"q": "O passado de 'comer' é:", "opts": ["comi", "como", "comerei", "comia"], "ans": 0},
+                {"q": "O superlativo de 'grande' é:", "opts": ["grandíssimo", "mais grande", "muito grande", "o grande"], "ans": 0},
+                {"q": "Que tempo verbal é 'falarei'?", "opts": ["Futuro", "Presente", "Passado", "Condicional"], "ans": 0},
+                {"q": "Complete: 'Eu gosto ___ música'", "opts": ["da", "do", "de um", "de uma"], "ans": 0},
+            ],
+        },
+        "german": {
+            "A1": [
+                {"q": "Wie sagt man 'hello' auf Deutsch?", "opts": ["Hallo", "Tschüss", "Danke", "Bitte"], "ans": 0},
+                {"q": "Der Plural von 'Buch' ist:", "opts": ["Bücher", "Buchs", "Buche", "Buch"], "ans": 0},
+                {"q": "Ergänze: 'Ich ___ Student'", "opts": ["bin", "bist", "ist", "sind"], "ans": 0},
+                {"q": "Was bedeutet 'Guten Morgen'?", "opts": ["Good morning", "Good night", "Goodbye", "Thank you"], "ans": 0},
+                {"q": "Der Artikel für 'Haus' ist:", "opts": ["das", "der", "die", "den"], "ans": 0},
+            ],
+            "A2": [
+                {"q": "Gestern ___ ich ins Kino", "opts": ["ging", "gehe", "werde gehen", "gegangen"], "ans": 0},
+                {"q": "Die Vergangenheit von 'essen' ist:", "opts": ["aß", "esse", "werde essen", "gegessen"], "ans": 0},
+                {"q": "Der Superlativ von 'groß' ist:", "opts": ["am größten", "größer", "mehr groß", "sehr groß"], "ans": 0},
+                {"q": "Welche Zeitform ist 'werde sprechen'?", "opts": ["Futur", "Präsens", "Präteritum", "Konjunktiv"], "ans": 0},
+                {"q": "Ergänze: 'Ich mag ___ Musik'", "opts": ["die", "der", "das", "den"], "ans": 0},
+            ],
+        }
+    }
+    
+    for course in courses:
+        course_id = str(course["_id"])
+        lang = course["language"]
+        level = course["level"]
+        
+        # Get template or create generic
+        if lang in quiz_templates and level in quiz_templates[lang]:
+            questions = quiz_templates[lang][level]
+        else:
+            # Generic quiz for levels without templates
+            questions = [
+                {"q": f"Question 1 for {lang} {level}", "opts": ["Correct", "Wrong A", "Wrong B", "Wrong C"], "ans": 0},
+                {"q": f"Question 2 for {lang} {level}", "opts": ["Correct", "Wrong A", "Wrong B", "Wrong C"], "ans": 0},
+                {"q": f"Question 3 for {lang} {level}", "opts": ["Correct", "Wrong A", "Wrong B", "Wrong C"], "ans": 0},
+                {"q": f"Question 4 for {lang} {level}", "opts": ["Correct", "Wrong A", "Wrong B", "Wrong C"], "ans": 0},
+                {"q": f"Question 5 for {lang} {level}", "opts": ["Correct", "Wrong A", "Wrong B", "Wrong C"], "ans": 0},
+            ]
+        
+        quiz_dict = {
+            "course_id": course_id,
+            "title": f"Quiz {course['title']}",
+            "questions": [
+                {
+                    "question": q["q"],
+                    "options": q["opts"],
+                    "correct_answer": q["ans"],
+                    "explanation": f"La respuesta correcta es: {q['opts'][q['ans']]}"
+                } for q in questions
+            ],
+            "time_limit_minutes": 10,
+            "created_by": "system",
+            "created_at": datetime.utcnow()
+        }
+        await db.quizzes.insert_one(quiz_dict)
+        created += 1
+    
+    return {"message": "Quizzes created", "count": created}
+
+@api_router.get("/quizzes")
+async def get_all_quizzes(language: Optional[str] = None, level: Optional[str] = None):
+    """Get all quizzes with optional filters"""
+    # First get courses matching filters
+    course_query = {}
+    if language:
+        course_query["language"] = language.lower()
+    if level:
+        course_query["level"] = level.upper()
+    
+    if course_query:
+        courses = await db.courses.find(course_query, {"_id": 1}).to_list(None)
+        course_ids = [str(c["_id"]) for c in courses]
+        quizzes = await db.quizzes.find({"course_id": {"$in": course_ids}}).to_list(100)
+    else:
+        quizzes = await db.quizzes.find({}).to_list(100)
+    
+    # Add course info to each quiz
+    result = []
+    for q in quizzes:
+        course = await db.courses.find_one({"_id": ObjectId(q["course_id"])})
+        result.append({
+            "id": str(q["_id"]),
+            "title": q["title"],
+            "course_id": q["course_id"],
+            "language": course["language"] if course else "unknown",
+            "level": course["level"] if course else "unknown",
+            "question_count": len(q["questions"]),
+            "time_limit_minutes": q["time_limit_minutes"]
+        })
+    
+    return result
 
 @api_router.post("/seed-data")
 async def seed_sample_data():
