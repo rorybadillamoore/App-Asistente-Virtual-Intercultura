@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, ActivityIndicator } from 'react-native';
-import { Redirect, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Button } from '../src/components/Button';
@@ -13,14 +13,51 @@ const Logo = require('../assets/images/logo.png');
 export default function WelcomeScreen() {
   const router = useRouter();
   const { isAuthenticated, isLoading, initializeAuth } = useAuthStore();
+  const [isMounted, setIsMounted] = useState(false);
+  const [hasNavigated, setHasNavigated] = useState(false);
 
+  // Mark component as mounted after first render
   useEffect(() => {
-    initializeAuth();
-    seedData().catch(() => {});
+    const timer = setTimeout(() => {
+      setIsMounted(true);
+    }, 100);
+    return () => clearTimeout(timer);
   }, []);
 
-  // Show loading while checking auth
-  if (isLoading) {
+  // Initialize auth after mount
+  useEffect(() => {
+    if (isMounted) {
+      initializeAuth();
+      seedData().catch(() => {});
+    }
+  }, [isMounted]);
+
+  // Navigate only after everything is ready
+  useEffect(() => {
+    if (isMounted && !isLoading && isAuthenticated && !hasNavigated) {
+      setHasNavigated(true);
+      // Use setTimeout to ensure navigation happens after render cycle
+      setTimeout(() => {
+        router.replace('/(tabs)');
+      }, 50);
+    }
+  }, [isMounted, isLoading, isAuthenticated, hasNavigated]);
+
+  // Show loading while initializing
+  if (!isMounted || isLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <Image source={Logo} style={styles.loadingLogo} resizeMode="contain" />
+          <ActivityIndicator size="large" color={COLORS.primary} />
+          <Text style={styles.loadingText}>Cargando...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // Show loading while navigating
+  if (hasNavigated) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
@@ -29,11 +66,6 @@ export default function WelcomeScreen() {
         </View>
       </SafeAreaView>
     );
-  }
-
-  // Redirect to dashboard if authenticated
-  if (isAuthenticated) {
-    return <Redirect href="/(tabs)" />;
   }
 
   return (
@@ -114,6 +146,11 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     marginBottom: SPACING.lg,
+  },
+  loadingText: {
+    marginTop: SPACING.md,
+    color: COLORS.gray500,
+    fontSize: 14,
   },
   content: {
     flex: 1,
