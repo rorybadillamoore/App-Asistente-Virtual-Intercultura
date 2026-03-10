@@ -181,11 +181,12 @@ const styles = StyleSheet.create({
   },
   languageGrid: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: SPACING.sm,
     marginBottom: SPACING.lg,
   },
   languageCard: {
-    flex: 1,
+    width: '48%',
     alignItems: 'center',
     backgroundColor: COLORS.white,
     padding: SPACING.md,

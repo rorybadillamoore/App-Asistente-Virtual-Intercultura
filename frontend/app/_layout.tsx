@@ -1,8 +1,25 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useAuthStore } from '../src/store/authStore';
+import { COLORS } from '../src/constants/theme';
+
+function LoadingScreen() {
+  return (
+    <View style={styles.loading}>
+      <ActivityIndicator size="large" color={COLORS.primary} />
+    </View>
+  );
+}
 
 export default function RootLayout() {
+  const hasHydrated = useAuthStore((state) => state._hasHydrated);
+  
+  if (!hasHydrated) {
+    return <LoadingScreen />;
+  }
+
   return (
     <>
       <StatusBar style="dark" />
@@ -20,3 +37,12 @@ export default function RootLayout() {
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  loading: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: COLORS.background,
+  },
+});

@@ -21,30 +21,41 @@ export default function RegisterScreen() {
   const [error, setError] = useState('');
 
   const handleRegister = async () => {
+    console.log('[Register] Button clicked, validating form...');
+    console.log('[Register] Form data:', { name, email, password: '***', confirmPassword: '***', role });
+    
     if (!name || !email || !password || !confirmPassword) {
+      console.log('[Register] Validation failed: empty fields');
       setError('Por favor completa todos los campos');
       return;
     }
 
     if (password !== confirmPassword) {
+      console.log('[Register] Validation failed: passwords dont match');
       setError('Las contraseñas no coinciden');
       return;
     }
 
     if (password.length < 6) {
+      console.log('[Register] Validation failed: password too short');
       setError('La contraseña debe tener al menos 6 caracteres');
       return;
     }
 
+    console.log('[Register] Validation passed, starting registration...');
     setLoading(true);
     setError('');
 
     try {
+      console.log('[Register] Calling API...');
       const response = await authAPI.register({ email, password, name, role });
+      console.log('[Register] API success:', response.data);
       const { access_token, user } = response.data;
       setAuth(user, access_token);
+      console.log('[Register] Auth set, redirecting...');
       router.replace('/(tabs)');
     } catch (err: any) {
+      console.log('[Register] API error:', err.response?.data || err.message);
       setError(err.response?.data?.detail || 'Error al registrarse');
     } finally {
       setLoading(false);

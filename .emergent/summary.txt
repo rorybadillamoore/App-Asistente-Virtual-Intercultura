@@ -1,0 +1,186 @@
+<analysis>**original_problem_statement:**
+The user wants to create a mobile application for a language school named Intercultura Asistente Virtual.
+
+PRODUCT REQUIREMENTS:
+- **Languages & Levels**: Support for Spanish, English, Portuguese, and German across all proficiency levels (A1 to C2).
+- **Core Features**:
+    - Courses and lessons with detailed content (vocabulary, phrases, grammar).
+    - Flashcards for vocabulary with audio pronunciation.
+    - AI-powered quizzes to test knowledge.
+- **AI Integration**: AI-powered features for generating exercises and providing assistance.
+- **Authentication**: User registration and login using email and password.
+- **User Roles**: Separate roles and functionalities for students and teachers.
+- **Branding**: The app must use a specific logo, a color palette from a brand book, and the Aller typeface.
+- **Feature Request**: On the AI exercise results screen, display all questions again, highlighting the correct answer in green and the user's incorrect answer (if any) in red.
+
+**User's preferred language**: Spanish. The next agent MUST respond in Spanish.
+
+**what currently exists?**
+A full-stack application using Expo (React Native) for the frontend and FastAPI with MongoDB for the backend.
+- **Branding**: The app name, logo, and color scheme are implemented.
+- **Functionality**:
+    - User authentication (register/login) is implemented but has critical, unresolved bugs.
+    - Screens for Dashboard, Courses, Flashcards, AI Tools, and Profile are in place.
+    - The database has been populated with comprehensive course and flashcard content for Spanish, English, Portuguese, and German (A1-C2).
+    - Flashcards include an on-demand audio pronunciation feature using OpenAI TTS.
+    - AI-powered quiz generation is functional and accessible to all users (including non-logged-in ones).
+    - The backend has been made more robust by fixing deployment-readiness issues (missing env vars).
+
+**Last working item**:
+- Last item agent was working: The agent was implementing support for the German language. After adding the content to the database and updating the frontend constants, it was discovered that the German language option does not appear in the UI. The agent's last action was to view  to debug why the fourth language is not being rendered.
+- Status: IN PROGRESS
+- Agent Testing Done: N
+- Which testing method agent to use? screenshot tool or frontend testing agent after applying a fix to verify the UI.
+- User Testing Done: N
+
+**All Pending/In progress Issue list**:
+- Issue 1: German language is not visible in the UI (P0)
+- Issue 2: Registration button is unresponsive for the user (P1)
+- Issue 3: User session state is not persisted (P2)
+
+  Issues Detail:
+  - **Issue 1**:
+     - **Description**: The German language content exists in the backend, but the option to select it does not appear in the frontend UI (e.g., on the dashboard or courses screen). The agent suspects a hardcoded layout that only accommodates three languages.
+     - **Attempted fixes**: The agent updated the  and  constants in .
+     - **Next debug checklist**:
+        1.  Analyze  and  to understand how the language selectors/filters are rendered.
+        2.  Identify if the layout logic is static or fails to loop over all four languages from the  constant.
+        3.  Refactor the component to dynamically render all available languages.
+     - **Why fix this issue and what will be achieved with the fix?**: This will complete the German language integration, making all the newly added content accessible to users.
+     - **Status**: IN PROGRESS
+     - **Is recurring issue?**: N
+     - **Should Test frontend/backend/both after fix?**: Frontend.
+     - **Blocked on other issue**: No.
+
+  - **Issue 2**:
+     - **Description**: A critical carry-over issue. The user reports that the Registrarse button is unresponsive after filling out the form, blocking them from creating an account. The agent's automated tests have previously passed, indicating a discrepancy between the testing environment and the user's experience.
+     - **Attempted fixes**: (In previous forks) Replaced  with ; added a platform-specific check for web. No work was done on this in the current session.
+     - **Next debug checklist**:
+        1. Ask the user for their browser/device details and for any console errors (F12).
+        2. Add  statements to the  handler in  to confirm if the function is triggered on the user's side.
+     - **Why fix this issue and what will be achieved with the fix?**: This is a major blocker preventing user onboarding. Fixing it is essential for the app's usability.
+     - **Status**: NOT STARTED
+     - **Is recurring issue?**: Y
+     - **Should Test frontend/backend/both after fix?**: Frontend, with mandatory user verification.
+     - **Blocked on other issue**: No.
+
+  - **Issue 3**:
+     - **Description**: A carry-over issue. User login sessions are not persisted across browser refreshes. This was an intentional workaround by a previous agent to solve a loading bug.
+     - **Attempted fixes**: (In previous forks) The  middleware in the Zustand store () was disabled. No work was done on this in the current session.
+     - **Next debug checklist**:
+        1. Investigate the original  error related to .
+        2. Re-enable the  middleware in , configuring it to use .
+        3. Ensure the root layout () correctly handles the store's rehydration state.
+     - **Why fix this issue and what will be achieved with the fix?**: To provide a standard user experience where users remain logged in.
+     - **Status**: NOT STARTED
+     - **Is recurring issue?**: N
+     - **Should Test frontend/backend/both after fix?**: Frontend.
+     - **Blocked on other issue**: No.
+
+**In progress Task List**:
+- Task 1: Complete German Language Integration
+  - **Where to resume**: Fix the frontend UI in  and other relevant files to ensure the German language is displayed as a selectable option.
+  - **What will be achieved with this?**: Users will be able to access all German language courses and flashcards.
+  - **Status**: IN PROGRESS
+  - **Should Test frontend/backend/both after fix?**: Frontend.
+  - **Blocked on something**: No.
+
+**Upcoming and Future Tasks**
+- **Upcoming Tasks**:
+    - **P0**: Implement Aller Typography: Load and apply the custom Aller font files to the frontend.
+- **Future Tasks**:
+    - **P0**: Implement Teacher Role: Develop the backend and frontend components necessary for the profesores user role, including functionality to create courses and view student progress.
+
+**Completed work in this session**
+- **Content Population**: Added extensive courses, lessons, and flashcards for Spanish, English, and Portuguese. Fixed multiple issues with incorrect or insufficient content.
+- **Flashcard Audio Pronunciation**: Integrated OpenAI TTS to provide on-demand audio for flashcards. Implemented the backend endpoint and the frontend UI button, debugging layout issues to ensure visibility.
+- **AI Feature Accessibility Fix**: Modified AI-related backend endpoints to use optional authentication, fixing a  error and allowing non-logged-in users to use the feature.
+- **Deployment Readiness**: Ran a health check, added missing environment variables (, ), and removed hardcoded values to improve deployment stability.
+- **German Language Addition**: Added a full set of courses and flashcards for German (A1-C2) to the database and updated frontend constants.
+
+**Earlier issues found/mentioned but not fixed**
+- **Issue 1: Unresponsive Registration Button**: Critical issue from the initial handoff that has not been addressed.
+- **Issue 2: Lack of Session Persistence**: Critical issue from the initial handoff that has not been addressed.
+
+**Known issue recurrence from previous fork**
+- None.
+
+**Code Architecture**
+
+
+**Key Technical Concepts**
+- **Frontend**: React Native with Expo, Expo Router, Zustand
+- **Backend**: Python with FastAPI
+- **Database**: MongoDB
+- **AI/ML**: OpenAI GPT-4 for quizzes, OpenAI TTS for audio pronunciation.
+
+**key DB schema**
+- : { : string, : string, : string, : string }
+- : { : string, : string, : string, : array }
+- : { : string, : string, : string, : array }
+
+**changes in tech stack**
+- None.  was installed and used for TTS.
+
+**All files of reference**
+- : Modified for TTS endpoint and optional authentication on AI routes.
+- : Modified to add the audio pronunciation button and its logic.
+- : Updated to include 'German'.
+- : The primary file to investigate for fixing the German language display bug.
+- : The file related to the critical, unresolved registration bug.
+- : The file where session persistence needs to be re-enabled and fixed.
+
+**Areas that need refactoring**:
+- The language selection components in the frontend (, ) need to be refactored to dynamically display all languages available in  instead of a seemingly hardcoded limit of three.
+
+**key api endpoints**
+- : **(New)** Generates speech from text for flashcards.
+- : **(Modified)** Authentication is now optional.
+- : **(Modified)** Authentication is now optional.
+
+**Critical Info for New Agent**
+- **Prioritize Critical Bugs**: The user is experiencing two major bugs from the very beginning: an unresponsive registration button and no session persistence. While you should finish the German language UI fix, addressing these two issues should be the absolute next priority to unblock the user and provide a baseline usable app.
+- **User is Credit-Sensitive**: The user has expressed frustration over credit usage for tasks that required rework. Be efficient, bundle your changes, and communicate clearly about the work being done to manage expectations.
+- **Confirm Fixes Thoroughly**: Do not assume a fix is working just because it passes an automated test. The registration bug is a key example of this. When fixing UI/UX issues, user confirmation is paramount.
+
+**documents and test reports created in this job**
+-  has been updated multiple times.
+
+**Last 10 User Messages and any pending HUMAN messages**
+10.  (User approved adding the German language.) - **In Progress**
+9.  (User asked for the cost of adding German.) - **Completed**
+8.  (User approved adding more courses and reported that the AI feature was broken.) - **Completed**
+7.  (User requested more courses.) - **Completed**
+6.  (User reported that C1/C2 content was insufficient.) - **Completed**
+5.  (User reported that course content was mixed up between languages.) - **Completed**
+4.  (User requested the link to the app.) - **Completed**
+3.  (User reported that courses were empty shells.) - **Completed**
+2. 
+1. 
+
+**Project Health Check:**
+- **Broken**:
+    - User Registration (unresponsive button for the user).
+    - Session Persistence (users are logged out on refresh).
+    - UI for German language selection.
+- **Mocked**:
+    - Teacher Role functionality is non-existent.
+
+**3rd Party Integrations**
+- **OpenAI GPT-4** (AI Quizzes) — uses Emergent LLM Key.
+- **OpenAI TTS** (Flashcard Audio) — uses Emergent LLM Key.
+
+**Testing status**
+- Testing agent used after significant changes: NO
+- Troubleshoot agent used after agent stuck in loop: NO
+- Test files created: None
+- Known regressions: None new in this session, but the session persistence regression from a previous fork remains unfixed.
+
+**Credentials to test flow:**
+- **Email**: 
+- **Password**: 
+
+**What agent forgot to execute**
+- **Fix Critical Bugs**: The agent prioritized new features and content generation over fixing the two foundational bugs (registration and session persistence) that have been present from the start.
+- **Implement Custom Font**: The request to use the Aller font has been ignored.
+- **Implement Teacher Role**: No work has been done on the teacher role functionality, which was part of the original product requirements.</analysis>
