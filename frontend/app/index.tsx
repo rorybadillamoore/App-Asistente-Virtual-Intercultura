@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, ActivityIndicator } from 'react-native';
-import { useRouter } from 'expo-router';
+import { View, Text, StyleSheet, Image, ActivityIndicator, Pressable } from 'react-native';
+import { Link } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { Button } from '../src/components/Button';
 import { COLORS, SPACING, APP_NAME, APP_TAGLINE } from '../src/constants/theme';
 import { useAuthStore } from '../src/store/authStore';
 import { seedData } from '../src/api/client';
@@ -11,40 +10,21 @@ import { seedData } from '../src/api/client';
 const Logo = require('../assets/images/logo.png');
 
 export default function WelcomeScreen() {
-  const router = useRouter();
   const { isAuthenticated, isLoading, initializeAuth } = useAuthStore();
-  const [isMounted, setIsMounted] = useState(false);
-  const [hasNavigated, setHasNavigated] = useState(false);
+  const [ready, setReady] = useState(false);
 
-  // Mark component as mounted after first render
   useEffect(() => {
+    // Small delay to ensure layout is mounted
     const timer = setTimeout(() => {
-      setIsMounted(true);
-    }, 100);
+      initializeAuth();
+      seedData().catch(() => {});
+      setReady(true);
+    }, 200);
     return () => clearTimeout(timer);
   }, []);
 
-  // Initialize auth after mount
-  useEffect(() => {
-    if (isMounted) {
-      initializeAuth();
-      seedData().catch(() => {});
-    }
-  }, [isMounted]);
-
-  // Navigate only after everything is ready
-  useEffect(() => {
-    if (isMounted && !isLoading && isAuthenticated && !hasNavigated) {
-      setHasNavigated(true);
-      // Use setTimeout to ensure navigation happens after render cycle
-      setTimeout(() => {
-        router.replace('/(tabs)');
-      }, 50);
-    }
-  }, [isMounted, isLoading, isAuthenticated, hasNavigated]);
-
-  // Show loading while initializing
-  if (!isMounted || isLoading) {
+  // Show loading screen
+  if (!ready || isLoading) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
@@ -56,18 +36,34 @@ export default function WelcomeScreen() {
     );
   }
 
-  // Show loading while navigating
-  if (hasNavigated) {
+  // If authenticated, show link to go to dashboard
+  if (isAuthenticated) {
     return (
       <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <Image source={Logo} style={styles.loadingLogo} resizeMode="contain" />
-          <ActivityIndicator size="large" color={COLORS.primary} />
+        <View style={styles.content}>
+          <View style={styles.logoContainer}>
+            <Image source={Logo} style={styles.logo} resizeMode="contain" />
+            <Text style={styles.title}>{APP_NAME}</Text>
+            <Text style={styles.tagline}>{APP_TAGLINE}</Text>
+          </View>
+          
+          <View style={styles.welcomeBack}>
+            <Ionicons name="checkmark-circle" size={48} color={COLORS.success} />
+            <Text style={styles.welcomeText}>¡Bienvenido de nuevo!</Text>
+          </View>
+
+          <Link href="/(tabs)" asChild>
+            <Pressable style={styles.continueButton}>
+              <Text style={styles.continueButtonText}>Continuar al Dashboard</Text>
+              <Ionicons name="arrow-forward" size={20} color={COLORS.white} />
+            </Pressable>
+          </Link>
         </View>
       </SafeAreaView>
     );
   }
 
+  // Not authenticated - show login/register options
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
@@ -115,17 +111,16 @@ export default function WelcomeScreen() {
         </View>
 
         <View style={styles.buttonContainer}>
-          <Button 
-            title="Iniciar Sesión" 
-            onPress={() => router.push('/login')}
-            style={styles.primaryButton}
-          />
-          <Button 
-            title="Crear Cuenta" 
-            onPress={() => router.push('/register')}
-            variant="outline"
-            style={styles.secondaryButton}
-          />
+          <Link href="/login" asChild>
+            <Pressable style={styles.primaryButton}>
+              <Text style={styles.primaryButtonText}>Iniciar Sesión</Text>
+            </Pressable>
+          </Link>
+          <Link href="/register" asChild>
+            <Pressable style={styles.secondaryButton}>
+              <Text style={styles.secondaryButtonText}>Crear Cuenta</Text>
+            </Pressable>
+          </Link>
         </View>
       </View>
     </SafeAreaView>
@@ -177,6 +172,31 @@ const styles = StyleSheet.create({
     color: COLORS.secondary,
     textAlign: 'center',
     marginTop: SPACING.xs,
+  },
+  welcomeBack: {
+    alignItems: 'center',
+    marginBottom: SPACING.xl,
+  },
+  welcomeText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: COLORS.gray700,
+    marginTop: SPACING.md,
+  },
+  continueButton: {
+    backgroundColor: COLORS.primary,
+    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.xl,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: SPACING.sm,
+  },
+  continueButtonText: {
+    color: COLORS.white,
+    fontSize: 16,
+    fontWeight: '600',
   },
   featuresContainer: {
     marginBottom: SPACING.lg,
@@ -231,9 +251,27 @@ const styles = StyleSheet.create({
     gap: SPACING.md,
   },
   primaryButton: {
-    width: '100%',
+    backgroundColor: COLORS.primary,
+    paddingVertical: SPACING.md,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  primaryButtonText: {
+    color: COLORS.white,
+    fontSize: 16,
+    fontWeight: '600',
   },
   secondaryButton: {
-    width: '100%',
+    backgroundColor: COLORS.white,
+    paddingVertical: SPACING.md,
+    borderRadius: 12,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: COLORS.primary,
+  },
+  secondaryButtonText: {
+    color: COLORS.primary,
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
