@@ -12,10 +12,10 @@ interface AuthState {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
-  _hasHydrated: boolean;
+  isLoading: boolean;
   setAuth: (user: User, token: string) => void;
   clearAuth: () => void;
-  setHasHydrated: (state: boolean) => void;
+  initializeAuth: () => void;
 }
 
 // Helper to safely access localStorage
@@ -43,28 +43,30 @@ const saveAuth = (user: User | null, token: string | null, isAuthenticated: bool
   }
 };
 
-export const useAuthStore = create<AuthState>()((set) => {
-  // Initialize from localStorage if available
-  const stored = getStoredAuth();
-  
-  // Set hydrated after a tick to allow initial render
-  setTimeout(() => {
-    useAuthStore.setState({ _hasHydrated: true });
-  }, 0);
-  
-  return {
-    user: stored?.user || null,
-    token: stored?.token || null,
-    isAuthenticated: stored?.isAuthenticated || false,
-    _hasHydrated: false,
-    setAuth: (user, token) => {
-      saveAuth(user, token, true);
-      set({ user, token, isAuthenticated: true });
-    },
-    clearAuth: () => {
-      saveAuth(null, null, false);
-      set({ user: null, token: null, isAuthenticated: false });
-    },
-    setHasHydrated: (state) => set({ _hasHydrated: state }),
-  };
-});
+export const useAuthStore = create<AuthState>()((set) => ({
+  user: null,
+  token: null,
+  isAuthenticated: false,
+  isLoading: true,
+  setAuth: (user, token) => {
+    saveAuth(user, token, true);
+    set({ user, token, isAuthenticated: true, isLoading: false });
+  },
+  clearAuth: () => {
+    saveAuth(null, null, false);
+    set({ user: null, token: null, isAuthenticated: false, isLoading: false });
+  },
+  initializeAuth: () => {
+    const stored = getStoredAuth();
+    if (stored?.isAuthenticated && stored?.user && stored?.token) {
+      set({ 
+        user: stored.user, 
+        token: stored.token, 
+        isAuthenticated: true, 
+        isLoading: false 
+      });
+    } else {
+      set({ isLoading: false });
+    }
+  },
+}));

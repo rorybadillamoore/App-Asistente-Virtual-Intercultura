@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Image, ActivityIndicator } from 'react-native';
-import { Redirect } from 'expo-router';
-import { useRouter } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Button } from '../src/components/Button';
@@ -13,24 +12,26 @@ const Logo = require('../assets/images/logo.png');
 
 export default function WelcomeScreen() {
   const router = useRouter();
-  const { isAuthenticated, _hasHydrated } = useAuthStore();
+  const { isAuthenticated, isLoading, initializeAuth } = useAuthStore();
 
   useEffect(() => {
+    initializeAuth();
     seedData().catch(() => {});
   }, []);
 
-  // Show loading while hydrating
-  if (!_hasHydrated) {
+  // Show loading while checking auth
+  if (isLoading) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
+          <Image source={Logo} style={styles.loadingLogo} resizeMode="contain" />
           <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
       </SafeAreaView>
     );
   }
 
-  // Use Redirect component instead of router.replace for safer navigation
+  // Redirect to dashboard if authenticated
   if (isAuthenticated) {
     return <Redirect href="/(tabs)" />;
   }
@@ -61,40 +62,37 @@ export default function WelcomeScreen() {
           </View>
           <View style={styles.featureRow}>
             <View style={styles.feature}>
-              <View style={[styles.featureIcon, { backgroundColor: COLORS.portuguese + '20' }]}>
-                <Ionicons name="checkmark-circle" size={24} color={COLORS.portuguese} />
+              <View style={[styles.featureIcon, { backgroundColor: COLORS.warning + '20' }]}>
+                <Ionicons name="checkmark-circle" size={24} color={COLORS.warning} />
               </View>
               <Text style={styles.featureText}>Quizzes</Text>
             </View>
             <View style={styles.feature}>
-              <View style={[styles.featureIcon, { backgroundColor: COLORS.primaryLight + '20' }]}>
-                <Ionicons name="sparkles" size={24} color={COLORS.primary} />
+              <View style={[styles.featureIcon, { backgroundColor: COLORS.success + '20' }]}>
+                <Ionicons name="sparkles" size={24} color={COLORS.success} />
               </View>
               <Text style={styles.featureText}>IA Asistente</Text>
             </View>
           </View>
         </View>
 
-        <View style={styles.levelsContainer}>
-          <Text style={styles.levelsTitle}>Niveles A1 - C2</Text>
-          <Text style={styles.levelsSubtitle}>Metodología Cambridge</Text>
-          <Text style={styles.established}>Est. 1993 • Pura Vida</Text>
+        <View style={styles.infoCard}>
+          <Text style={styles.infoTitle}>Niveles A1 - C2</Text>
+          <Text style={styles.infoText}>Metodología Cambridge</Text>
+          <Text style={styles.infoSubtext}>Est. 1993 • Pura Vida</Text>
         </View>
 
         <View style={styles.buttonContainer}>
-          <Button
-            title="Iniciar Sesión"
+          <Button 
+            title="Iniciar Sesión" 
             onPress={() => router.push('/login')}
-            variant="primary"
-            size="lg"
-            style={styles.button}
+            style={styles.primaryButton}
           />
-          <Button
-            title="Crear Cuenta"
+          <Button 
+            title="Crear Cuenta" 
             onPress={() => router.push('/register')}
             variant="outline"
-            size="lg"
-            style={styles.button}
+            style={styles.secondaryButton}
           />
         </View>
       </View>
@@ -112,6 +110,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  loadingLogo: {
+    width: 100,
+    height: 100,
+    marginBottom: SPACING.lg,
+  },
   content: {
     flex: 1,
     padding: SPACING.lg,
@@ -122,29 +125,24 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.xl,
   },
   logo: {
-    width: 180,
-    height: 180,
+    width: 120,
+    height: 120,
     marginBottom: SPACING.md,
   },
   title: {
-    fontSize: 36,
-    fontWeight: '800',
+    fontSize: 32,
+    fontWeight: '700',
     color: COLORS.primary,
-    marginBottom: SPACING.xs,
-  },
-  tagline: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: COLORS.primaryLight,
-    marginBottom: SPACING.xs,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: COLORS.gray500,
     textAlign: 'center',
   },
+  tagline: {
+    fontSize: 16,
+    color: COLORS.secondary,
+    textAlign: 'center',
+    marginTop: SPACING.xs,
+  },
   featuresContainer: {
-    marginBottom: SPACING.xl,
+    marginBottom: SPACING.lg,
   },
   featureRow: {
     flexDirection: 'row',
@@ -154,48 +152,51 @@ const styles = StyleSheet.create({
   },
   feature: {
     alignItems: 'center',
-    width: 100,
   },
   featureIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: SPACING.xs,
   },
   featureText: {
-    fontSize: 14,
+    fontSize: 12,
+    fontWeight: '500',
     color: COLORS.gray600,
   },
-  levelsContainer: {
+  infoCard: {
+    backgroundColor: COLORS.white,
+    padding: SPACING.lg,
+    borderRadius: 16,
     alignItems: 'center',
     marginBottom: SPACING.xl,
-    backgroundColor: COLORS.white,
-    padding: SPACING.md,
-    borderRadius: 12,
     borderLeftWidth: 4,
     borderLeftColor: COLORS.primary,
   },
-  levelsTitle: {
+  infoTitle: {
     fontSize: 18,
     fontWeight: '700',
     color: COLORS.gray900,
   },
-  levelsSubtitle: {
+  infoText: {
     fontSize: 14,
-    color: COLORS.gray500,
+    color: COLORS.gray600,
+    marginTop: SPACING.xs,
   },
-  established: {
+  infoSubtext: {
     fontSize: 12,
-    color: COLORS.primaryLight,
-    fontWeight: '600',
+    color: COLORS.secondary,
     marginTop: SPACING.xs,
   },
   buttonContainer: {
     gap: SPACING.md,
   },
-  button: {
+  primaryButton: {
+    width: '100%',
+  },
+  secondaryButton: {
     width: '100%',
   },
 });
