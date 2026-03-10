@@ -197,6 +197,22 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
+# Optional authentication - allows both authenticated and unauthenticated requests
+from fastapi.security import HTTPAuthorizationCredentials as OptionalHTTPAuthorizationCredentials
+optional_security = HTTPBearer(auto_error=False)
+
+async def get_current_user_optional(credentials: OptionalHTTPAuthorizationCredentials = Depends(optional_security)):
+    """Returns user if authenticated, None otherwise"""
+    if not credentials:
+        return None
+    try:
+        token = credentials.credentials
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        user = await db.users.find_one({"_id": ObjectId(payload["user_id"])})
+        return user
+    except:
+        return None
+
 # ================== AUTH ROUTES ==================
 
 @api_router.post("/auth/register", response_model=TokenResponse)
@@ -529,7 +545,7 @@ async def get_progress(current_user: dict = Depends(get_current_user)):
 # ================== AI ROUTES ==================
 
 @api_router.post("/ai/generate-exercise")
-async def generate_exercise(request: AIExerciseRequest, current_user: dict = Depends(get_current_user)):
+async def generate_exercise(request: AIExerciseRequest, current_user: dict = Depends(get_current_user_optional)):
     try:
         from emergentintegrations.llm.chat import LlmChat, UserMessage
         
@@ -537,13 +553,16 @@ async def generate_exercise(request: AIExerciseRequest, current_user: dict = Dep
         if not api_key:
             raise HTTPException(status_code=500, detail="AI service not configured")
         
+        # Generate a session ID (use user_id if available, otherwise random)
+        user_id = str(current_user['_id']) if current_user else "anonymous"
+        
         system_message = f"""You are an expert language teacher specializing in {request.language} following Cambridge methodology.
 Generate educational exercises appropriate for {request.level} level students.
 Always respond in a structured JSON format."""
 
         chat = LlmChat(
             api_key=api_key,
-            session_id=f"exercise-{str(current_user['_id'])}-{datetime.utcnow().timestamp()}",
+            session_id=f"exercise-{user_id}-{datetime.utcnow().timestamp()}",
             system_message=system_message
         ).with_model("openai", "gpt-4o")
 
@@ -635,7 +654,7 @@ async def generate_tts(request: TTSRequest):
         raise HTTPException(status_code=500, detail=f"TTS generation failed: {str(e)}")
 
 @api_router.post("/ai/explain")
-async def explain_concept(language: str, level: str, concept: str, current_user: dict = Depends(get_current_user)):
+async def explain_concept(language: str, level: str, concept: str, current_user: dict = Depends(get_current_user_optional)):
     try:
         from emergentintegrations.llm.chat import LlmChat, UserMessage
         

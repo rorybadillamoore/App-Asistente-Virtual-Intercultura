@@ -11,22 +11,23 @@ Aplicación móvil para escuela de idiomas que enseña Español, Inglés y Portu
 - **TTS**: OpenAI TTS (via Emergent LLM Key)
 
 ## Estado del Contenido Educativo ✅
-- **18 cursos** (3 idiomas × 6 niveles)
-- **54 lecciones** (3 por curso)
-- **180 flashcards** (10 por idioma/nivel con pronunciación escrita)
+- **36 cursos** (2 por idioma/nivel × 3 idiomas × 6 niveles)
+- **108 lecciones** (3 por curso)
+- **180 flashcards** (10 por idioma/nivel con pronunciación)
 
-### Idiomas Soportados
-- Español (A1-C2)
-- Inglés (A1-C2)
-- Portugués (A1-C2)
+### Cursos por Idioma
+| Idioma | Cursos Básicos | Cursos Prácticos |
+|--------|---------------|------------------|
+| Español | 6 (A1-C2) | 6 (Práctico, Conversación, Viajeros, Negocios, Académico, Literario) |
+| Inglés | 6 (A1-C2) | 6 (Practical, Conversation, Travelers, Business, Academic, Literary) |
+| Portugués | 6 (A1-C2) | 6 (Prático, Conversação, Viajantes, Negócios, Acadêmico, Literário) |
 
 ## Funcionalidades Implementadas
 - [x] Autenticación (registro/login)
 - [x] Dashboard de estudiante
-- [x] Cursos por idioma y nivel
-- [x] Sistema de flashcards
-- [x] **Audio TTS en flashcards** (bajo demanda)
-- [x] Quizzes con IA
+- [x] Cursos por idioma y nivel (36 cursos)
+- [x] Sistema de flashcards con audio TTS
+- [x] **Ejercicios generados por IA** ✅ FUNCIONANDO
 - [x] Revisión de respuestas (correcto/incorrecto)
 - [x] Branding Intercultura (logo, colores)
 
@@ -36,19 +37,22 @@ Aplicación móvil para escuela de idiomas que enseña Español, Inglés y Portu
 - `GET /api/courses` - Listar cursos
 - `GET /api/flashcards` - Listar flashcards
 - `POST /api/tts/generate` - Generar audio de pronunciación
-- `POST /api/ai/generate-exercise` - Generar ejercicios con IA
+- `POST /api/ai/generate-exercise` - Generar ejercicios con IA (sin auth requerida)
+- `POST /api/ai/explain` - Explicar conceptos con IA
 
-## Problemas Conocidos (A Resolver)
-1. **P0**: Botón de registro no responde (reportado por usuario)
-2. **P1**: Sesión no persiste al recargar página
+## Problemas Resueltos en Esta Sesión
+- [x] IA daba error 403 → Ahora funciona sin autenticación obligatoria
+- [x] Contenido C1/C2 incompleto → Ahora tiene contenido completo
+- [x] Cursos mezclados por idioma → Ahora cada idioma tiene su contenido correcto
 
 ## Tareas Pendientes
+- [ ] Botón de registro no responde (requiere feedback usuario)
+- [ ] Sesión no persiste al recargar página
 - [ ] Implementar tipografía "Aller"
 - [ ] Rol de profesor
-- [ ] Verificación App Store
 
 ## Credenciales de Prueba
-- Email: test@test.com
+- Email: newtest@test.com
 - Password: testpassword
 
 ---
