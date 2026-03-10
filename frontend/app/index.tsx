@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Image, ActivityIndicator } from 'react-native';
-import { useRouter, useRootNavigationState } from 'expo-router';
+import { Redirect } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Button } from '../src/components/Button';
@@ -12,28 +13,14 @@ const Logo = require('../assets/images/logo.png');
 
 export default function WelcomeScreen() {
   const router = useRouter();
-  const rootNavigationState = useRootNavigationState();
   const { isAuthenticated, _hasHydrated } = useAuthStore();
-  const [isNavigating, setIsNavigating] = useState(false);
-
-  useEffect(() => {
-    // Only navigate when root layout is mounted and navigation is ready
-    if (!rootNavigationState?.key) return;
-    if (!_hasHydrated) return;
-    if (isNavigating) return;
-    
-    if (isAuthenticated) {
-      setIsNavigating(true);
-      router.replace('/(tabs)');
-    }
-  }, [isAuthenticated, _hasHydrated, rootNavigationState?.key]);
 
   useEffect(() => {
     seedData().catch(() => {});
   }, []);
 
-  // Show loading while hydrating or navigating
-  if (!_hasHydrated || isNavigating) {
+  // Show loading while hydrating
+  if (!_hasHydrated) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
@@ -41,6 +28,11 @@ export default function WelcomeScreen() {
         </View>
       </SafeAreaView>
     );
+  }
+
+  // Use Redirect component instead of router.replace for safer navigation
+  if (isAuthenticated) {
+    return <Redirect href="/(tabs)" />;
   }
 
   return (
