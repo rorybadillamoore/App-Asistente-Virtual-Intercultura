@@ -288,18 +288,25 @@ async def get_courses(language: Optional[str] = None, level: Optional[str] = Non
         query["level"] = level.upper()
     
     courses = await db.courses.find(query).to_list(100)
+    
+    # Optimized: Get all lesson counts in one aggregation query
+    lesson_counts = await db.lessons.aggregate([
+        {"$group": {"_id": "$course_id", "count": {"$sum": 1}}}
+    ]).to_list(None)
+    lesson_count_map = {item["_id"]: item["count"] for item in lesson_counts}
+    
     result = []
     for course in courses:
-        lesson_count = await db.lessons.count_documents({"course_id": str(course["_id"])})
+        course_id = str(course["_id"])
         result.append(CourseResponse(
-            id=str(course["_id"]),
+            id=course_id,
             language=course["language"],
             level=course["level"],
             title=course["title"],
             description=course["description"],
             created_by=course["created_by"],
             created_at=course["created_at"],
-            lesson_count=lesson_count
+            lesson_count=lesson_count_map.get(course_id, 0)
         ))
     return result
 
@@ -497,16 +504,14 @@ async def get_progress(current_user: dict = Depends(get_current_user)):
     quiz_scores = progress.get("quiz_scores", [])
     avg_score = sum(q["score"] for q in quiz_scores) / len(quiz_scores) if quiz_scores else 0.0
     
-    # Count unique courses from completed lessons
+    # Optimized: Batch query all lessons at once
     completed_lessons = progress.get("completed_lessons", [])
     courses_started = set()
-    for lesson_id in completed_lessons:
-        try:
-            lesson = await db.lessons.find_one({"_id": ObjectId(lesson_id)})
-            if lesson:
-                courses_started.add(lesson["course_id"])
-        except:
-            pass
+    if completed_lessons:
+        valid_ids = [ObjectId(lid) for lid in completed_lessons if ObjectId.is_valid(lid)]
+        if valid_ids:
+            lessons = await db.lessons.find({"_id": {"$in": valid_ids}}, {"course_id": 1}).to_list(None)
+            courses_started = set(lesson["course_id"] for lesson in lessons)
     
     return ProgressResponse(
         user_id=user_id,
