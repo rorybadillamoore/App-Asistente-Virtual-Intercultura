@@ -8,6 +8,8 @@ import { COLORS, SPACING, APP_NAME, APP_TAGLINE } from '../src/constants/theme';
 import { useAuthStore } from '../src/store/authStore';
 import { seedData } from '../src/api/client';
 
+const Logo = require('../assets/images/logo.png');
+
 export default function WelcomeScreen() {
   const router = useRouter();
   const { isAuthenticated } = useAuthStore();
@@ -16,7 +18,6 @@ export default function WelcomeScreen() {
     if (isAuthenticated) {
       router.replace('/(tabs)');
     }
-    // Seed data on first load
     seedData().catch(() => {});
   }, [isAuthenticated]);
 
@@ -24,15 +25,9 @@ export default function WelcomeScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.logoContainer}>
-          {/* Logo Circle with Brand Colors */}
-          <View style={styles.logoCircle}>
-            <View style={styles.logoInner}>
-              <Ionicons name="globe-outline" size={50} color={COLORS.white} />
-            </View>
-          </View>
+          <Image source={Logo} style={styles.logo} resizeMode="contain" />
           <Text style={styles.title}>{APP_NAME}</Text>
           <Text style={styles.tagline}>{APP_TAGLINE}</Text>
-          <Text style={styles.subtitle}>Español • English • Português</Text>
         </View>
 
         <View style={styles.featuresContainer}>
@@ -107,24 +102,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: SPACING.xl,
   },
-  logoCircle: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: COLORS.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: SPACING.lg,
-    borderWidth: 4,
-    borderColor: COLORS.primaryLight,
-  },
-  logoInner: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: COLORS.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
+  logo: {
+    width: 180,
+    height: 180,
+    marginBottom: SPACING.md,
   },
   title: {
     fontSize: 36,
