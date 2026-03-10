@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, ActivityIndicator } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useRootNavigationState } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Button } from '../src/components/Button';
@@ -12,17 +12,28 @@ const Logo = require('../assets/images/logo.png');
 
 export default function WelcomeScreen() {
   const router = useRouter();
+  const rootNavigationState = useRootNavigationState();
   const { isAuthenticated, _hasHydrated } = useAuthStore();
+  const [isNavigating, setIsNavigating] = useState(false);
 
   useEffect(() => {
-    if (_hasHydrated && isAuthenticated) {
+    // Only navigate when root layout is mounted and navigation is ready
+    if (!rootNavigationState?.key) return;
+    if (!_hasHydrated) return;
+    if (isNavigating) return;
+    
+    if (isAuthenticated) {
+      setIsNavigating(true);
       router.replace('/(tabs)');
     }
-    seedData().catch(() => {});
-  }, [isAuthenticated, _hasHydrated]);
+  }, [isAuthenticated, _hasHydrated, rootNavigationState?.key]);
 
-  // Show loading while hydrating
-  if (!_hasHydrated) {
+  useEffect(() => {
+    seedData().catch(() => {});
+  }, []);
+
+  // Show loading while hydrating or navigating
+  if (!_hasHydrated || isNavigating) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
