@@ -1,123 +1,87 @@
-# Intercultura Asistente Virtual - PRD
+# PRD: Intercultura Asistente Virtual
 
-## Descripción del Producto
-Aplicación móvil para escuela de idiomas que enseña Español, Inglés, Portugués y Alemán siguiendo la metodología Cambridge.
+## Original Problem Statement
+Crear una aplicación móvil (PWA) "Intercultura Asistente Virtual" para una escuela de idiomas costarricense.
 
-## Stack Tecnológico
-- **Frontend**: Expo (React Native) con TypeScript
-- **Backend**: FastAPI (Python)
-- **Base de Datos**: MongoDB Atlas (Cloud) ✅ CONFIGURADO
-- **IA**: OpenAI GPT-4o (via Emergent LLM Key)
-- **TTS**: OpenAI TTS (via Emergent LLM Key)
+## Target Users
+- **Estudiantes**: Aprenden idiomas con lecciones, flashcards, quizzes y ejercicios IA
+- **Profesores**: Ven el progreso de sus estudiantes en un panel de control
 
-## Estado del Contenido Educativo
-- **24 cursos** (6 niveles × 4 idiomas)
-- **72 lecciones** (3 por curso)
-- **4 flashcard decks** (1 por idioma nivel A1)
-- **24 quizzes** (1 por curso con 5 preguntas cada uno)
+## Core Requirements
+- Soporte para 5 idiomas: Español, Inglés, Portugués, Alemán, **Francés** (A1-C2)
+- Lecciones, cursos, flashcards con audio TTS, quizzes IA
+- Ejercicios IA generativos (gramática, vocabulario, lectura, escritura)
+- Autenticación email/contraseña con roles estudiante/profesor
+- Branding Intercultura (sin branding Emergent)
 
-### Cursos por Idioma
-| Idioma | Cursos | Quizzes | Niveles |
-|--------|--------|---------|---------|
-| Español | 6 | 6 | A1-C2 |
-| Inglés | 6 | 6 | A1-C2 |
-| Portugués | 6 | 6 | A1-C2 |
-| Alemán | 6 | 6 | A1-C2 |
+## Architecture
+- **Frontend**: React Native con Expo, Expo Router, Zustand
+- **Backend**: Python FastAPI
+- **Database**: MongoDB Atlas (usuario)
+- **AI**: OpenAI GPT-4 (ejercicios), ElevenLabs + fallback OpenAI TTS (audio)
 
-## Funcionalidades Implementadas
+## What's Been Implemented
 
-### Autenticación
-- [x] Registro de usuarios (estudiantes/profesores)
-- [x] Login con email/contraseña
-- [x] Persistencia de sesión (localStorage)
-- [x] Roles diferenciados (estudiante/profesor)
-- [x] **Logout funcional con redirección** ✅ CORREGIDO
+### ✅ Authentication
+- Registro y login con email/contraseña
+- Roles: estudiante y profesor
+- Logout funcional (workaround con window.location.reload para evitar bug de expo-router)
+- Sesión persistente con Zustand
 
-### Perfil de Usuario
-- [x] **Menú de perfil funcional** ✅ CORREGIDO
-  - Mi Progreso → Dashboard
-  - Mis Cursos → Cursos
-  - Mis Quizzes → Quizzes
-- [x] **Botón Cerrar Sesión funcionando** ✅ CORREGIDO
+### ✅ Content (5 Languages, 6 Levels each)
+- **Courses**: 30 cursos (5 idiomas × 6 niveles)
+- **Lessons**: 180 lecciones (5 idiomas × 6 niveles × 6 lecciones)
+- **Flashcards**: 300 flashcards (5 idiomas × 6 niveles × 10 flashcards)
+- **Quizzes**: 30 quizzes (5 idiomas × 6 niveles)
+- **Idiomas**: Español, Inglés, Portugués, Alemán, **Francés** (añadido mar 2026)
 
-### Branding PWA
-- [x] **Logo de Intercultura en Add to Home Screen** ✅ CORREGIDO
-- [x] Favicon, icon, adaptive-icon actualizados
+### ✅ AI Features
+- Ejercicios generativos con GPT-4 (gramática, vocabulario, lectura, escritura)
+- Soporte para todos los idiomas incluyendo francés
+- Resultados con respuestas correctas/incorrectas destacadas
 
-### Estudiantes
-- [x] Dashboard con progreso personal
-- [x] 4 idiomas disponibles (ES, EN, PT, DE)
-- [x] Cursos por idioma y nivel (24 cursos)
-- [x] Sistema de flashcards con audio TTS
-- [x] Quizzes con promedios por idioma
-- [x] Ejercicios generados por IA
-- [x] **Revisión de respuestas con colores** ✅ (verde=correcto, rojo=incorrecto)
+### ✅ TTS Audio
+- ElevenLabs con fallback automático a OpenAI TTS
+- Nota: ElevenLabs Free Tier bloqueado desde servidores cloud. Usuario necesita plan Starter ($5/mes) para usar ElevenLabs nativo
 
-### Profesores
-- [x] Panel del Profesor
-- [x] Ver lista de estudiantes
-- [x] Estadísticas generales
-- [x] Progreso individual por estudiante
+### ✅ Pantallas Nuevas (mar 2026)
+- **Mi Progreso** (`/progress`): Stats por idioma con lecciones, quizzes, flashcards
+- **Configuración** (`/settings`): Toggles de notificaciones, sonido, reproducción automática
+- **Ayuda** (`/help`): FAQ expandibles, datos de contacto, consejos
+- **Acerca de** (`/about`): Info de empresa, características, versión 1.0.0
 
-## Base de Datos
+### ✅ PWA
+- Ícono correcto de Intercultura (logo.png)
+- manifest.json con name, short_name, theme_color #003189
+- apple-touch-icon y favicon correctos
+- `+html.tsx` con meta tags PWA completos
 
-### MongoDB Atlas (Cloud)
-- **Cluster**: cluster0.3ffi81o.mongodb.net
-- **Database**: polyglot_academy
-- **Estado**: ✅ CONECTADO Y FUNCIONANDO
+### ✅ Teacher Dashboard
+- Panel de progreso de estudiantes
+- Optimizado para evitar N+1 queries
 
-### Endpoints de Seed
-- `POST /api/seed-full` - Poblar base de datos completa
-- `POST /api/seed-quizzes` - Poblar solo quizzes
+## Test Credentials
+- **Estudiante**: testuser123@test.com / password123
+- **Profesor**: profesor@test.com / profesor123
 
-## API Endpoints
+## Preview URL
+https://polyglot-lang.preview.emergentagent.com
 
-### Autenticación
-- `POST /api/auth/register` - Registro de usuario
-- `POST /api/auth/login` - Login
-- `GET /api/auth/me` - Usuario actual
+## Prioritized Backlog
 
-### Cursos y Contenido
-- `GET /api/courses` - Listar cursos (filtros: language, level)
-- `GET /api/flashcards` - Listar flashcards
-- `POST /api/tts/generate` - Generar audio de pronunciación
+### P0 - Inmediato
+- **Despliegue**: Usuario debe hacer clic en el botón "Deploy" en la UI de Emergent para obtener URL permanente
 
-### Quizzes
-- `GET /api/quizzes` - Listar todos los quizzes
-- `GET /api/quizzes/{id}` - Obtener quiz
-- `POST /api/quizzes/{id}/submit` - Enviar respuestas
+### P1 - Próximo
+- **ElevenLabs Paid**: Usuario debe actualizar a plan Starter de ElevenLabs ($5/mes) para audio nativo de calidad superior
+- **Fuente "Aller"**: Implementar la fuente corporativa de Intercultura
 
-### Progreso
-- `GET /api/progress` - Progreso del usuario
-- `GET /api/progress/by-language` - Progreso por idioma
+### P2 - Backlog
+- Edición de perfil (nombre, foto)
+- Cambio de contraseña
+- Notificaciones push reales
+- Preparación para tiendas de apps (.apk / .ipa)
 
-### Panel Profesor
-- `GET /api/teacher/students` - Lista de estudiantes
-- `GET /api/teacher/stats` - Estadísticas generales
-
-### IA
-- `POST /api/ai/generate-exercise` - Generar ejercicios con IA
-- `POST /api/ai/explain` - Explicar conceptos con IA
-
-## Credenciales de Prueba
-
-### Estudiante
-- Email: testuser123@test.com
-- Password: password123
-
-### Profesor
-- Email: profesor@test.com
-- Password: profesor123
-
-## Tareas Pendientes
-- [ ] Implementar tipografía "Aller" (fuente personalizada)
-- [ ] Preparar builds móviles (.apk/.ipa) con EAS
-
-## Próximos pasos sugeridos
-1. Despliegue a producción (Deploy)
-2. Agregar más flashcards para todos los niveles
-3. Sistema de notificaciones
-4. Exportar reportes de progreso
-
----
-*Última actualización: 11 Marzo 2026*
+## Known Technical Debt
+- Logout usa `window.location.reload` (workaround para bug de expo-router en web)
+- ElevenLabs requiere plan de pago para funcionar desde servidor cloud (Free Tier bloqueado por IP de servidor)

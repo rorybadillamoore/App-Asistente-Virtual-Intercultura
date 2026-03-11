@@ -606,7 +606,18 @@ async def get_progress_by_language(current_user: dict = Depends(get_current_user
     progress = await db.progress.find_one({"user_id": user_id})
     
     if not progress:
-        return []
+        # Return all languages with 0 stats for new users (consistent with /progress endpoint)
+        languages = ["spanish", "english", "portuguese", "german", "french"]
+        return [
+            {
+                "language": lang,
+                "lessons_completed": 0,
+                "quizzes_taken": 0,
+                "average_score": 0.0,
+                "flashcards_reviewed": 0
+            }
+            for lang in languages
+        ]
     
     # Get completed lessons with their course info
     completed_lessons = progress.get("completed_lessons", [])
