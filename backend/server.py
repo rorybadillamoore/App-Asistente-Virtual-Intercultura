@@ -707,13 +707,34 @@ Always respond in a structured JSON format."""
             system_message=system_message
         ).with_model("openai", "gpt-4o")
 
+        # Build reading passage instruction if needed
+        reading_instruction = ""
+        if request.exercise_type == "reading":
+            reading_instruction = "IMPORTANT: For reading exercises, you MUST include a reading passage (texto de lectura) of 100-150 words that the student needs to read before answering the questions. The questions should be about the content of the passage."
+        
+        # Build writing instruction if needed
+        writing_instruction = ""
+        if request.exercise_type == "writing":
+            writing_instruction = "IMPORTANT: For writing exercises, provide clear writing prompts that ask the student to write sentences or short paragraphs. Each question should give specific context and guidance for what to write."
+        
+        # Build reading passage field if needed
+        reading_field = ""
+        if request.exercise_type == "reading":
+            reading_field = f'"reading_passage": "A reading text of 100-150 words in {request.language} appropriate for {request.level} level",'
+
         prompt = f"""Generate a {request.exercise_type} exercise for {request.language} learners at {request.level} level.
 Topic: {request.topic}
 
+{reading_instruction}
+
+{writing_instruction}
+
 Return a JSON object with this structure:
 {{
-    "title": "Exercise title",
-    "instructions": "Clear instructions for the student",
+    "title": "Exercise title in {request.language}",
+    "description": "Brief description of what this exercise will help the student practice",
+    "instructions": "Clear instructions for the student in Spanish",
+    {reading_field}
     "questions": [
         {{
             "question": "The question text",
@@ -728,7 +749,8 @@ Return a JSON object with this structure:
     "grammar_tip": "A helpful grammar tip related to the topic"
 }}
 
-Generate 5 questions and 5 vocabulary items."""
+Generate 5 questions and 5 vocabulary items.
+All content should be appropriate for {request.level} level."""
 
         user_message = UserMessage(text=prompt)
         response = await chat.send_message(user_message)

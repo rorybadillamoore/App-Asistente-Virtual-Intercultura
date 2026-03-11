@@ -9,7 +9,9 @@ import { Button } from '../src/components/Button';
 
 interface Exercise {
   title: string;
+  description?: string;
   instructions: string;
+  reading_passage?: string;
   questions: Array<{
     question: string;
     options: string[];
@@ -327,6 +329,17 @@ export default function AIExerciseScreen() {
             </View>
           )}
 
+          {/* Reading Passage for reading exercises */}
+          {exercise.reading_passage && (
+            <View style={styles.readingPassageCard}>
+              <View style={styles.readingPassageHeader}>
+                <Ionicons name="reader" size={20} color={COLORS.primary} />
+                <Text style={styles.readingPassageTitle}>Texto de Lectura</Text>
+              </View>
+              <Text style={styles.readingPassageText}>{exercise.reading_passage}</Text>
+            </View>
+          )}
+
           {/* Progress */}
           <View style={styles.progressContainer}>
             <View style={styles.progressBar}>
@@ -485,6 +498,30 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.gray700,
     lineHeight: 20,
+  },
+  readingPassageCard: {
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    padding: SPACING.md,
+    marginBottom: SPACING.md,
+    borderLeftWidth: 4,
+    borderLeftColor: COLORS.primary,
+  },
+  readingPassageHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
+    marginBottom: SPACING.sm,
+  },
+  readingPassageTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.primary,
+  },
+  readingPassageText: {
+    fontSize: 15,
+    color: COLORS.gray800,
+    lineHeight: 24,
   },
   progressContainer: {
     marginBottom: SPACING.md,
