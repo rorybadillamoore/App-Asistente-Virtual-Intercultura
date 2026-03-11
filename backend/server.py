@@ -522,11 +522,16 @@ async def get_students(current_user: dict = Depends(get_current_user)):
         raise HTTPException(status_code=403, detail="Only teachers can view students")
     
     students = await db.users.find({"role": "student"}).to_list(100)
-    result = []
     
+    # Batch query: Get all progress records at once to avoid N+1 queries
+    student_ids = [str(s["_id"]) for s in students]
+    all_progress = await db.progress.find({"user_id": {"$in": student_ids}}).to_list(None)
+    progress_map = {p["user_id"]: p for p in all_progress}
+    
+    result = []
     for student in students:
         student_id = str(student["_id"])
-        progress = await db.progress.find_one({"user_id": student_id})
+        progress = progress_map.get(student_id)
         
         if progress:
             quiz_scores = progress.get("quiz_scores", [])
