@@ -9,6 +9,15 @@ import { useAuthStore } from '../../src/store/authStore';
 export default function ProfileScreen() {
   const { user, clearAuth } = useAuthStore();
 
+  const handleLogout = () => {
+    // Clear auth first
+    clearAuth();
+    // Force a full page reload to reset all React state and avoid infinite loops
+    if (typeof window !== 'undefined') {
+      window.location.href = '/';
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -95,7 +104,7 @@ export default function ProfileScreen() {
         </View>
 
         {/* Logout Button */}
-        <Pressable style={styles.logoutButton} onPress={clearAuth}>
+        <Pressable style={styles.logoutButton} onPress={handleLogout}>
           <Ionicons name="log-out-outline" size={20} color={COLORS.error} />
           <Text style={styles.logoutButtonText}>Cerrar Sesión</Text>
         </Pressable>

@@ -689,13 +689,15 @@ async def get_progress(current_user: dict = Depends(get_current_user)):
 async def generate_exercise(request: AIExerciseRequest, current_user: dict = Depends(get_current_user_optional)):
     try:
         from emergentintegrations.llm.chat import LlmChat, UserMessage
+        import random
         
         api_key = os.environ.get('EMERGENT_LLM_KEY')
         if not api_key:
             raise HTTPException(status_code=500, detail="AI service not configured")
         
-        # Generate a session ID (use user_id if available, otherwise random)
+        # Generate a unique session ID for each request to ensure different exercises
         user_id = str(current_user['_id']) if current_user else "anonymous"
+        unique_seed = random.randint(10000, 99999)
         
         # Determine the target language name in that language and instruction language
         language_names = {
@@ -709,11 +711,12 @@ async def generate_exercise(request: AIExerciseRequest, current_user: dict = Dep
         system_message = f"""You are an expert {lang_info['instruction']} language teacher following Cambridge methodology.
 You MUST generate ALL content in {lang_info['instruction']} language.
 Generate educational exercises appropriate for {request.level} level students.
+IMPORTANT: Generate completely NEW and UNIQUE content each time. Do NOT repeat previous exercises.
 Always respond in a structured JSON format."""
 
         chat = LlmChat(
             api_key=api_key,
-            session_id=f"exercise-{user_id}-{datetime.utcnow().timestamp()}",
+            session_id=f"exercise-{user_id}-{datetime.utcnow().timestamp()}-{unique_seed}",
             system_message=system_message
         ).with_model("openai", "gpt-4o")
 
@@ -734,6 +737,12 @@ Always respond in a structured JSON format."""
 
         prompt = f"""Generate a {request.exercise_type} exercise for {lang_info['instruction']} learners at {request.level} level.
 Topic: {request.topic}
+
+UNIQUENESS REQUIREMENT (CRITICAL):
+- This is exercise variation #{unique_seed}
+- Generate COMPLETELY NEW content that is DIFFERENT from any previous exercise
+- Use different contexts, scenarios, and vocabulary than before
+- Create original questions - do NOT repeat common examples
 
 CRITICAL LANGUAGE REQUIREMENT:
 - ALL questions MUST be written in {lang_info['instruction']}
@@ -767,7 +776,8 @@ Return a JSON object with this structure:
 }}
 
 Generate 5 questions appropriate for {request.level} level and 5 vocabulary items.
-Remember: EVERYTHING except vocabulary translations must be in {lang_info['instruction']}."""
+Remember: EVERYTHING except vocabulary translations must be in {lang_info['instruction']}.
+IMPORTANT: Make this exercise unique and different from previous ones."""
 
         user_message = UserMessage(text=prompt)
         response = await chat.send_message(user_message)
@@ -805,20 +815,27 @@ async def generate_tts(request: TTSRequest):
         if not api_key:
             raise HTTPException(status_code=500, detail="TTS service not configured")
         
-        # Select voice based on language
+        # Select voice based on language for native-sounding pronunciation
+        # OpenAI voices: alloy, echo, fable, onyx, nova, shimmer
+        # - onyx: Deep, warm - works well for Spanish and Portuguese
+        # - fable: Expressive, dramatic - good for German
+        # - nova: Warm, conversational - good for English
+        # - echo: Soft, clear - alternative for Romance languages
         voice_map = {
-            "spanish": "nova",      # Energetic, good for Spanish
-            "english": "alloy",     # Neutral, balanced for English
-            "portuguese": "shimmer" # Bright, cheerful for Portuguese
+            "spanish": "onyx",       # Deep warm voice sounds natural for Spanish
+            "english": "nova",       # Warm conversational for English  
+            "portuguese": "onyx",    # Same deep warmth works well for Portuguese
+            "german": "fable"        # Expressive voice suits German pronunciation
         }
-        voice = voice_map.get(request.language.lower(), "alloy")
+        voice = voice_map.get(request.language.lower(), "nova")
         
         tts = OpenAITextToSpeech(api_key=api_key)
         
         # Generate audio as base64 for easy frontend consumption
+        # Using tts-1-hd for higher quality pronunciation
         audio_base64 = await tts.generate_speech_base64(
             text=request.text,
-            model="tts-1",
+            model="tts-1-hd",
             voice=voice,
             response_format="mp3"
         )

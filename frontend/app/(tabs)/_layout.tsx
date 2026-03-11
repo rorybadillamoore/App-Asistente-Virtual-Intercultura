@@ -1,24 +1,36 @@
-import React, { useEffect } from 'react';
-import { Tabs, useRouter } from 'expo-router';
+import React from 'react';
+import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../../src/constants/theme';
 import { useAuthStore } from '../../src/store/authStore';
+import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F9FAFB',
+  },
+  loadingText: {
+    marginTop: 16,
+    color: '#6B7280',
+    fontSize: 16,
+  },
+});
 
 export default function TabLayout() {
   const { user, isAuthenticated } = useAuthStore();
-  const router = useRouter();
   const isTeacher = user?.role === 'teacher';
   
-  // Redirect to welcome screen if not authenticated
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.replace('/');
-    }
-  }, [isAuthenticated]);
-  
-  // Don't render tabs if not authenticated
+  // If not authenticated, show loading screen while redirect happens
   if (!isAuthenticated) {
-    return null;
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+        <Text style={styles.loadingText}>Cerrando sesión...</Text>
+      </View>
+    );
   }
 
   return (
