@@ -1181,6 +1181,168 @@ async def seed_sample_data():
     
     return {"message": "Sample data created", "courses": len(created_courses), "flashcards": len(flashcards_data)}
 
+@api_router.post("/seed-full")
+async def seed_full_database():
+    """Seed the database with complete courses, flashcards, and quizzes for all 4 languages and 6 levels"""
+    
+    # Course titles and descriptions for all languages and levels
+    course_configs = {
+        "spanish": {
+            "name": "Español",
+            "levels": {
+                "A1": {"title": "Español Básico", "desc": "Fundamentos del español: saludos, presentaciones y vocabulario esencial."},
+                "A2": {"title": "Español Elemental", "desc": "Conversaciones cotidianas, compras y descripciones básicas."},
+                "B1": {"title": "Español Intermedio", "desc": "Expresar opiniones, narrar experiencias y situaciones de viaje."},
+                "B2": {"title": "Español Intermedio Alto", "desc": "Debates, textos complejos y expresión fluida de ideas."},
+                "C1": {"title": "Español Avanzado", "desc": "Comunicación profesional, textos académicos y matices culturales."},
+                "C2": {"title": "Español Maestría", "desc": "Dominio nativo, literatura, dialectos y expresiones idiomáticas."},
+            }
+        },
+        "english": {
+            "name": "English",
+            "levels": {
+                "A1": {"title": "English Basics", "desc": "Foundation English: greetings, introductions and essential vocabulary."},
+                "A2": {"title": "English Elementary", "desc": "Daily conversations, shopping and basic descriptions."},
+                "B1": {"title": "English Intermediate", "desc": "Express opinions, narrate experiences and travel situations."},
+                "B2": {"title": "English Upper-Intermediate", "desc": "Debates, complex texts and fluent expression of ideas."},
+                "C1": {"title": "English Advanced", "desc": "Professional communication, academic texts and cultural nuances."},
+                "C2": {"title": "English Mastery", "desc": "Native-level proficiency, literature, dialects and idiomatic expressions."},
+            }
+        },
+        "portuguese": {
+            "name": "Português",
+            "levels": {
+                "A1": {"title": "Português Básico", "desc": "Fundamentos do português: saudações, apresentações e vocabulário essencial."},
+                "A2": {"title": "Português Elementar", "desc": "Conversas cotidianas, compras e descrições básicas."},
+                "B1": {"title": "Português Intermediário", "desc": "Expressar opiniões, narrar experiências e situações de viagem."},
+                "B2": {"title": "Português Intermediário Alto", "desc": "Debates, textos complexos e expressão fluente de ideias."},
+                "C1": {"title": "Português Avançado", "desc": "Comunicação profissional, textos acadêmicos e nuances culturais."},
+                "C2": {"title": "Português Maestria", "desc": "Proficiência nativa, literatura, dialetos e expressões idiomáticas."},
+            }
+        },
+        "german": {
+            "name": "Deutsch",
+            "levels": {
+                "A1": {"title": "Deutsch Grundlagen", "desc": "Deutsche Grundlagen: Begrüßungen, Vorstellungen und grundlegendes Vokabular."},
+                "A2": {"title": "Deutsch Elementar", "desc": "Alltägliche Gespräche, Einkaufen und grundlegende Beschreibungen."},
+                "B1": {"title": "Deutsch Mittelstufe", "desc": "Meinungen ausdrücken, Erfahrungen erzählen und Reisesituationen."},
+                "B2": {"title": "Deutsch Obere Mittelstufe", "desc": "Debatten, komplexe Texte und fließender Ausdruck von Ideen."},
+                "C1": {"title": "Deutsch Fortgeschritten", "desc": "Professionelle Kommunikation, akademische Texte und kulturelle Nuancen."},
+                "C2": {"title": "Deutsch Meisterschaft", "desc": "Muttersprachliche Kompetenz, Literatur, Dialekte und idiomatische Ausdrücke."},
+            }
+        }
+    }
+    
+    # Clear existing data
+    await db.courses.delete_many({})
+    await db.flashcards.delete_many({})
+    await db.quizzes.delete_many({})
+    
+    # Create courses
+    courses_created = 0
+    for lang, config in course_configs.items():
+        for level, level_config in config["levels"].items():
+            course = {
+                "language": lang,
+                "level": level,
+                "title": level_config["title"],
+                "description": level_config["desc"],
+                "lessons": [
+                    {"title": f"Lección 1: Introducción", "content": f"Bienvenido al nivel {level} de {config['name']}"},
+                    {"title": f"Lección 2: Vocabulario", "content": f"Vocabulario esencial para nivel {level}"},
+                    {"title": f"Lección 3: Gramática", "content": f"Estructuras gramaticales de nivel {level}"},
+                ],
+                "created_by": "system",
+                "created_at": datetime.utcnow()
+            }
+            await db.courses.insert_one(course)
+            courses_created += 1
+    
+    # Create flashcard decks for each language/level
+    flashcard_data = {
+        "spanish": {
+            "A1": [
+                {"word": "Hola", "translation": "Hello", "example": "¡Hola! ¿Cómo estás?"},
+                {"word": "Gracias", "translation": "Thank you", "example": "Muchas gracias por tu ayuda."},
+                {"word": "Por favor", "translation": "Please", "example": "Un café, por favor."},
+                {"word": "Buenos días", "translation": "Good morning", "example": "Buenos días, ¿cómo está usted?"},
+                {"word": "Adiós", "translation": "Goodbye", "example": "Adiós, hasta mañana."},
+            ],
+        },
+        "english": {
+            "A1": [
+                {"word": "Hello", "translation": "Hola", "example": "Hello, how are you?"},
+                {"word": "Thank you", "translation": "Gracias", "example": "Thank you for your help."},
+                {"word": "Please", "translation": "Por favor", "example": "A coffee, please."},
+                {"word": "Good morning", "translation": "Buenos días", "example": "Good morning, everyone!"},
+                {"word": "Goodbye", "translation": "Adiós", "example": "Goodbye, see you tomorrow."},
+            ],
+        },
+        "portuguese": {
+            "A1": [
+                {"word": "Olá", "translation": "Hello", "example": "Olá! Como vai você?"},
+                {"word": "Obrigado", "translation": "Thank you", "example": "Muito obrigado pela ajuda."},
+                {"word": "Por favor", "translation": "Please", "example": "Um café, por favor."},
+                {"word": "Bom dia", "translation": "Good morning", "example": "Bom dia! Tudo bem?"},
+                {"word": "Tchau", "translation": "Goodbye", "example": "Tchau, até amanhã!"},
+            ],
+        },
+        "german": {
+            "A1": [
+                {"word": "Hallo", "translation": "Hello", "example": "Hallo! Wie geht's?"},
+                {"word": "Danke", "translation": "Thank you", "example": "Vielen Dank für Ihre Hilfe."},
+                {"word": "Bitte", "translation": "Please", "example": "Einen Kaffee, bitte."},
+                {"word": "Guten Morgen", "translation": "Good morning", "example": "Guten Morgen! Wie geht es Ihnen?"},
+                {"word": "Auf Wiedersehen", "translation": "Goodbye", "example": "Auf Wiedersehen, bis morgen!"},
+            ],
+        },
+    }
+    
+    flashcards_created = 0
+    for lang, levels in flashcard_data.items():
+        for level, cards in levels.items():
+            deck = {
+                "title": f"{lang.capitalize()} {level} Flashcards",
+                "language": lang,
+                "level": level,
+                "cards": cards,
+                "created_by": "system",
+                "created_at": datetime.utcnow()
+            }
+            await db.flashcard_decks.insert_one(deck)
+            flashcards_created += 1
+    
+    # Create test user if not exists
+    existing_user = await db.users.find_one({"email": "testuser123@test.com"})
+    if not existing_user:
+        test_user = {
+            "name": "Test User",
+            "email": "testuser123@test.com",
+            "password_hash": hash_password("password123"),
+            "role": "student",
+            "created_at": datetime.utcnow()
+        }
+        await db.users.insert_one(test_user)
+    
+    # Create teacher user if not exists
+    existing_teacher = await db.users.find_one({"email": "profesor@test.com"})
+    if not existing_teacher:
+        teacher_user = {
+            "name": "Profesor Demo",
+            "email": "profesor@test.com",
+            "password_hash": hash_password("profesor123"),
+            "role": "teacher",
+            "created_at": datetime.utcnow()
+        }
+        await db.users.insert_one(teacher_user)
+    
+    return {
+        "message": "Full database seeded successfully",
+        "courses": courses_created,
+        "flashcard_decks": flashcards_created,
+        "users_created": 2
+    }
+
 # ================== ROOT ROUTES ==================
 
 @api_router.get("/")
