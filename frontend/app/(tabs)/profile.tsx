@@ -1,15 +1,72 @@
-import React, { useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
-import { Link } from 'expo-router';
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, APP_NAME } from '../../src/constants/theme';
+import { COLORS, SPACING, SHADOWS } from '../../src/constants/theme';
 import { useAuthStore } from '../../src/store/authStore';
+import { Button } from '../../src/components/Button';
 
 export default function ProfileScreen() {
-  // Get user once at mount, don't subscribe to store updates
-  const userRef = useRef(useAuthStore.getState().user);
-  const user = userRef.current;
+  const router = useRouter();
+  const { user, clearAuth } = useAuthStore();
+
+  const handleLogout = () => {
+    // For web: navigate using the full absolute URL to bypass expo-router
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.removeItem('auth-storage');
+      } catch (e) {}
+      // Use full absolute URL to ensure browser treats this as a fresh page load
+      const origin = window.location.origin;
+      window.location.assign(origin);
+      return;
+    }
+    
+    // For native apps, use the traditional approach with Alert
+    Alert.alert(
+      'Cerrar Sesión',
+      '¿Estás seguro de que quieres cerrar sesión?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Cerrar Sesión',
+          style: 'destructive',
+          onPress: () => {
+            clearAuth();
+            router.replace('/');
+          },
+        },
+      ]
+    );
+  };
+
+  const menuItems = [
+    {
+      icon: 'stats-chart-outline' as const,
+      title: 'Mi Progreso',
+      subtitle: 'Ver estadísticas de aprendizaje',
+      onPress: () => router.push('/(tabs)'),
+    },
+    {
+      icon: 'settings-outline' as const,
+      title: 'Configuración',
+      subtitle: 'Preferencias de la app',
+      onPress: () => {},
+    },
+    {
+      icon: 'help-circle-outline' as const,
+      title: 'Ayuda',
+      subtitle: 'Preguntas frecuentes',
+      onPress: () => {},
+    },
+    {
+      icon: 'information-circle-outline' as const,
+      title: 'Acerca de',
+      subtitle: 'Polyglot Academy v1.0',
+      onPress: () => {},
+    },
+  ];
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -22,14 +79,25 @@ export default function ProfileScreen() {
                 {user?.name?.charAt(0).toUpperCase() || 'U'}
               </Text>
             </View>
-            <View style={[styles.roleBadge, { backgroundColor: user?.role === 'teacher' ? COLORS.secondary : COLORS.primary }]}>
-              <Ionicons name={user?.role === 'teacher' ? 'school' : 'person'} size={12} color={COLORS.white} />
+            <View
+              style={[
+                styles.roleBadge,
+                { backgroundColor: user?.role === 'teacher' ? COLORS.secondary : COLORS.primary },
+              ]}
+            >
+              <Ionicons
+                name={user?.role === 'teacher' ? 'school' : 'person'}
+                size={12}
+                color={COLORS.white}
+              />
             </View>
           </View>
           <Text style={styles.userName}>{user?.name || 'Usuario'}</Text>
           <Text style={styles.userEmail}>{user?.email}</Text>
           <View style={styles.roleContainer}>
-            <Text style={styles.roleText}>{user?.role === 'teacher' ? 'Profesor' : 'Estudiante'}</Text>
+            <Text style={styles.roleText}>
+              {user?.role === 'teacher' ? 'Profesor' : 'Estudiante'}
+            </Text>
           </View>
         </View>
 
@@ -37,7 +105,7 @@ export default function ProfileScreen() {
         <View style={styles.statsCard}>
           <View style={styles.statItem}>
             <Ionicons name="book" size={24} color={COLORS.spanish} />
-            <Text style={styles.statValue}>4</Text>
+            <Text style={styles.statValue}>3</Text>
             <Text style={styles.statLabel}>Idiomas</Text>
           </View>
           <View style={styles.statDivider} />
@@ -56,77 +124,38 @@ export default function ProfileScreen() {
 
         {/* Menu Items */}
         <View style={styles.menuContainer}>
-          <Link href="/(tabs)" asChild>
-            <Pressable style={styles.menuItem}>
+          {menuItems.map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.menuItem}
+              onPress={item.onPress}
+              activeOpacity={0.7}
+            >
               <View style={styles.menuIconContainer}>
-                <Ionicons name="stats-chart-outline" size={22} color={COLORS.primary} />
+                <Ionicons name={item.icon} size={22} color={COLORS.primary} />
               </View>
               <View style={styles.menuContent}>
-                <Text style={styles.menuTitle}>Mi Progreso</Text>
-                <Text style={styles.menuSubtitle}>Ver estadísticas de aprendizaje</Text>
+                <Text style={styles.menuTitle}>{item.title}</Text>
+                <Text style={styles.menuSubtitle}>{item.subtitle}</Text>
               </View>
               <Ionicons name="chevron-forward" size={20} color={COLORS.gray400} />
-            </Pressable>
-          </Link>
-
-          <Link href="/(tabs)/courses" asChild>
-            <Pressable style={styles.menuItem}>
-              <View style={styles.menuIconContainer}>
-                <Ionicons name="book-outline" size={22} color={COLORS.primary} />
-              </View>
-              <View style={styles.menuContent}>
-                <Text style={styles.menuTitle}>Mis Cursos</Text>
-                <Text style={styles.menuSubtitle}>Ver todos los cursos</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={20} color={COLORS.gray400} />
-            </Pressable>
-          </Link>
-
-          <Link href="/(tabs)/quizzes" asChild>
-            <Pressable style={styles.menuItem}>
-              <View style={styles.menuIconContainer}>
-                <Ionicons name="help-circle-outline" size={22} color={COLORS.primary} />
-              </View>
-              <View style={styles.menuContent}>
-                <Text style={styles.menuTitle}>Mis Quizzes</Text>
-                <Text style={styles.menuSubtitle}>Practicar con quizzes</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={20} color={COLORS.gray400} />
-            </Pressable>
-          </Link>
+            </TouchableOpacity>
+          ))}
         </View>
 
-        {/* Logout Button - Using static HTML file to completely bypass React */}
-        {typeof window !== 'undefined' && (
-          <a 
-            href="/logout.html" 
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: 16,
-              marginTop: 24,
-              marginHorizontal: 16,
-              backgroundColor: '#FEE2E2',
-              borderRadius: 12,
-              textDecoration: 'none',
-              gap: 8,
-            }}
-          >
-            <Ionicons name="log-out-outline" size={20} color={COLORS.error} />
-            <span style={{ color: COLORS.error, fontSize: 16, fontWeight: 600 }}>Cerrar Sesión</span>
-          </a>
-        )}
-        {typeof window === 'undefined' && (
-          <Pressable style={styles.logoutButton} disabled>
-            <Ionicons name="log-out-outline" size={20} color={COLORS.error} />
-            <Text style={styles.logoutButtonText}>Cerrar Sesión</Text>
-          </Pressable>
-        )}
+        {/* Logout Button */}
+        <Button
+          title="Cerrar Sesión"
+          onPress={handleLogout}
+          variant="outline"
+          style={styles.logoutButton}
+          icon={<Ionicons name="log-out-outline" size={20} color={COLORS.primary} />}
+        />
 
         {/* Footer */}
-        <Text style={styles.footerText}>{APP_NAME} v1.0{"\n"}© 2025 Metodología Cambridge</Text>
+        <Text style={styles.footerText}>
+          Polyglot Academy © 2025{"\n"}Metodología Cambridge
+        </Text>
       </ScrollView>
     </SafeAreaView>
   );
@@ -139,13 +168,13 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: SPACING.md,
-    paddingBottom: 100,
   },
   profileHeader: {
     alignItems: 'center',
     marginBottom: SPACING.lg,
   },
   avatarContainer: {
+    position: 'relative',
     marginBottom: SPACING.md,
   },
   avatar: {
@@ -201,6 +230,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: SPACING.lg,
     marginBottom: SPACING.lg,
+    ...SHADOWS.md,
   },
   statItem: {
     flex: 1,
@@ -224,6 +254,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     borderRadius: 16,
     marginBottom: SPACING.lg,
+    ...SHADOWS.sm,
   },
   menuItem: {
     flexDirection: 'row',
@@ -254,21 +285,7 @@ const styles = StyleSheet.create({
     color: COLORS.gray500,
   },
   logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: COLORS.white,
-    padding: SPACING.md,
-    borderRadius: 12,
     marginBottom: SPACING.lg,
-    gap: SPACING.sm,
-    borderWidth: 1,
-    borderColor: COLORS.error,
-  },
-  logoutButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.error,
   },
   footerText: {
     textAlign: 'center',

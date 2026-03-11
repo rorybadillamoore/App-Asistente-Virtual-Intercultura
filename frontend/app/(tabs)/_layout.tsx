@@ -2,21 +2,11 @@ import React from 'react';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../../src/constants/theme';
+import { useAuthStore } from '../../src/store/authStore';
 
 export default function TabLayout() {
-  // Get user role from localStorage directly to avoid Zustand subscription issues
-  let isTeacher = false;
-  if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
-    try {
-      const stored = localStorage.getItem('auth-storage');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        isTeacher = parsed?.user?.role === 'teacher';
-      }
-    } catch (e) {
-      // Ignore
-    }
-  }
+  const { user } = useAuthStore();
+  const isTeacher = user?.role === 'teacher';
 
   return (
     <Tabs

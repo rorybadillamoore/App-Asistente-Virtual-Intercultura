@@ -18,8 +18,7 @@ interface Progress {
 
 export default function HomeScreen() {
   const router = useRouter();
-  // Use selector to avoid re-renders when other auth state changes
-  const user = useAuthStore((state) => state.user);
+  const { user } = useAuthStore();
   const [progress, setProgress] = useState<Progress | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
