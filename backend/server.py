@@ -697,7 +697,17 @@ async def generate_exercise(request: AIExerciseRequest, current_user: dict = Dep
         # Generate a session ID (use user_id if available, otherwise random)
         user_id = str(current_user['_id']) if current_user else "anonymous"
         
-        system_message = f"""You are an expert language teacher specializing in {request.language} following Cambridge methodology.
+        # Determine the target language name in that language and instruction language
+        language_names = {
+            "spanish": {"native": "Español", "instruction": "Spanish"},
+            "english": {"native": "English", "instruction": "English"},
+            "portuguese": {"native": "Português", "instruction": "Portuguese"},
+            "german": {"native": "Deutsch", "instruction": "German"}
+        }
+        lang_info = language_names.get(request.language.lower(), {"native": request.language, "instruction": request.language})
+        
+        system_message = f"""You are an expert {lang_info['instruction']} language teacher following Cambridge methodology.
+You MUST generate ALL content in {lang_info['instruction']} language.
 Generate educational exercises appropriate for {request.level} level students.
 Always respond in a structured JSON format."""
 
@@ -710,20 +720,27 @@ Always respond in a structured JSON format."""
         # Build reading passage instruction if needed
         reading_instruction = ""
         if request.exercise_type == "reading":
-            reading_instruction = "IMPORTANT: For reading exercises, you MUST include a reading passage (texto de lectura) of 100-150 words that the student needs to read before answering the questions. The questions should be about the content of the passage."
+            reading_instruction = f"IMPORTANT: For reading exercises, you MUST include a reading passage of 100-150 words IN {lang_info['instruction'].upper()} that the student needs to read before answering the questions. The questions should be about the content of the passage."
         
         # Build writing instruction if needed
         writing_instruction = ""
         if request.exercise_type == "writing":
-            writing_instruction = "IMPORTANT: For writing exercises, provide clear writing prompts that ask the student to write sentences or short paragraphs. Each question should give specific context and guidance for what to write."
+            writing_instruction = f"IMPORTANT: For writing exercises, provide clear writing prompts IN {lang_info['instruction'].upper()} that ask the student to write sentences or short paragraphs."
         
         # Build reading passage field if needed
         reading_field = ""
         if request.exercise_type == "reading":
-            reading_field = f'"reading_passage": "A reading text of 100-150 words in {request.language} appropriate for {request.level} level",'
+            reading_field = f'"reading_passage": "A reading text of 100-150 words written entirely in {lang_info["instruction"]}",'
 
-        prompt = f"""Generate a {request.exercise_type} exercise for {request.language} learners at {request.level} level.
+        prompt = f"""Generate a {request.exercise_type} exercise for {lang_info['instruction']} learners at {request.level} level.
 Topic: {request.topic}
+
+CRITICAL LANGUAGE REQUIREMENT:
+- ALL questions MUST be written in {lang_info['instruction']}
+- ALL answer options MUST be in {lang_info['instruction']}
+- ALL instructions MUST be in {lang_info['instruction']}
+- ALL explanations MUST be in {lang_info['instruction']}
+- The vocabulary words should be in {lang_info['instruction']} with translations to Spanish
 
 {reading_instruction}
 
@@ -731,26 +748,26 @@ Topic: {request.topic}
 
 Return a JSON object with this structure:
 {{
-    "title": "Exercise title in {request.language}",
-    "description": "Brief description of what this exercise will help the student practice",
-    "instructions": "Clear instructions for the student in Spanish",
+    "title": "Exercise title in {lang_info['instruction']}",
+    "description": "Brief description in {lang_info['instruction']}",
+    "instructions": "Clear instructions in {lang_info['instruction']}",
     {reading_field}
     "questions": [
         {{
-            "question": "The question text",
-            "options": ["option A", "option B", "option C", "option D"],
+            "question": "Question text in {lang_info['instruction']}",
+            "options": ["option A in {lang_info['instruction']}", "option B", "option C", "option D"],
             "correct_answer": 0,
-            "explanation": "Why this is correct"
+            "explanation": "Explanation in {lang_info['instruction']}"
         }}
     ],
     "vocabulary": [
-        {{"word": "word", "translation": "translation", "example": "example sentence"}}
+        {{"word": "word in {lang_info['instruction']}", "translation": "traducción al español", "example": "example sentence in {lang_info['instruction']}"}}
     ],
-    "grammar_tip": "A helpful grammar tip related to the topic"
+    "grammar_tip": "Grammar tip in {lang_info['instruction']}"
 }}
 
-Generate 5 questions and 5 vocabulary items.
-All content should be appropriate for {request.level} level."""
+Generate 5 questions appropriate for {request.level} level and 5 vocabulary items.
+Remember: EVERYTHING except vocabulary translations must be in {lang_info['instruction']}."""
 
         user_message = UserMessage(text=prompt)
         response = await chat.send_message(user_message)
