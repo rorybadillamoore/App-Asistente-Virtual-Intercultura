@@ -10,7 +10,7 @@ import sys
 from datetime import datetime
 
 # Base URL from frontend environment
-BASE_URL = "https://lang-hub-5.preview.emergentagent.com/api"
+BASE_URL = "https://costa-rica-lang.preview.emergentagent.com/api"
 
 class PolyglotAPITester:
     def __init__(self):
