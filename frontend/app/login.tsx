@@ -29,7 +29,7 @@ export default function LoginScreen() {
     try {
       const response = await authAPI.login({ email, password });
       const { access_token, user } = response.data;
-      setAuth(user, access_token);
+      await setAuth(user, access_token);
       router.replace('/(tabs)');
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Error al iniciar sesión');

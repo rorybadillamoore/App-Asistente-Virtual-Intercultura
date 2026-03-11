@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export interface User {
   id: string;
@@ -12,57 +13,55 @@ interface AuthState {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
+  _hasHydrated: boolean;
   setAuth: (user: User, token: string) => void;
   clearAuth: () => void;
+  hydrate: () => Promise<void>;
 }
 
-// Helper to safely access localStorage - only on client side
-const getInitialState = () => {
-  if (typeof window === 'undefined') {
-    return { user: null, token: null, isAuthenticated: false };
-  }
+export const useAuthStore = create<AuthState>((set, get) => ({
+  user: null,
+  token: null,
+  isAuthenticated: false,
+  _hasHydrated: false,
   
-  try {
-    const stored = localStorage.getItem('auth-storage');
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      if (parsed?.isAuthenticated && parsed?.user && parsed?.token) {
-        return {
-          user: parsed.user,
-          token: parsed.token,
-          isAuthenticated: true,
-        };
-      }
-    }
-  } catch (e) {
-    console.log('Error reading auth from storage:', e);
-  }
-  
-  return { user: null, token: null, isAuthenticated: false };
-};
-
-const saveAuth = (user: User | null, token: string | null, isAuthenticated: boolean) => {
-  try {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      localStorage.setItem('auth-storage', JSON.stringify({ user, token, isAuthenticated }));
-    }
-  } catch (e) {
-    console.log('Error saving auth to storage:', e);
-  }
-};
-
-const initialState = getInitialState();
-
-export const useAuthStore = create<AuthState>()((set) => ({
-  user: initialState.user,
-  token: initialState.token,
-  isAuthenticated: initialState.isAuthenticated,
-  setAuth: (user, token) => {
-    saveAuth(user, token, true);
+  setAuth: async (user, token) => {
     set({ user, token, isAuthenticated: true });
+    // Persist to storage
+    try {
+      await AsyncStorage.setItem('auth-storage', JSON.stringify({ user, token }));
+    } catch (e) {
+      console.error('Failed to save auth:', e);
+    }
   },
-  clearAuth: () => {
-    saveAuth(null, null, false);
+  
+  clearAuth: async () => {
     set({ user: null, token: null, isAuthenticated: false });
+    // Clear from storage
+    try {
+      await AsyncStorage.removeItem('auth-storage');
+    } catch (e) {
+      console.error('Failed to clear auth:', e);
+    }
+  },
+  
+  hydrate: async () => {
+    try {
+      const stored = await AsyncStorage.getItem('auth-storage');
+      if (stored) {
+        const { user, token } = JSON.parse(stored);
+        set({ user, token, isAuthenticated: true, _hasHydrated: true });
+      } else {
+        set({ _hasHydrated: true });
+      }
+    } catch (e) {
+      console.error('Failed to hydrate auth:', e);
+      set({ _hasHydrated: true });
+    }
   },
 }));
+
+// Auto-hydrate on load
+if (typeof window !== 'undefined') {
+  useAuthStore.getState().hydrate();
+}

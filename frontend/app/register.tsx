@@ -51,7 +51,7 @@ export default function RegisterScreen() {
       const response = await authAPI.register({ email, password, name, role });
       console.log('[Register] API success:', response.data);
       const { access_token, user } = response.data;
-      setAuth(user, access_token);
+      await setAuth(user, access_token);
       console.log('[Register] Auth set, redirecting...');
       router.replace('/(tabs)');
     } catch (err: any) {

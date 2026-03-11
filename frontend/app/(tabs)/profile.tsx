@@ -12,33 +12,37 @@ export default function ProfileScreen() {
   const { user, clearAuth } = useAuthStore();
 
   const handleLogout = () => {
-    // For web: navigate using the full absolute URL to bypass expo-router
+    // For web: use window.confirm since React Native Alert doesn't work
     if (typeof window !== 'undefined') {
-      try {
-        localStorage.removeItem('auth-storage');
-      } catch (e) {}
-      // Use full absolute URL to ensure browser treats this as a fresh page load
-      const origin = window.location.origin;
-      window.location.assign(origin);
-      return;
-    }
-    
-    // For native apps, use the traditional approach with Alert
-    Alert.alert(
-      'Cerrar Sesión',
-      '¿Estás seguro de que quieres cerrar sesión?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Cerrar Sesión',
-          style: 'destructive',
-          onPress: () => {
-            clearAuth();
-            router.replace('/');
+      const confirmed = window.confirm('¿Estás seguro de que quieres cerrar sesión?');
+      if (confirmed) {
+        // Clear the persisted auth state directly
+        try {
+          localStorage.removeItem('auth-storage');
+        } catch (e) {
+          // Ignore errors
+        }
+        // Reload the page to reset all state
+        window.location.href = '/';
+      }
+    } else {
+      // For native: use Alert
+      Alert.alert(
+        'Cerrar Sesión',
+        '¿Estás seguro de que quieres cerrar sesión?',
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          {
+            text: 'Cerrar Sesión',
+            style: 'destructive',
+            onPress: async () => {
+              await clearAuth();
+              router.replace('/');
+            },
           },
-        },
-      ]
-    );
+        ]
+      );
+    }
   };
 
   const menuItems = [
