@@ -854,9 +854,15 @@ Provide:
 
 # ================== QUIZ GENERATION ==================
 
+@api_router.post("/reset-quizzes")
+async def reset_quizzes():
+    """Delete all quizzes to allow regeneration"""
+    result = await db.quizzes.delete_many({})
+    return {"message": "Quizzes deleted", "count": result.deleted_count}
+
 @api_router.post("/seed-quizzes")
 async def seed_quizzes():
-    """Seed quizzes for all courses"""
+    """Seed quizzes for all courses with complete questions for all levels"""
     existing = await db.quizzes.count_documents({})
     if existing > 0:
         return {"message": "Quizzes already exist", "count": existing}
@@ -880,6 +886,34 @@ async def seed_quizzes():
                 {"q": "¿Qué tiempo verbal es 'hablaré'?", "opts": ["Futuro", "Presente", "Pasado", "Condicional"], "ans": 0},
                 {"q": "Completa: 'Me gusta ___ música'", "opts": ["la", "el", "un", "una"], "ans": 0},
             ],
+            "B1": [
+                {"q": "Si yo ___ rico, viajaría por el mundo", "opts": ["fuera", "soy", "era", "seré"], "ans": 0},
+                {"q": "¿Qué es un 'sinónimo'?", "opts": ["Palabra con significado similar", "Palabra opuesta", "Palabra técnica", "Palabra antigua"], "ans": 0},
+                {"q": "El condicional de 'poder' es:", "opts": ["podría", "puedo", "pude", "podré"], "ans": 0},
+                {"q": "'Había comido' es un tiempo:", "opts": ["Pluscuamperfecto", "Presente", "Futuro", "Pretérito"], "ans": 0},
+                {"q": "Completa: 'Dudo que él ___ la verdad'", "opts": ["diga", "dice", "dirá", "dijo"], "ans": 0},
+            ],
+            "B2": [
+                {"q": "'Habría ido si hubiera podido' expresa:", "opts": ["Condición irreal pasada", "Certeza", "Obligación", "Deseo presente"], "ans": 0},
+                {"q": "¿Qué figura retórica es 'sus ojos son soles'?", "opts": ["Metáfora", "Símil", "Hipérbole", "Personificación"], "ans": 0},
+                {"q": "El subjuntivo expresa:", "opts": ["Duda, deseo o irrealidad", "Hechos concretos", "Acciones pasadas", "Órdenes directas"], "ans": 0},
+                {"q": "'A pesar de que' indica:", "opts": ["Concesión", "Causa", "Finalidad", "Tiempo"], "ans": 0},
+                {"q": "¿Qué es una 'perífrasis verbal'?", "opts": ["Verbo auxiliar + infinitivo/gerundio/participio", "Un solo verbo conjugado", "Dos sustantivos", "Adjetivo + sustantivo"], "ans": 0},
+            ],
+            "C1": [
+                {"q": "¿Qué es el 'leísmo'?", "opts": ["Uso de 'le' como objeto directo", "Uso incorrecto de 'la'", "Omisión del artículo", "Uso de doble negación"], "ans": 0},
+                {"q": "'Hubiere cantado' pertenece al:", "opts": ["Futuro perfecto de subjuntivo", "Condicional compuesto", "Pretérito anterior", "Presente de subjuntivo"], "ans": 0},
+                {"q": "El registro lingüístico 'coloquial' se caracteriza por:", "opts": ["Espontaneidad y expresividad", "Formalidad extrema", "Tecnicismos", "Arcaísmos"], "ans": 0},
+                {"q": "Una 'oración subordinada sustantiva' funciona como:", "opts": ["Sustantivo", "Adjetivo", "Adverbio", "Verbo"], "ans": 0},
+                {"q": "El 'estilo indirecto libre' combina:", "opts": ["Narración y pensamiento del personaje", "Solo diálogos", "Solo descripción", "Solo narración"], "ans": 0},
+            ],
+            "C2": [
+                {"q": "¿Qué es la 'deixis'?", "opts": ["Referencias contextuales del discurso", "Repetición de sonidos", "Cambio de significado", "Orden de palabras"], "ans": 0},
+                {"q": "El 'modo pragmático' estudia:", "opts": ["Uso del lenguaje en contexto", "La estructura gramatical", "Los sonidos", "El origen de palabras"], "ans": 0},
+                {"q": "Una 'implicatura conversacional' es:", "opts": ["Significado implícito no literal", "Significado literal", "Error gramatical", "Falta de coherencia"], "ans": 0},
+                {"q": "El 'polisíndeton' consiste en:", "opts": ["Repetición de conjunciones", "Omisión de conjunciones", "Uso de metáforas", "Cambio de orden"], "ans": 0},
+                {"q": "¿Qué estudia la 'sociolingüística'?", "opts": ["Relación entre lengua y sociedad", "Solo gramática", "Solo fonética", "Solo etimología"], "ans": 0},
+            ],
         },
         "english": {
             "A1": [
@@ -895,6 +929,34 @@ async def seed_quizzes():
                 {"q": "The superlative of 'big' is:", "opts": ["biggest", "bigger", "more big", "most big"], "ans": 0},
                 {"q": "What tense is 'will speak'?", "opts": ["Future", "Present", "Past", "Conditional"], "ans": 0},
                 {"q": "Complete: 'I like ___ music'", "opts": ["the", "a", "an", "some"], "ans": 0},
+            ],
+            "B1": [
+                {"q": "If I ___ rich, I would travel", "opts": ["were", "am", "was", "will be"], "ans": 0},
+                {"q": "'I have been waiting' is:", "opts": ["Present perfect continuous", "Past simple", "Future", "Present simple"], "ans": 0},
+                {"q": "The opposite of 'generous' is:", "opts": ["selfish", "kind", "helpful", "friendly"], "ans": 0},
+                {"q": "'Despite' indicates:", "opts": ["Contrast", "Cause", "Result", "Addition"], "ans": 0},
+                {"q": "A 'phrasal verb' combines:", "opts": ["Verb + particle", "Two nouns", "Two verbs", "Adjective + noun"], "ans": 0},
+            ],
+            "B2": [
+                {"q": "'Had I known' is an example of:", "opts": ["Inversion in conditionals", "Passive voice", "Reported speech", "Relative clause"], "ans": 0},
+                {"q": "The third conditional expresses:", "opts": ["Unreal past situation", "Real present", "Future possibility", "General truth"], "ans": 0},
+                {"q": "'Get something done' is a:", "opts": ["Causative structure", "Passive voice", "Modal verb", "Phrasal verb"], "ans": 0},
+                {"q": "A 'collocation' is:", "opts": ["Words that naturally go together", "Opposite words", "Same meaning words", "Technical terms"], "ans": 0},
+                {"q": "'Might have been' expresses:", "opts": ["Past possibility", "Present certainty", "Future plan", "Obligation"], "ans": 0},
+            ],
+            "C1": [
+                {"q": "An 'ellipsis' in grammar is:", "opts": ["Omission of words understood from context", "Addition of words", "Repetition", "Word order change"], "ans": 0},
+                {"q": "'Cleft sentences' are used to:", "opts": ["Emphasize information", "Ask questions", "Give orders", "Make suggestions"], "ans": 0},
+                {"q": "A 'hedge' in language is:", "opts": ["Expression reducing commitment to statement", "Strong assertion", "Command", "Question"], "ans": 0},
+                {"q": "The 'subjunctive mood' in English:", "opts": ["Expresses wishes, demands, suggestions", "States facts", "Asks questions", "Gives commands"], "ans": 0},
+                {"q": "'Discourse markers' help to:", "opts": ["Organize and connect speech", "Form plurals", "Create tenses", "Build vocabulary"], "ans": 0},
+            ],
+            "C2": [
+                {"q": "'Pragmatics' studies:", "opts": ["Language use in context", "Sound patterns", "Word formation", "Sentence structure"], "ans": 0},
+                {"q": "An 'implicature' is:", "opts": ["Implied meaning beyond literal words", "Dictionary definition", "Grammar rule", "Spelling pattern"], "ans": 0},
+                {"q": "'Register' in linguistics refers to:", "opts": ["Language variety based on situation", "Accent", "Dialect", "Slang only"], "ans": 0},
+                {"q": "A 'speech act' is:", "opts": ["Action performed through language", "Written text only", "Grammar rule", "Vocabulary list"], "ans": 0},
+                {"q": "'Deixis' refers to:", "opts": ["Context-dependent references", "Fixed meanings", "Grammar rules", "Pronunciation"], "ans": 0},
             ],
         },
         "portuguese": {
@@ -912,6 +974,34 @@ async def seed_quizzes():
                 {"q": "Que tempo verbal é 'falarei'?", "opts": ["Futuro", "Presente", "Passado", "Condicional"], "ans": 0},
                 {"q": "Complete: 'Eu gosto ___ música'", "opts": ["da", "do", "de um", "de uma"], "ans": 0},
             ],
+            "B1": [
+                {"q": "Se eu ___ rico, viajaria pelo mundo", "opts": ["fosse", "sou", "era", "serei"], "ans": 0},
+                {"q": "'Tinha comido' é um tempo:", "opts": ["Mais-que-perfeito", "Presente", "Futuro", "Pretérito"], "ans": 0},
+                {"q": "O conjuntivo exprime:", "opts": ["Dúvida, desejo ou irrealidade", "Factos", "Ordens", "Perguntas"], "ans": 0},
+                {"q": "'Embora' indica:", "opts": ["Concessão", "Causa", "Finalidade", "Tempo"], "ans": 0},
+                {"q": "Complete: 'Duvido que ele ___ a verdade'", "opts": ["diga", "diz", "dirá", "disse"], "ans": 0},
+            ],
+            "B2": [
+                {"q": "'Teria ido se tivesse podido' exprime:", "opts": ["Condição irreal passada", "Certeza", "Obrigação", "Desejo presente"], "ans": 0},
+                {"q": "O que é uma 'metáfora'?", "opts": ["Comparação implícita", "Comparação explícita", "Exagero", "Personificação"], "ans": 0},
+                {"q": "O modo conjuntivo é usado para:", "opts": ["Expressar incerteza ou desejo", "Afirmar factos", "Dar ordens", "Fazer perguntas"], "ans": 0},
+                {"q": "'Apesar de' indica:", "opts": ["Concessão", "Causa", "Consequência", "Adição"], "ans": 0},
+                {"q": "Uma 'perífrase verbal' é:", "opts": ["Verbo auxiliar + infinitivo/gerúndio", "Um só verbo", "Dois substantivos", "Adjetivo + substantivo"], "ans": 0},
+            ],
+            "C1": [
+                {"q": "O que é 'colocação pronominal'?", "opts": ["Posição dos pronomes átonos", "Conjugação verbal", "Formação de palavras", "Uso de artigos"], "ans": 0},
+                {"q": "O 'futuro do conjuntivo' exprime:", "opts": ["Eventualidade futura", "Certeza presente", "Facto passado", "Ordem direta"], "ans": 0},
+                {"q": "O registo 'coloquial' caracteriza-se por:", "opts": ["Espontaneidade", "Formalidade extrema", "Tecnicismos", "Arcaísmos"], "ans": 0},
+                {"q": "Uma 'oração subordinada substantiva' funciona como:", "opts": ["Substantivo", "Adjetivo", "Advérbio", "Verbo"], "ans": 0},
+                {"q": "O 'discurso indireto livre' combina:", "opts": ["Narração e pensamento", "Só diálogos", "Só descrição", "Só narração"], "ans": 0},
+            ],
+            "C2": [
+                {"q": "O que é a 'dêixis'?", "opts": ["Referências contextuais", "Repetição de sons", "Mudança de significado", "Ordem das palavras"], "ans": 0},
+                {"q": "A 'pragmática' estuda:", "opts": ["Uso da linguagem em contexto", "Estrutura gramatical", "Os sons", "Origem das palavras"], "ans": 0},
+                {"q": "Uma 'implicatura conversacional' é:", "opts": ["Significado implícito", "Significado literal", "Erro gramatical", "Falta de coerência"], "ans": 0},
+                {"q": "O 'polissíndeto' consiste em:", "opts": ["Repetição de conjunções", "Omissão de conjunções", "Uso de metáforas", "Mudança de ordem"], "ans": 0},
+                {"q": "O que estuda a 'sociolinguística'?", "opts": ["Relação língua-sociedade", "Só gramática", "Só fonética", "Só etimologia"], "ans": 0},
+            ],
         },
         "german": {
             "A1": [
@@ -928,7 +1018,35 @@ async def seed_quizzes():
                 {"q": "Welche Zeitform ist 'werde sprechen'?", "opts": ["Futur", "Präsens", "Präteritum", "Konjunktiv"], "ans": 0},
                 {"q": "Ergänze: 'Ich mag ___ Musik'", "opts": ["die", "der", "das", "den"], "ans": 0},
             ],
-        }
+            "B1": [
+                {"q": "Wenn ich reich ___, würde ich reisen", "opts": ["wäre", "bin", "war", "werde"], "ans": 0},
+                {"q": "'Ich hatte gegessen' ist:", "opts": ["Plusquamperfekt", "Präsens", "Futur", "Präteritum"], "ans": 0},
+                {"q": "Der Konjunktiv II drückt aus:", "opts": ["Irrealität oder Wünsche", "Fakten", "Befehle", "Fragen"], "ans": 0},
+                {"q": "'Obwohl' zeigt an:", "opts": ["Konzession", "Ursache", "Zweck", "Zeit"], "ans": 0},
+                {"q": "Ergänze: 'Er behauptet, dass er ___ krank'", "opts": ["sei", "ist", "war", "wird"], "ans": 0},
+            ],
+            "B2": [
+                {"q": "'Hätte ich gewusst' drückt aus:", "opts": ["Irreale Vergangenheit", "Gewissheit", "Pflicht", "Wunsch"], "ans": 0},
+                {"q": "Was ist eine 'Metapher'?", "opts": ["Impliziter Vergleich", "Expliziter Vergleich", "Übertreibung", "Personifikation"], "ans": 0},
+                {"q": "Der Konjunktiv I wird verwendet für:", "opts": ["Indirekte Rede", "Direkte Befehle", "Fakten", "Fragen"], "ans": 0},
+                {"q": "'Trotzdem' zeigt an:", "opts": ["Konzession", "Ursache", "Folge", "Addition"], "ans": 0},
+                {"q": "Ein 'trennbares Verb' ist:", "opts": ["Verb mit abtrennbarer Vorsilbe", "Hilfsverb", "Modalverb", "Reflexives Verb"], "ans": 0},
+            ],
+            "C1": [
+                {"q": "Was ist 'Nominalisierung'?", "opts": ["Substantivierung von Verben", "Verbkonjugation", "Adjektivdeklination", "Satzstellung"], "ans": 0},
+                {"q": "Das 'Passiv' betont:", "opts": ["Die Handlung", "Den Handelnden", "Die Zeit", "Den Ort"], "ans": 0},
+                {"q": "Ein 'Partizipialattribut' ist:", "opts": ["Partizip als Adjektiv vor Nomen", "Verb im Satz", "Adverb", "Konjunktion"], "ans": 0},
+                {"q": "Der 'gehobene Stil' zeichnet sich aus durch:", "opts": ["Formelle Sprache", "Umgangssprache", "Dialekt", "Jugendsprache"], "ans": 0},
+                {"q": "Was ist eine 'Ellipse'?", "opts": ["Auslassung von Wörtern", "Wiederholung", "Übertreibung", "Vergleich"], "ans": 0},
+            ],
+            "C2": [
+                {"q": "Was untersucht die 'Pragmatik'?", "opts": ["Sprachverwendung im Kontext", "Grammatikregeln", "Laute", "Wortbildung"], "ans": 0},
+                {"q": "Eine 'Implikatur' ist:", "opts": ["Implizite Bedeutung", "Wörtliche Bedeutung", "Grammatikfehler", "Stilmittel"], "ans": 0},
+                {"q": "'Register' bezieht sich auf:", "opts": ["Sprachvarietät je nach Situation", "Akzent", "Dialekt", "Nur Slang"], "ans": 0},
+                {"q": "Ein 'Sprechakt' ist:", "opts": ["Durch Sprache vollzogene Handlung", "Nur Text", "Grammatikregel", "Wortliste"], "ans": 0},
+                {"q": "Was ist 'Deixis'?", "opts": ["Kontextabhängige Verweise", "Feste Bedeutungen", "Grammatikregeln", "Aussprache"], "ans": 0},
+            ],
+        },
     }
     
     for course in courses:
