@@ -1461,6 +1461,92 @@ Ejemplo: Yo hablo español.""",
                 ],
                 "grammar_points": ["Conjugación de verbos regulares -AR, -ER, -IR", "Estructura básica de oraciones", "Negación con 'no'"]
             },
+            {
+                "title": "Lección 4: La Familia y Descripciones",
+                "content": """Aprende vocabulario sobre la familia y cómo describir personas.
+
+**Miembros de la familia:**
+- padre/madre (father/mother)
+- hijo/hija (son/daughter)
+- hermano/hermana (brother/sister)
+- abuelo/abuela (grandfather/grandmother)
+- tío/tía (uncle/aunt)
+- primo/prima (cousin)
+
+**Adjetivos para describir personas:**
+- alto/bajo (tall/short)
+- joven/viejo (young/old)
+- guapo/feo (handsome/ugly)
+- simpático/antipático (nice/unpleasant)
+
+**Estructura: SER + adjetivo**
+- Mi padre es alto.
+- Mi hermana es simpática.""",
+                "vocabulary": [
+                    {"word": "Familia", "translation": "Family", "example": "Mi familia es grande."},
+                    {"word": "Padre", "translation": "Father", "example": "Mi padre trabaja mucho."},
+                    {"word": "Madre", "translation": "Mother", "example": "Mi madre cocina muy bien."},
+                    {"word": "Hermano", "translation": "Brother", "example": "Tengo un hermano mayor."},
+                    {"word": "Alto", "translation": "Tall", "example": "Mi abuelo es muy alto."}
+                ],
+                "grammar_points": ["Adjetivos: concordancia de género y número", "Verbo TENER: tengo, tienes, tiene", "Posesivos: mi, tu, su, nuestro"]
+            },
+            {
+                "title": "Lección 5: Actividades Diarias",
+                "content": """Aprende a hablar sobre tu rutina diaria y actividades cotidianas.
+
+**Verbos reflexivos:**
+- levantarse (to get up)
+- ducharse (to shower)
+- vestirse (to get dressed)
+- acostarse (to go to bed)
+
+**Expresiones de tiempo:**
+- por la mañana (in the morning)
+- por la tarde (in the afternoon)
+- por la noche (at night)
+- todos los días (every day)
+
+**Ejemplo de rutina:**
+Me levanto a las 7. Me ducho y me visto. Desayuno a las 8. Voy al trabajo a las 9.""",
+                "vocabulary": [
+                    {"word": "Levantarse", "translation": "To get up", "example": "Me levanto temprano."},
+                    {"word": "Desayunar", "translation": "To have breakfast", "example": "Desayuno café con tostadas."},
+                    {"word": "Trabajar", "translation": "To work", "example": "Trabajo en una oficina."},
+                    {"word": "Almorzar", "translation": "To have lunch", "example": "Almuerzo a las 2."},
+                    {"word": "Cenar", "translation": "To have dinner", "example": "Ceno con mi familia."}
+                ],
+                "grammar_points": ["Verbos reflexivos y su conjugación", "Expresiones de frecuencia: siempre, nunca, a veces", "La hora: ¿Qué hora es?"]
+            },
+            {
+                "title": "Lección 6: Lugares y Direcciones",
+                "content": """Aprende a preguntar y dar direcciones, y vocabulario de lugares.
+
+**Lugares en la ciudad:**
+- la estación (the station)
+- el supermercado (the supermarket)
+- el banco (the bank)
+- la farmacia (the pharmacy)
+- el hospital (the hospital)
+
+**Preguntar direcciones:**
+- ¿Dónde está...? (Where is...?)
+- ¿Cómo llego a...? (How do I get to...?)
+
+**Dar direcciones:**
+- Sigue recto (Go straight)
+- Gira a la derecha/izquierda (Turn right/left)
+- Está al lado de... (It's next to...)
+- Está enfrente de... (It's in front of...)""",
+                "vocabulary": [
+                    {"word": "Calle", "translation": "Street", "example": "Vivo en la calle Mayor."},
+                    {"word": "Cerca", "translation": "Near", "example": "El banco está cerca."},
+                    {"word": "Lejos", "translation": "Far", "example": "El aeropuerto está lejos."},
+                    {"word": "Derecha", "translation": "Right", "example": "Gira a la derecha."},
+                    {"word": "Izquierda", "translation": "Left", "example": "El parque está a la izquierda."}
+                ],
+                "grammar_points": ["Preposiciones de lugar: en, sobre, debajo, al lado de", "Verbo ESTAR para ubicación", "Imperativo: sigue, gira, cruza"]
+            },
         ],
         "english": [
             {
@@ -1547,6 +1633,92 @@ Example: I speak English.""",
                 ],
                 "grammar_points": ["Present Simple tense", "Present Continuous tense", "Question formation with do/does"]
             },
+            {
+                "title": "Lesson 4: Family and Descriptions",
+                "content": """Learn vocabulary about family and how to describe people.
+
+**Family members:**
+- father/mother
+- son/daughter
+- brother/sister
+- grandfather/grandmother
+- uncle/aunt
+- cousin
+
+**Adjectives to describe people:**
+- tall/short
+- young/old
+- handsome/ugly
+- nice/unpleasant
+
+**Structure: BE + adjective**
+- My father is tall.
+- My sister is nice.""",
+                "vocabulary": [
+                    {"word": "Family", "translation": "Familia", "example": "My family is big."},
+                    {"word": "Father", "translation": "Padre", "example": "My father works a lot."},
+                    {"word": "Mother", "translation": "Madre", "example": "My mother cooks very well."},
+                    {"word": "Brother", "translation": "Hermano", "example": "I have an older brother."},
+                    {"word": "Tall", "translation": "Alto", "example": "My grandfather is very tall."}
+                ],
+                "grammar_points": ["Adjectives: order and position", "Verb HAVE: have, has", "Possessives: my, your, his, her, our, their"]
+            },
+            {
+                "title": "Lesson 5: Daily Activities",
+                "content": """Learn to talk about your daily routine and everyday activities.
+
+**Daily routine verbs:**
+- wake up
+- take a shower
+- get dressed
+- go to bed
+
+**Time expressions:**
+- in the morning
+- in the afternoon
+- at night
+- every day
+
+**Example routine:**
+I wake up at 7. I take a shower and get dressed. I have breakfast at 8. I go to work at 9.""",
+                "vocabulary": [
+                    {"word": "Wake up", "translation": "Despertarse", "example": "I wake up early."},
+                    {"word": "Breakfast", "translation": "Desayuno", "example": "I have coffee for breakfast."},
+                    {"word": "Work", "translation": "Trabajo", "example": "I work in an office."},
+                    {"word": "Lunch", "translation": "Almuerzo", "example": "I have lunch at 2."},
+                    {"word": "Dinner", "translation": "Cena", "example": "I have dinner with my family."}
+                ],
+                "grammar_points": ["Adverbs of frequency: always, never, sometimes", "Telling the time: What time is it?", "Prepositions of time: at, in, on"]
+            },
+            {
+                "title": "Lesson 6: Places and Directions",
+                "content": """Learn to ask for and give directions, and vocabulary about places.
+
+**Places in the city:**
+- the station
+- the supermarket
+- the bank
+- the pharmacy
+- the hospital
+
+**Asking for directions:**
+- Where is...?
+- How do I get to...?
+
+**Giving directions:**
+- Go straight
+- Turn right/left
+- It's next to...
+- It's in front of...""",
+                "vocabulary": [
+                    {"word": "Street", "translation": "Calle", "example": "I live on Main Street."},
+                    {"word": "Near", "translation": "Cerca", "example": "The bank is near."},
+                    {"word": "Far", "translation": "Lejos", "example": "The airport is far."},
+                    {"word": "Right", "translation": "Derecha", "example": "Turn right."},
+                    {"word": "Left", "translation": "Izquierda", "example": "The park is on the left."}
+                ],
+                "grammar_points": ["Prepositions of place: in, on, under, next to", "There is / There are", "Imperative: go, turn, cross"]
+            },
         ],
         "portuguese": [
             {
@@ -1620,6 +1792,82 @@ segunda-feira, terça-feira, quarta-feira, quinta-feira, sexta-feira, sábado, d
                     {"word": "Ler", "translation": "To read", "example": "Ela lê um livro."}
                 ],
                 "grammar_points": ["Conjugação de verbos regulares -AR, -ER, -IR", "Estrutura básica de frases", "Negação com 'não'"]
+            },
+            {
+                "title": "Lição 4: A Família e Descrições",
+                "content": """Aprenda vocabulário sobre a família e como descrever pessoas.
+
+**Membros da família:**
+- pai/mãe (father/mother)
+- filho/filha (son/daughter)
+- irmão/irmã (brother/sister)
+- avô/avó (grandfather/grandmother)
+- tio/tia (uncle/aunt)
+- primo/prima (cousin)
+
+**Adjetivos para descrever pessoas:**
+- alto/baixo (tall/short)
+- jovem/velho (young/old)
+- bonito/feio (handsome/ugly)
+- simpático/antipático (nice/unpleasant)""",
+                "vocabulary": [
+                    {"word": "Família", "translation": "Family", "example": "A minha família é grande."},
+                    {"word": "Pai", "translation": "Father", "example": "O meu pai trabalha muito."},
+                    {"word": "Mãe", "translation": "Mother", "example": "A minha mãe cozinha muito bem."},
+                    {"word": "Irmão", "translation": "Brother", "example": "Tenho um irmão mais velho."},
+                    {"word": "Alto", "translation": "Tall", "example": "O meu avô é muito alto."}
+                ],
+                "grammar_points": ["Adjetivos: concordância de gênero e número", "Verbo TER: tenho, tens, tem", "Possessivos: meu, teu, seu, nosso"]
+            },
+            {
+                "title": "Lição 5: Atividades Diárias",
+                "content": """Aprenda a falar sobre sua rotina diária.
+
+**Verbos reflexivos:**
+- acordar (to wake up)
+- tomar banho (to shower)
+- vestir-se (to get dressed)
+- deitar-se (to go to bed)
+
+**Expressões de tempo:**
+- de manhã (in the morning)
+- à tarde (in the afternoon)
+- à noite (at night)
+- todos os dias (every day)""",
+                "vocabulary": [
+                    {"word": "Acordar", "translation": "To wake up", "example": "Eu acordo cedo."},
+                    {"word": "Pequeno-almoço", "translation": "Breakfast", "example": "Tomo o pequeno-almoço às 8."},
+                    {"word": "Trabalhar", "translation": "To work", "example": "Trabalho num escritório."},
+                    {"word": "Almoçar", "translation": "To have lunch", "example": "Almoço às 13 horas."},
+                    {"word": "Jantar", "translation": "To have dinner", "example": "Janto com a família."}
+                ],
+                "grammar_points": ["Verbos reflexivos e sua conjugação", "Expressões de frequência", "As horas: Que horas são?"]
+            },
+            {
+                "title": "Lição 6: Lugares e Direções",
+                "content": """Aprenda a pedir e dar direções.
+
+**Lugares na cidade:**
+- a estação (the station)
+- o supermercado (the supermarket)
+- o banco (the bank)
+- a farmácia (the pharmacy)
+
+**Pedir direções:**
+- Onde fica...? (Where is...?)
+- Como chego a...? (How do I get to...?)
+
+**Dar direções:**
+- Siga em frente (Go straight)
+- Vire à direita/esquerda (Turn right/left)""",
+                "vocabulary": [
+                    {"word": "Rua", "translation": "Street", "example": "Moro na Rua Principal."},
+                    {"word": "Perto", "translation": "Near", "example": "O banco fica perto."},
+                    {"word": "Longe", "translation": "Far", "example": "O aeroporto fica longe."},
+                    {"word": "Direita", "translation": "Right", "example": "Vire à direita."},
+                    {"word": "Esquerda", "translation": "Left", "example": "O parque fica à esquerda."}
+                ],
+                "grammar_points": ["Preposições de lugar: em, sobre, debaixo", "Verbo FICAR para localização", "Imperativo: siga, vire, atravesse"]
             },
         ],
         "german": [
@@ -1696,6 +1944,82 @@ Beispiel: Ich spreche Deutsch.""",
                     {"word": "Lesen", "translation": "To read", "example": "Sie liest ein Buch."}
                 ],
                 "grammar_points": ["Konjugation regelmäßiger Verben", "Verben haben und sein", "Grundlegende Satzstellung"]
+            },
+            {
+                "title": "Lektion 4: Familie und Beschreibungen",
+                "content": """Lernen Sie Vokabular über die Familie und wie man Personen beschreibt.
+
+**Familienmitglieder:**
+- Vater/Mutter (father/mother)
+- Sohn/Tochter (son/daughter)
+- Bruder/Schwester (brother/sister)
+- Großvater/Großmutter (grandfather/grandmother)
+- Onkel/Tante (uncle/aunt)
+- Cousin/Cousine (cousin)
+
+**Adjektive zur Personenbeschreibung:**
+- groß/klein (tall/short)
+- jung/alt (young/old)
+- hübsch/hässlich (handsome/ugly)
+- nett/unfreundlich (nice/unfriendly)""",
+                "vocabulary": [
+                    {"word": "Familie", "translation": "Family", "example": "Meine Familie ist groß."},
+                    {"word": "Vater", "translation": "Father", "example": "Mein Vater arbeitet viel."},
+                    {"word": "Mutter", "translation": "Mother", "example": "Meine Mutter kocht sehr gut."},
+                    {"word": "Bruder", "translation": "Brother", "example": "Ich habe einen älteren Bruder."},
+                    {"word": "Groß", "translation": "Tall/Big", "example": "Mein Großvater ist sehr groß."}
+                ],
+                "grammar_points": ["Adjektivdeklination", "Verb HABEN: habe, hast, hat", "Possessivartikel: mein, dein, sein, ihr, unser"]
+            },
+            {
+                "title": "Lektion 5: Tägliche Aktivitäten",
+                "content": """Lernen Sie, über Ihren Tagesablauf zu sprechen.
+
+**Reflexive Verben:**
+- aufstehen (to get up)
+- sich duschen (to shower)
+- sich anziehen (to get dressed)
+- ins Bett gehen (to go to bed)
+
+**Zeitausdrücke:**
+- morgens (in the morning)
+- nachmittags (in the afternoon)
+- abends (in the evening)
+- jeden Tag (every day)""",
+                "vocabulary": [
+                    {"word": "Aufstehen", "translation": "To get up", "example": "Ich stehe früh auf."},
+                    {"word": "Frühstück", "translation": "Breakfast", "example": "Ich esse Frühstück um 8 Uhr."},
+                    {"word": "Arbeiten", "translation": "To work", "example": "Ich arbeite in einem Büro."},
+                    {"word": "Mittagessen", "translation": "Lunch", "example": "Das Mittagessen ist um 12."},
+                    {"word": "Abendessen", "translation": "Dinner", "example": "Wir essen Abendessen zusammen."}
+                ],
+                "grammar_points": ["Reflexive Verben und ihre Konjugation", "Trennbare Verben: aufstehen, anfangen", "Die Uhrzeit: Wie spät ist es?"]
+            },
+            {
+                "title": "Lektion 6: Orte und Wegbeschreibungen",
+                "content": """Lernen Sie, nach dem Weg zu fragen und Wegbeschreibungen zu geben.
+
+**Orte in der Stadt:**
+- der Bahnhof (the station)
+- der Supermarkt (the supermarket)
+- die Bank (the bank)
+- die Apotheke (the pharmacy)
+
+**Nach dem Weg fragen:**
+- Wo ist...? (Where is...?)
+- Wie komme ich zu...? (How do I get to...?)
+
+**Wegbeschreibungen geben:**
+- Gehen Sie geradeaus (Go straight)
+- Biegen Sie rechts/links ab (Turn right/left)""",
+                "vocabulary": [
+                    {"word": "Straße", "translation": "Street", "example": "Ich wohne in der Hauptstraße."},
+                    {"word": "Nah", "translation": "Near", "example": "Die Bank ist nah."},
+                    {"word": "Weit", "translation": "Far", "example": "Der Flughafen ist weit."},
+                    {"word": "Rechts", "translation": "Right", "example": "Biegen Sie rechts ab."},
+                    {"word": "Links", "translation": "Left", "example": "Der Park ist links."}
+                ],
+                "grammar_points": ["Präpositionen mit Dativ: in, an, auf, neben", "Imperativ: gehen Sie, biegen Sie ab", "Wechselpräpositionen"]
             },
         ],
     }
