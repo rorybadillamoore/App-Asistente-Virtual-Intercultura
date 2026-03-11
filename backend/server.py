@@ -1252,11 +1252,37 @@ async def seed_full_database():
     
     # Clear existing data
     await db.courses.delete_many({})
+    await db.lessons.delete_many({})
     await db.flashcards.delete_many({})
     await db.quizzes.delete_many({})
     
-    # Create courses
+    # Lesson templates per language
+    lesson_templates = {
+        "spanish": [
+            {"title": "Lección 1: Introducción", "content": "Bienvenido al curso de español. En esta lección aprenderás los fundamentos básicos del idioma."},
+            {"title": "Lección 2: Vocabulario", "content": "Aprende las palabras más importantes y útiles para comunicarte en español."},
+            {"title": "Lección 3: Gramática", "content": "Domina las estructuras gramaticales esenciales del español."},
+        ],
+        "english": [
+            {"title": "Lesson 1: Introduction", "content": "Welcome to the English course. In this lesson you will learn the basic fundamentals of the language."},
+            {"title": "Lesson 2: Vocabulary", "content": "Learn the most important and useful words to communicate in English."},
+            {"title": "Lesson 3: Grammar", "content": "Master the essential grammatical structures of English."},
+        ],
+        "portuguese": [
+            {"title": "Lição 1: Introdução", "content": "Bem-vindo ao curso de português. Nesta lição você aprenderá os fundamentos básicos do idioma."},
+            {"title": "Lição 2: Vocabulário", "content": "Aprenda as palavras mais importantes e úteis para se comunicar em português."},
+            {"title": "Lição 3: Gramática", "content": "Domine as estruturas gramaticais essenciais do português."},
+        ],
+        "german": [
+            {"title": "Lektion 1: Einführung", "content": "Willkommen zum Deutschkurs. In dieser Lektion lernen Sie die grundlegenden Grundlagen der Sprache."},
+            {"title": "Lektion 2: Wortschatz", "content": "Lernen Sie die wichtigsten und nützlichsten Wörter, um auf Deutsch zu kommunizieren."},
+            {"title": "Lektion 3: Grammatik", "content": "Beherrschen Sie die wesentlichen grammatikalischen Strukturen des Deutschen."},
+        ],
+    }
+    
+    # Create courses and lessons
     courses_created = 0
+    lessons_created = 0
     for lang, config in course_configs.items():
         for level, level_config in config["levels"].items():
             course = {
@@ -1264,16 +1290,27 @@ async def seed_full_database():
                 "level": level,
                 "title": level_config["title"],
                 "description": level_config["desc"],
-                "lessons": [
-                    {"title": f"Lección 1: Introducción", "content": f"Bienvenido al nivel {level} de {config['name']}"},
-                    {"title": f"Lección 2: Vocabulario", "content": f"Vocabulario esencial para nivel {level}"},
-                    {"title": f"Lección 3: Gramática", "content": f"Estructuras gramaticales de nivel {level}"},
-                ],
                 "created_by": "system",
                 "created_at": datetime.utcnow()
             }
-            await db.courses.insert_one(course)
+            result = await db.courses.insert_one(course)
+            course_id = str(result.inserted_id)
             courses_created += 1
+            
+            # Create lessons for this course
+            templates = lesson_templates.get(lang, lesson_templates["english"])
+            for order, lesson_template in enumerate(templates):
+                lesson = {
+                    "course_id": course_id,
+                    "title": lesson_template["title"],
+                    "content": f"{lesson_template['content']} (Nivel {level})",
+                    "vocabulary": [],
+                    "grammar_points": [],
+                    "order": order + 1,
+                    "created_at": datetime.utcnow()
+                }
+                await db.lessons.insert_one(lesson)
+                lessons_created += 1
     
     # Create flashcard decks for each language/level
     flashcard_data = {
@@ -1356,6 +1393,7 @@ async def seed_full_database():
     return {
         "message": "Full database seeded successfully",
         "courses": courses_created,
+        "lessons": lessons_created,
         "flashcard_decks": flashcards_created,
         "users_created": 2
     }
