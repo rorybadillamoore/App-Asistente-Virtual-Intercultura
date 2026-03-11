@@ -613,7 +613,7 @@ async def get_progress_by_language(current_user: dict = Depends(get_current_user
     quiz_scores = progress.get("quiz_scores", [])
     
     # Build language stats
-    languages = ["spanish", "english", "portuguese", "german"]
+    languages = ["spanish", "english", "portuguese", "german", "french"]
     result = []
     
     # Pre-fetch all lessons and quizzes to avoid N+1 queries
@@ -717,7 +717,8 @@ async def generate_exercise(request: AIExerciseRequest, current_user: dict = Dep
             "spanish": {"native": "Español", "instruction": "Spanish"},
             "english": {"native": "English", "instruction": "English"},
             "portuguese": {"native": "Português", "instruction": "Portuguese"},
-            "german": {"native": "Deutsch", "instruction": "German"}
+            "german": {"native": "Deutsch", "instruction": "German"},
+            "french": {"native": "Français", "instruction": "French"}
         }
         lang_info = language_names.get(request.language.lower(), {"native": request.language, "instruction": request.language})
         
@@ -820,46 +821,81 @@ IMPORTANT: Make this exercise unique and different from previous ones."""
 
 @api_router.post("/tts/generate")
 async def generate_tts(request: TTSRequest):
-    """Generate audio pronunciation for a word or phrase"""
+    """Generate audio pronunciation using ElevenLabs for natural multilingual TTS"""
+    api_key = os.environ.get('ELEVENLABS_API_KEY')
+    
+    if api_key:
+        try:
+            from elevenlabs import ElevenLabs
+            import base64
+            
+            client = ElevenLabs(api_key=api_key)
+            
+            # ElevenLabs voice IDs for each language (eleven_multilingual_v2 model)
+            voice_map = {
+                "spanish":    "pqHfZKP75CvOlQylNhV4",  # Bill
+                "english":    "EXAVITQu4vr4xnSDxMaL",  # Sarah
+                "portuguese": "onwK4e9ZLuTAKqWW03F9",  # Daniel
+                "german":     "iP95p4xoKVk53GoZ742B",  # Chris
+                "french":     "XB0fDUnXU5powFXDhCwa",  # Charlotte
+            }
+            voice_id = voice_map.get(request.language.lower(), "EXAVITQu4vr4xnSDxMaL")
+            
+            audio_generator = client.text_to_speech.convert(
+                text=request.text,
+                voice_id=voice_id,
+                model_id="eleven_multilingual_v2",
+                output_format="mp3_44100_128",
+            )
+            
+            audio_data = b""
+            for chunk in audio_generator:
+                audio_data += chunk
+            
+            audio_base64 = base64.b64encode(audio_data).decode('utf-8')
+            
+            return {
+                "success": True,
+                "audio_base64": audio_base64,
+                "format": "mp3",
+                "provider": "elevenlabs"
+            }
+            
+        except Exception as e:
+            logger.warning(f"ElevenLabs TTS failed (falling back to OpenAI): {str(e)}")
+    
+    # Fallback to OpenAI TTS
     try:
         from emergentintegrations.llm.openai import OpenAITextToSpeech
+        import base64
         
-        api_key = os.environ.get('EMERGENT_LLM_KEY')
-        if not api_key:
+        openai_key = os.environ.get('EMERGENT_LLM_KEY')
+        if not openai_key:
             raise HTTPException(status_code=500, detail="TTS service not configured")
         
-        # Select voice based on language for native-sounding pronunciation
-        # OpenAI TTS voices: alloy, echo, fable, onyx, nova, shimmer
-        # After testing, these voices produce the most natural pronunciation:
-        # - nova: Clear, warm - best for Spanish (sounds most natural)
-        # - shimmer: Soft, expressive - excellent for Portuguese
-        # - nova: Warm conversational - good for English
-        # - onyx: Deep, clear - good for German
-        voice_map = {
-            "spanish": "nova",        # Nova sounds most natural for Spanish
-            "english": "nova",        # Warm conversational for English  
-            "portuguese": "shimmer",  # Shimmer is softer and better for Portuguese
-            "german": "onyx"          # Deep voice suits German pronunciation
+        voice_map_openai = {
+            "spanish": "shimmer",
+            "english": "nova",
+            "portuguese": "shimmer",
+            "german": "fable",
+            "french": "shimmer",
         }
-        voice = voice_map.get(request.language.lower(), "nova")
+        voice = voice_map_openai.get(request.language.lower(), "shimmer")
         
-        tts = OpenAITextToSpeech(api_key=api_key)
-        
-        # Generate audio as base64 for easy frontend consumption
-        # Using tts-1-hd for higher quality pronunciation
-        # Speed 0.9 for slightly slower, clearer pronunciation
+        tts = OpenAITextToSpeech(api_key=openai_key)
         audio_base64 = await tts.generate_speech_base64(
             text=request.text,
             model="tts-1-hd",
             voice=voice,
             response_format="mp3",
-            speed=0.9  # Slightly slower for clearer pronunciation
+            speed=0.85
         )
         
         return {
             "success": True,
             "audio_base64": audio_base64,
-            "format": "mp3"
+            "format": "mp3",
+            "provider": "openai"
         }
         
     except Exception as e:
@@ -1217,6 +1253,80 @@ async def seed_quizzes():
                 {"q": "Was ist 'Code-Switching'?", "opts": ["Wechsel zwischen Sprachen", "Ein Dialekt", "Eine Sprache", "Ein Akzent"], "ans": 0},
             ],
         },
+        "french": {
+            "A1": [
+                {"q": "Comment dit-on 'hello' en français?", "opts": ["Bonjour", "Au revoir", "Merci", "S'il vous plaît"], "ans": 0},
+                {"q": "Le pluriel de 'livre' est:", "opts": ["livres", "livrees", "livras", "livre"], "ans": 0},
+                {"q": "Complétez: 'Je ___ étudiant'", "opts": ["suis", "es", "est", "sommes"], "ans": 0},
+                {"q": "Que signifie 'bonjour'?", "opts": ["Good morning/Hello", "Good night", "Goodbye", "Thank you"], "ans": 0},
+                {"q": "L'article pour 'maison' est:", "opts": ["la", "le", "les", "l'"], "ans": 0},
+                {"q": "Comment dit-on 'thank you'?", "opts": ["Merci", "Bonjour", "Au revoir", "S'il vous plaît"], "ans": 0},
+                {"q": "Complétez: 'Elle ___ Marie'", "opts": ["s'appelle", "m'appelle", "t'appelles", "s'appellent"], "ans": 0},
+                {"q": "Le nombre 'cinq' est:", "opts": ["5", "4", "6", "3"], "ans": 0},
+                {"q": "La couleur 'rouge' en anglais est:", "opts": ["Red", "Blue", "Green", "Yellow"], "ans": 0},
+                {"q": "Quel jour vient après lundi?", "opts": ["Mardi", "Mercredi", "Dimanche", "Vendredi"], "ans": 0},
+            ],
+            "A2": [
+                {"q": "Hier, je ___ au cinéma", "opts": ["suis allé", "vais", "irai", "allais"], "ans": 0},
+                {"q": "Le passé composé de 'manger' est:", "opts": ["j'ai mangé", "je mange", "je mangerai", "je mangeais"], "ans": 0},
+                {"q": "Le superlatif de 'grand' est:", "opts": ["le plus grand", "plus grand", "très grand", "le grand"], "ans": 0},
+                {"q": "Quel temps verbal est 'je parlerai'?", "opts": ["Futur simple", "Présent", "Passé", "Conditionnel"], "ans": 0},
+                {"q": "Complétez: 'J'aime ___ musique'", "opts": ["la", "le", "un", "une"], "ans": 0},
+                {"q": "Le contraire de 'grand' est:", "opts": ["petit", "gros", "long", "fort"], "ans": 0},
+                {"q": "Comment dit-on 'I was eating'?", "opts": ["Je mangeais", "Je mange", "Je mangerai", "J'ai mangé"], "ans": 0},
+                {"q": "Complétez: 'Nous ___ à Paris'", "opts": ["habitons", "habite", "habites", "habitent"], "ans": 0},
+                {"q": "Que signifie 'il fait froid'?", "opts": ["It's cold", "It's hot", "It's raining", "It's sunny"], "ans": 0},
+                {"q": "Le pluriel de 'œil' est:", "opts": ["yeux", "œils", "œilles", "œil"], "ans": 0},
+            ],
+            "B1": [
+                {"q": "Si j'étais riche, je ___ le monde", "opts": ["voyagerais", "voyage", "voyagerai", "ai voyagé"], "ans": 0},
+                {"q": "Un 'synonyme' est:", "opts": ["Un mot de sens similaire", "Un mot opposé", "Un terme technique", "Un mot ancien"], "ans": 0},
+                {"q": "Le conditionnel de 'pouvoir' est:", "opts": ["pourrait", "peut", "pouvait", "pourra"], "ans": 0},
+                {"q": "'J'avais mangé' est un temps:", "opts": ["Plus-que-parfait", "Présent", "Futur", "Imparfait"], "ans": 0},
+                {"q": "Complétez: 'Je doute qu'il ___ la vérité'", "opts": ["dise", "dit", "dira", "disait"], "ans": 0},
+                {"q": "Que signifie 'manquer' en anglais?", "opts": ["To miss", "To find", "To throw", "To lose"], "ans": 0},
+                {"q": "'Bien que' introduit une proposition:", "opts": ["Concessive", "Causale", "Finale", "Temporelle"], "ans": 0},
+                {"q": "Le participe présent de 'dormir' est:", "opts": ["dormant", "dormi", "dormant", "dormir"], "ans": 0},
+                {"q": "Que signifie 'avoir le cafard'?", "opts": ["To feel down", "To be happy", "To be hungry", "To be tired"], "ans": 0},
+                {"q": "Complétez: 'Il est important que tu ___ à l'heure'", "opts": ["arrives", "arrives", "arriveras", "es arrivé"], "ans": 0},
+            ],
+            "B2": [
+                {"q": "'Je serais allé si j'avais pu' exprime:", "opts": ["Condition irréelle passée", "Certitude", "Obligation", "Désir présent"], "ans": 0},
+                {"q": "'Ses yeux sont des étoiles' est:", "opts": ["Une métaphore", "Un comparatif", "Une hyperbole", "Une personnification"], "ans": 0},
+                {"q": "Le subjonctif exprime:", "opts": ["Doute, désir ou irréalité", "Faits concrets", "Actions passées", "Ordres directs"], "ans": 0},
+                {"q": "'Bien que' indique:", "opts": ["Concession", "Cause", "But", "Temps"], "ans": 0},
+                {"q": "Une 'périphrase verbale' est:", "opts": ["Verbe auxiliaire + infinitif", "Un seul verbe", "Deux noms", "Adjectif + nom"], "ans": 0},
+                {"q": "'À peine arrivé, il se mit à pleuvoir' signifie:", "opts": ["Dès qu'il arriva", "Quoiqu'il arriva", "Parce qu'il arriva", "S'il arriva"], "ans": 0},
+                {"q": "Le contraire de 'éphémère' est:", "opts": ["Durable", "Bref", "Rapide", "Lent"], "ans": 0},
+                {"q": "'Dont' est un pronom:", "opts": ["Relatif", "Personnel", "Démonstratif", "Indéfini"], "ans": 0},
+                {"q": "Quel temps est 'j'eusse chanté'?", "opts": ["Subjonctif plus-que-parfait", "Conditionnel", "Futur", "Présent"], "ans": 0},
+                {"q": "'Nonobstant' signifie:", "opts": ["Malgré cela", "Donc", "Parce que", "Bien que"], "ans": 0},
+            ],
+            "C1": [
+                {"q": "La 'déixis' est:", "opts": ["Références contextuelles du discours", "Répétition de sons", "Changement de sens", "Ordre des mots"], "ans": 0},
+                {"q": "L'analepse est:", "opts": ["Un retour en arrière narratif", "Une anticipation", "Une description", "Un dialogue"], "ans": 0},
+                {"q": "Le registre 'soutenu' se caractérise par:", "opts": ["Vocabulaire raffiné", "Langage familier", "Argot", "Termes techniques"], "ans": 0},
+                {"q": "Une 'proposition subordonnée substantive' fonctionne comme:", "opts": ["Nom", "Adjectif", "Adverbe", "Verbe"], "ans": 0},
+                {"q": "L'ellipse consiste en:", "opts": ["Omission d'éléments sous-entendus", "Répétition", "Exagération", "Comparaison"], "ans": 0},
+                {"q": "Une 'asyndète' est:", "opts": ["Juxtaposition sans conjonction", "Accumulation de conjonctions", "Une comparaison", "Une métaphore"], "ans": 0},
+                {"q": "Le 'zeugme' consiste à:", "opts": ["Rattacher à un verbe des compléments hétérogènes", "Répéter un mot", "Omettre un mot", "Inverser l'ordre"], "ans": 0},
+                {"q": "Un 'calembour' est:", "opts": ["Jeu de mots", "Une figure de style", "Un archaïsme", "Un néologisme"], "ans": 0},
+                {"q": "La 'syllepse de sens' consiste à:", "opts": ["Prendre un mot au sens propre et figuré", "Répéter un son", "Omettre un verbe", "Inverser les termes"], "ans": 0},
+                {"q": "Le 'chiasme' est une figure de:", "opts": ["Construction en miroir", "Répétition", "Opposition", "Comparaison"], "ans": 0},
+            ],
+            "C2": [
+                {"q": "Que étudie la 'pragmatique'?", "opts": ["L'usage du langage en contexte", "La grammaire", "Les sons", "L'étymologie"], "ans": 0},
+                {"q": "Une 'implicature conversationnelle' est:", "opts": ["Sens implicite non littéral", "Sens littéral", "Erreur grammaticale", "Incohérence"], "ans": 0},
+                {"q": "La 'polyphonie textuelle' fait référence à:", "opts": ["Pluralité de voix dans un texte", "Grammaire", "Phonétique", "Vocabulaire"], "ans": 0},
+                {"q": "'Acte illocutoire' est:", "opts": ["Intention de l'énoncé", "Prononciation", "Structure", "Sens littéral"], "ans": 0},
+                {"q": "Que est la 'diglossie'?", "opts": ["Coexistence de deux variétés linguistiques", "Un dialecte", "Une langue", "Un accent"], "ans": 0},
+                {"q": "La 'cohérence textuelle' se réalise par:", "opts": ["Connecteurs et références", "Ponctuation seule", "Vocabulaire seul", "Grammaire seule"], "ans": 0},
+                {"q": "Le 'style indirect libre' combine:", "opts": ["Narration et pensée du personnage", "Seulement des dialogues", "Seulement de la description", "Seulement de la narration"], "ans": 0},
+                {"q": "La 'modalisation' se réfère à:", "opts": ["L'attitude du locuteur envers ce qu'il dit", "Structure syntaxique", "Vocabulaire", "Phonétique"], "ans": 0},
+                {"q": "L'intertextualité implique:", "opts": ["Relation entre textes", "Grammaire", "Prononciation", "Vocabulaire"], "ans": 0},
+                {"q": "Que est le 'code-switching'?", "opts": ["Alternance entre langues", "Un dialecte", "Une langue", "Un accent"], "ans": 0},
+            ],
+        },
     }
     for course in courses:
         course_id = str(course["_id"])
@@ -1398,6 +1508,17 @@ async def seed_full_database():
                 "B2": {"title": "Deutsch Obere Mittelstufe", "desc": "Debatten, komplexe Texte und fließender Ausdruck von Ideen."},
                 "C1": {"title": "Deutsch Fortgeschritten", "desc": "Professionelle Kommunikation, akademische Texte und kulturelle Nuancen."},
                 "C2": {"title": "Deutsch Meisterschaft", "desc": "Muttersprachliche Kompetenz, Literatur, Dialekte und idiomatische Ausdrücke."},
+            }
+        },
+        "french": {
+            "name": "Français",
+            "levels": {
+                "A1": {"title": "Français Débutant", "desc": "Fondamentaux du français: salutations, présentations et vocabulaire essentiel."},
+                "A2": {"title": "Français Élémentaire", "desc": "Conversations quotidiennes, achats et descriptions de base."},
+                "B1": {"title": "Français Intermédiaire", "desc": "Exprimer des opinions, raconter des expériences et situations de voyage."},
+                "B2": {"title": "Français Intermédiaire Avancé", "desc": "Débats, textes complexes et expression fluide des idées."},
+                "C1": {"title": "Français Avancé", "desc": "Communication professionnelle, textes académiques et nuances culturelles."},
+                "C2": {"title": "Français Maîtrise", "desc": "Maîtrise native, littérature, dialectes et expressions idiomatiques."},
             }
         }
     }
@@ -2263,6 +2384,56 @@ Beispiel: Ich spreche Deutsch.""",
                 {"title": "Lektion 6: Kreatives Schreiben", "content": "Kreatives Schreiben: Erzählung, Poesie, eigener Stil.", "vocabulary": [{"word": "Erzählung", "translation": "Narrative"}, {"word": "Poesie", "translation": "Poetry"}, {"word": "Figur", "translation": "Character"}, {"word": "Handlung", "translation": "Plot"}, {"word": "Erzählstimme", "translation": "Narrative voice"}], "grammar_points": ["Stilistische Mittel", "Expressive Interpunktion"]},
             ],
         },
+        "french": {
+            "A1": [
+                {"title": "Leçon 1: Salutations de Base", "content": "Apprenez les salutations de base: Bonjour, Bonsoir, Au revoir, S'il vous plaît, Merci.", "vocabulary": [{"word": "Bonjour", "translation": "Hello/Good morning"}, {"word": "Au revoir", "translation": "Goodbye"}, {"word": "Merci", "translation": "Thank you"}, {"word": "S'il vous plaît", "translation": "Please"}, {"word": "Oui/Non", "translation": "Yes/No"}], "grammar_points": ["Pronoms: je, tu, il/elle", "Verbe ÊTRE: suis, es, est"]},
+                {"title": "Leçon 2: Se Présenter", "content": "Apprenez à vous présenter: Je m'appelle..., Je suis de..., J'ai... ans.", "vocabulary": [{"word": "Nom", "translation": "Name"}, {"word": "Âge", "translation": "Age"}, {"word": "Pays", "translation": "Country"}, {"word": "Ville", "translation": "City"}, {"word": "Profession", "translation": "Profession"}], "grammar_points": ["Verbe AVOIR", "Verbe S'APPELER"]},
+                {"title": "Leçon 3: Les Nombres 1-20", "content": "Apprenez les nombres de 1 à 20 en français.", "vocabulary": [{"word": "Un", "translation": "One"}, {"word": "Dix", "translation": "Ten"}, {"word": "Vingt", "translation": "Twenty"}, {"word": "Zéro", "translation": "Zero"}, {"word": "Nombre", "translation": "Number"}], "grammar_points": ["Nombres cardinaux", "Combien?"]},
+                {"title": "Leçon 4: Les Couleurs de Base", "content": "Apprenez les couleurs: rouge, bleu, vert, jaune, blanc, noir.", "vocabulary": [{"word": "Rouge", "translation": "Red"}, {"word": "Bleu", "translation": "Blue"}, {"word": "Vert", "translation": "Green"}, {"word": "Jaune", "translation": "Yellow"}, {"word": "Noir", "translation": "Black"}], "grammar_points": ["Accord des adjectifs", "Adjectifs de couleur"]},
+                {"title": "Leçon 5: La Famille Immédiate", "content": "Vocabulaire de famille: père, mère, frère, soeur.", "vocabulary": [{"word": "Père", "translation": "Father"}, {"word": "Mère", "translation": "Mother"}, {"word": "Frère", "translation": "Brother"}, {"word": "Soeur", "translation": "Sister"}, {"word": "Famille", "translation": "Family"}], "grammar_points": ["Adjectifs possessifs: mon, ton, son", "Pluriel des noms"]},
+                {"title": "Leçon 6: Les Objets de Classe", "content": "Vocabulaire scolaire: livre, cahier, crayon, table, chaise.", "vocabulary": [{"word": "Livre", "translation": "Book"}, {"word": "Crayon", "translation": "Pencil"}, {"word": "Table", "translation": "Table"}, {"word": "Chaise", "translation": "Chair"}, {"word": "Tableau", "translation": "Blackboard"}], "grammar_points": ["Articles: le, la, les", "Il y a + nom"]},
+            ],
+            "A2": [
+                {"title": "Leçon 1: La Routine Quotidienne", "content": "Décrivez votre journée: Je me lève, je prends le petit-déjeuner, je travaille.", "vocabulary": [{"word": "Se lever", "translation": "To get up"}, {"word": "Petit-déjeuner", "translation": "Breakfast"}, {"word": "Déjeuner", "translation": "Lunch"}, {"word": "Dîner", "translation": "Dinner"}, {"word": "Se coucher", "translation": "To go to bed"}], "grammar_points": ["Verbes pronominaux", "Adverbes de fréquence"]},
+                {"title": "Leçon 2: La Maison", "content": "Parties de la maison: cuisine, chambre, salle de bain, salon, jardin.", "vocabulary": [{"word": "Cuisine", "translation": "Kitchen"}, {"word": "Chambre", "translation": "Bedroom"}, {"word": "Salle de bain", "translation": "Bathroom"}, {"word": "Salon", "translation": "Living room"}, {"word": "Jardin", "translation": "Garden"}], "grammar_points": ["Prépositions de lieu", "Il y a/Il n'y a pas"]},
+                {"title": "Leçon 3: Les Achats et les Prix", "content": "Au magasin: Combien ça coûte? Je prends ça. Vous avez...?", "vocabulary": [{"word": "Magasin", "translation": "Shop"}, {"word": "Prix", "translation": "Price"}, {"word": "Pas cher", "translation": "Cheap"}, {"word": "Cher", "translation": "Expensive"}, {"word": "Argent", "translation": "Money"}], "grammar_points": ["Nombres 20-100", "Combien coûte/coûtent"]},
+                {"title": "Leçon 4: La Météo", "content": "Climat: Il fait beau, il pleut, il neige, il fait froid, il fait chaud.", "vocabulary": [{"word": "Soleil", "translation": "Sun"}, {"word": "Pluie", "translation": "Rain"}, {"word": "Neige", "translation": "Snow"}, {"word": "Vent", "translation": "Wind"}, {"word": "Nuage", "translation": "Cloud"}], "grammar_points": ["Il fait + adjectif", "Expressions météo"]},
+                {"title": "Leçon 5: Le Passé Composé", "content": "Parler du passé: Hier je suis allé, j'ai mangé, j'ai parlé.", "vocabulary": [{"word": "Hier", "translation": "Yesterday"}, {"word": "La semaine dernière", "translation": "Last week"}, {"word": "L'année dernière", "translation": "Last year"}, {"word": "Hier soir", "translation": "Last night"}, {"word": "Avant", "translation": "Before"}], "grammar_points": ["Passé composé avec avoir", "Passé composé avec être"]},
+                {"title": "Leçon 6: Les Projets Futurs", "content": "Exprimer des projets: Je vais voyager, Demain je vais, L'année prochaine...", "vocabulary": [{"word": "Demain", "translation": "Tomorrow"}, {"word": "Prochain", "translation": "Next"}, {"word": "Futur", "translation": "Future"}, {"word": "Projet", "translation": "Plan"}, {"word": "Vacances", "translation": "Vacation"}], "grammar_points": ["Aller + infinitif", "Futur simple"]},
+            ],
+            "B1": [
+                {"title": "Leçon 1: Expériences de Vie", "content": "Passé composé et imparfait: J'ai voyagé, je connaissais, je n'ai jamais...", "vocabulary": [{"word": "Expérience", "translation": "Experience"}, {"word": "Voyage", "translation": "Trip"}, {"word": "Aventure", "translation": "Adventure"}, {"word": "Souvenir", "translation": "Memory"}, {"word": "Opportunité", "translation": "Opportunity"}], "grammar_points": ["Distinction passé composé/imparfait", "Participes passés irréguliers"]},
+                {"title": "Leçon 2: Donner des Conseils", "content": "Exprimer des conseils: Tu devrais, je recommande, il vaut mieux...", "vocabulary": [{"word": "Conseil", "translation": "Advice"}, {"word": "Recommander", "translation": "To recommend"}, {"word": "Suggérer", "translation": "To suggest"}, {"word": "Convenir", "translation": "To be suitable"}, {"word": "Éviter", "translation": "To avoid"}], "grammar_points": ["Conditionnel présent", "Subjonctif présent basique"]},
+                {"title": "Leçon 3: Santé et Bien-être", "content": "Chez le médecin: J'ai mal, j'ai de la fièvre, j'ai besoin d'une ordonnance.", "vocabulary": [{"word": "Médecin", "translation": "Doctor"}, {"word": "Maladie", "translation": "Illness"}, {"word": "Symptôme", "translation": "Symptom"}, {"word": "Médicament", "translation": "Medicine"}, {"word": "Rendez-vous", "translation": "Appointment"}], "grammar_points": ["Avoir mal à...", "Expressions de malaise"]},
+                {"title": "Leçon 4: L'Environnement", "content": "Écologie: recycler, polluer, énergie renouvelable, changement climatique.", "vocabulary": [{"word": "Environnement", "translation": "Environment"}, {"word": "Recycler", "translation": "To recycle"}, {"word": "Pollution", "translation": "Pollution"}, {"word": "Nature", "translation": "Nature"}, {"word": "Durable", "translation": "Sustainable"}], "grammar_points": ["Voix passive basique", "Si + présent + futur"]},
+                {"title": "Leçon 5: Le Monde du Travail", "content": "Emploi: entretien, CV, expérience, compétences.", "vocabulary": [{"word": "Emploi", "translation": "Job"}, {"word": "Entretien", "translation": "Interview"}, {"word": "Salaire", "translation": "Salary"}, {"word": "Chef", "translation": "Boss"}, {"word": "Collègue", "translation": "Colleague"}], "grammar_points": ["Conditionnelles type 1", "Connecteurs causaux"]},
+                {"title": "Leçon 6: Voyages et Tourisme", "content": "Planifier des voyages: réserver, hébergement, itinéraire, destination.", "vocabulary": [{"word": "Réservation", "translation": "Booking"}, {"word": "Hébergement", "translation": "Accommodation"}, {"word": "Vol", "translation": "Flight"}, {"word": "Bagages", "translation": "Luggage"}, {"word": "Touriste", "translation": "Tourist"}], "grammar_points": ["Propositions temporelles avec QUAND", "Futur dans les subordonnées"]},
+            ],
+            "B2": [
+                {"title": "Leçon 1: Débats et Opinions", "content": "Argumenter: À mon avis, je considère que, cependant...", "vocabulary": [{"word": "Argument", "translation": "Argument"}, {"word": "Point de vue", "translation": "Perspective"}, {"word": "Défendre", "translation": "To defend"}, {"word": "Réfuter", "translation": "To refute"}, {"word": "Consensus", "translation": "Consensus"}], "grammar_points": ["Connecteurs argumentatifs", "Subjonctif dans les opinions"]},
+                {"title": "Leçon 2: Conditionnelles Complexes", "content": "Si j'avais su, je serais allé. Si j'avais le temps, je le ferais.", "vocabulary": [{"word": "Hypothèse", "translation": "Hypothesis"}, {"word": "Condition", "translation": "Condition"}, {"word": "Conséquence", "translation": "Consequence"}, {"word": "Probabilité", "translation": "Probability"}, {"word": "Supposition", "translation": "Assumption"}], "grammar_points": ["Conditionnel passé", "Plus-que-parfait du subjonctif"]},
+                {"title": "Leçon 3: Culture et Société", "content": "Sujets sociaux: immigration, mondialisation, traditions, identité.", "vocabulary": [{"word": "Société", "translation": "Society"}, {"word": "Culture", "translation": "Culture"}, {"word": "Tradition", "translation": "Tradition"}, {"word": "Mondialisation", "translation": "Globalization"}, {"word": "Identité", "translation": "Identity"}], "grammar_points": ["Voix passive", "Propositions relatives"]},
+                {"title": "Leçon 4: Technologie et Avenir", "content": "Innovation: intelligence artificielle, réseaux sociaux, vie privée numérique.", "vocabulary": [{"word": "Technologie", "translation": "Technology"}, {"word": "Innovation", "translation": "Innovation"}, {"word": "Numérique", "translation": "Digital"}, {"word": "Vie privée", "translation": "Privacy"}, {"word": "Algorithme", "translation": "Algorithm"}], "grammar_points": ["Futur antérieur", "Expressions de probabilité"]},
+                {"title": "Leçon 5: Art et Littérature", "content": "Critique culturelle: analyser, interpréter, symbolisme, métaphore.", "vocabulary": [{"word": "Oeuvre", "translation": "Work"}, {"word": "Auteur", "translation": "Author"}, {"word": "Style", "translation": "Style"}, {"word": "Critique", "translation": "Criticism"}, {"word": "Influence", "translation": "Influence"}], "grammar_points": ["Propositions concessives", "Bien que + subjonctif"]},
+                {"title": "Leçon 6: Économie et Affaires", "content": "Monde des affaires: investissement, marché, stratégie, concurrence.", "vocabulary": [{"word": "Entreprise", "translation": "Company"}, {"word": "Investissement", "translation": "Investment"}, {"word": "Marché", "translation": "Market"}, {"word": "Bénéfice", "translation": "Profit"}, {"word": "Concurrence", "translation": "Competition"}], "grammar_points": ["Discours indirect", "Vocabulaire des affaires"]},
+            ],
+            "C1": [
+                {"title": "Leçon 1: Nuances Grammaticales Avancées", "content": "Différences subtiles: subjonctif vs indicatif, discours indirect avancé.", "vocabulary": [{"word": "Nuance", "translation": "Nuance"}, {"word": "Subtilité", "translation": "Subtlety"}, {"word": "Ambiguïté", "translation": "Ambiguity"}, {"word": "Précision", "translation": "Precision"}, {"word": "Registre", "translation": "Register"}], "grammar_points": ["Subjonctif vs indicatif", "Formes verbales rares"]},
+                {"title": "Leçon 2: Expressions Idiomatiques", "content": "Idiotismes: avoir le cafard, casser les pieds, il ne faut pas pousser mémé.", "vocabulary": [{"word": "Expression idiomatique", "translation": "Idiom"}, {"word": "Expression", "translation": "Expression"}, {"word": "Familier", "translation": "Colloquial"}, {"word": "Figuré", "translation": "Figurative"}, {"word": "Littéral", "translation": "Literal"}], "grammar_points": ["Locutions figées", "Langage figuré"]},
+                {"title": "Leçon 3: Écriture Académique", "content": "Rédiger des dissertations: thèse, arguments, conclusions, citations.", "vocabulary": [{"word": "Dissertation", "translation": "Essay"}, {"word": "Thèse", "translation": "Thesis"}, {"word": "Hypothèse", "translation": "Hypothesis"}, {"word": "Bibliographie", "translation": "Bibliography"}, {"word": "Citer", "translation": "To cite"}], "grammar_points": ["Connecteurs du discours académique", "Nominalisation"]},
+                {"title": "Leçon 4: Variétés du Français", "content": "Dialectes: français québécois, belge, suisse, différences lexicales.", "vocabulary": [{"word": "Dialecte", "translation": "Dialect"}, {"word": "Variante", "translation": "Variant"}, {"word": "Accent", "translation": "Accent"}, {"word": "Lexique", "translation": "Lexicon"}, {"word": "Régionalisme", "translation": "Regionalism"}], "grammar_points": ["Différences France/Québec", "Vocabulaire régional"]},
+                {"title": "Leçon 5: Journalisme et Médias", "content": "Analyse des informations: titre, éditorial, biais, sources.", "vocabulary": [{"word": "Journalisme", "translation": "Journalism"}, {"word": "Éditorial", "translation": "Editorial"}, {"word": "Source", "translation": "Source"}, {"word": "Biais", "translation": "Bias"}, {"word": "Objectivité", "translation": "Objectivity"}], "grammar_points": ["Style journalistique", "Titres et ellipses"]},
+                {"title": "Leçon 6: Humour et Sarcasme", "content": "Comprendre l'ironie, les doubles sens, les blagues culturelles.", "vocabulary": [{"word": "Ironie", "translation": "Irony"}, {"word": "Sarcasme", "translation": "Sarcasm"}, {"word": "Double sens", "translation": "Double meaning"}, {"word": "Blague", "translation": "Joke"}, {"word": "Esprit", "translation": "Wit"}], "grammar_points": ["Intonation ironique", "Implicatures"]},
+            ],
+            "C2": [
+                {"title": "Leçon 1: Littérature Classique", "content": "Analyse de Molière, Voltaire, Proust: style, époque, influence.", "vocabulary": [{"word": "Classique", "translation": "Classic"}, {"word": "Baroque", "translation": "Baroque"}, {"word": "Lumières", "translation": "Enlightenment"}, {"word": "Modernisme", "translation": "Modernism"}, {"word": "Métrique", "translation": "Metrics"}], "grammar_points": ["Français classique", "Évolution linguistique"]},
+                {"title": "Leçon 2: Traduction Littéraire", "content": "Techniques de traduction: équivalence, adaptation, emprunt.", "vocabulary": [{"word": "Traduction", "translation": "Translation"}, {"word": "Équivalence", "translation": "Equivalence"}, {"word": "Adaptation", "translation": "Adaptation"}, {"word": "Fidélité", "translation": "Fidelity"}, {"word": "Interprétation", "translation": "Interpretation"}], "grammar_points": ["Faux amis", "Calques sémantiques"]},
+                {"title": "Leçon 3: Linguistique Appliquée", "content": "Phonologie, morphologie, syntaxe, sémantique, pragmatique.", "vocabulary": [{"word": "Phonème", "translation": "Phoneme"}, {"word": "Morphème", "translation": "Morpheme"}, {"word": "Syntaxe", "translation": "Syntax"}, {"word": "Sémantique", "translation": "Semantics"}, {"word": "Pragmatique", "translation": "Pragmatics"}], "grammar_points": ["Analyse syntaxique", "Fonctions du langage"]},
+                {"title": "Leçon 4: Rhétorique et Éloquence", "content": "Discours persuasif: ethos, pathos, logos, figures rhétoriques.", "vocabulary": [{"word": "Rhétorique", "translation": "Rhetoric"}, {"word": "Éloquence", "translation": "Eloquence"}, {"word": "Persuasion", "translation": "Persuasion"}, {"word": "Discours", "translation": "Speech"}, {"word": "Argument", "translation": "Argument"}], "grammar_points": ["Figures rhétoriques", "Structure argumentative"]},
+                {"title": "Leçon 5: Français Juridique", "content": "Langage légal: termes, documents, contrats, législation.", "vocabulary": [{"word": "Loi", "translation": "Law"}, {"word": "Contrat", "translation": "Contract"}, {"word": "Procès", "translation": "Lawsuit"}, {"word": "Jurisprudence", "translation": "Jurisprudence"}, {"word": "Clause", "translation": "Clause"}], "grammar_points": ["Langage formel", "Formules juridiques"]},
+                {"title": "Leçon 6: Écriture Créative", "content": "Écriture créative: narratif, poésie, style personnel.", "vocabulary": [{"word": "Narratif", "translation": "Narrative"}, {"word": "Poésie", "translation": "Poetry"}, {"word": "Personnage", "translation": "Character"}, {"word": "Intrigue", "translation": "Plot"}, {"word": "Voix narrative", "translation": "Narrative voice"}], "grammar_points": ["Ressources stylistiques", "Ponctuation expressive"]},
+            ],
+        },
     }
     
     for lang, config in course_configs.items():
@@ -2594,6 +2765,80 @@ Beispiel: Ich spreche Deutsch.""",
                 {"word": "Makellos", "translation": "Unblemished", "example": "Er behielt eine makellose Bilanz."},
             ],
         },
+        "french": {
+            "A1": [
+                {"word": "Bonjour", "translation": "Hello", "example": "Bonjour! Comment allez-vous?"},
+                {"word": "Merci", "translation": "Thank you", "example": "Merci beaucoup pour votre aide."},
+                {"word": "S'il vous plaît", "translation": "Please", "example": "Un café, s'il vous plaît."},
+                {"word": "Bonsoir", "translation": "Good evening", "example": "Bonsoir, comment allez-vous?"},
+                {"word": "Au revoir", "translation": "Goodbye", "example": "Au revoir, à demain!"},
+                {"word": "Oui", "translation": "Yes", "example": "Oui, je comprends."},
+                {"word": "Non", "translation": "No", "example": "Non, merci."},
+                {"word": "Maison", "translation": "House", "example": "Ma maison est grande."},
+                {"word": "Famille", "translation": "Family", "example": "Ma famille est petite."},
+                {"word": "Ami", "translation": "Friend", "example": "Jean est mon ami."},
+            ],
+            "A2": [
+                {"word": "Travail", "translation": "Work", "example": "Mon travail est intéressant."},
+                {"word": "Manger", "translation": "To eat", "example": "J'aime manger de la pizza."},
+                {"word": "Boire", "translation": "To drink", "example": "Voulez-vous boire quelque chose?"},
+                {"word": "Acheter", "translation": "To buy", "example": "J'achète du pain."},
+                {"word": "Argent", "translation": "Money", "example": "Je n'ai pas d'argent."},
+                {"word": "Temps", "translation": "Time/Weather", "example": "Je n'ai pas le temps."},
+                {"word": "Rue", "translation": "Street", "example": "J'habite dans cette rue."},
+                {"word": "Magasin", "translation": "Shop", "example": "Le magasin est fermé."},
+                {"word": "Cuisine", "translation": "Kitchen", "example": "La cuisine est grande."},
+                {"word": "Dormir", "translation": "To sleep", "example": "Je dois dormir plus."},
+            ],
+            "B1": [
+                {"word": "Développement", "translation": "Development", "example": "Le développement économique est important."},
+                {"word": "Environnement", "translation": "Environment", "example": "Nous devons protéger l'environnement."},
+                {"word": "Société", "translation": "Society", "example": "Nous vivons dans une société moderne."},
+                {"word": "Atteindre", "translation": "To achieve", "example": "Je veux atteindre mes objectifs."},
+                {"word": "Bien que", "translation": "Although", "example": "Bien qu'il pleuve, je sors."},
+                {"word": "Cependant", "translation": "However", "example": "C'est difficile, cependant j'essaie."},
+                {"word": "Réaliser", "translation": "To carry out", "example": "Je vais réaliser ce projet."},
+                {"word": "Grâce à", "translation": "Thanks to", "example": "J'ai réussi grâce à mon travail."},
+                {"word": "Domaine", "translation": "Field", "example": "Je travaille dans le domaine de l'éducation."},
+                {"word": "Fournir", "translation": "To provide", "example": "Je vais te fournir l'information."},
+            ],
+            "B2": [
+                {"word": "Indispensable", "translation": "Essential", "example": "Il est indispensable d'être ponctuel."},
+                {"word": "Aborder", "translation": "To address", "example": "Nous devons aborder ce problème."},
+                {"word": "Impliquer", "translation": "To entail", "example": "Ce travail implique des responsabilités."},
+                {"word": "Se passer de", "translation": "To do without", "example": "Je ne peux pas me passer de toi."},
+                {"word": "Constat", "translation": "Finding", "example": "C'était un constat important."},
+                {"word": "Nuance", "translation": "Nuance", "example": "Il y a une nuance importante."},
+                {"word": "Décomposer", "translation": "To break down", "example": "Je vais décomposer les données."},
+                {"word": "Sous-jacent", "translation": "Underlying", "example": "Il y a un problème sous-jacent."},
+                {"word": "Entraîner", "translation": "To bring about", "example": "Cela va entraîner des conséquences."},
+                {"word": "Approfondi", "translation": "Thorough", "example": "Il a une connaissance approfondie."},
+            ],
+            "C1": [
+                {"word": "Scruter", "translation": "To scrutinize", "example": "Elle a scruté chaque détail."},
+                {"word": "Dédaigner", "translation": "To disdain", "example": "Il ne faut pas dédaigner son avis."},
+                {"word": "Forger", "translation": "To coin", "example": "Il a forgé ce terme."},
+                {"word": "Élucider", "translation": "To elucidate", "example": "Nous devons élucider cette affaire."},
+                {"word": "Manifeste", "translation": "Evident", "example": "Il est manifeste qu'il avait raison."},
+                {"word": "Prodigieux", "translation": "Enormous", "example": "Il a fait un effort prodigieux."},
+                {"word": "Concluant", "translation": "Conclusively", "example": "Il a été prouvé de façon concluante."},
+                {"word": "Susmentionné", "translation": "Aforementioned", "example": "Le document susmentionné a été signé."},
+                {"word": "Éloigné", "translation": "Remote", "example": "Il a trouvé un endroit éloigné."},
+                {"word": "Inévitable", "translation": "Unavoidable", "example": "C'est une obligation inévitable."},
+            ],
+            "C2": [
+                {"word": "Se lamenter", "translation": "To wail", "example": "On pouvait l'entendre se lamenter."},
+                {"word": "Patrimoine", "translation": "Heritage", "example": "C'est une partie du patrimoine culturel."},
+                {"word": "Pérenne", "translation": "Everlasting", "example": "Son optimisme pérenne."},
+                {"word": "Immaculé", "translation": "Pristine", "example": "Dans son état immaculé."},
+                {"word": "Ambiguïté", "translation": "Ambiguity", "example": "Le texte est plein d'ambiguïté."},
+                {"word": "Paresser", "translation": "To idle", "example": "Arrête de paresser."},
+                {"word": "Pervers", "translation": "Perverse", "example": "Il a agi de manière perverse."},
+                {"word": "Diatribe", "translation": "Diatribe", "example": "Il a prononcé une violente diatribe."},
+                {"word": "Exécrer", "translation": "To execrate", "example": "Il exécrait ses actions."},
+                {"word": "Irréprochable", "translation": "Unblemished", "example": "Il a maintenu un bilan irréprochable."},
+            ],
+        },
     }
     
     flashcards_created = 0
@@ -2645,8 +2890,6 @@ Beispiel: Ich spreche Deutsch.""",
         "flashcard_decks": flashcards_created,
         "users_created": 2
     }
-
-# ================== ROOT ROUTES ==================
 
 @api_router.get("/")
 async def root():

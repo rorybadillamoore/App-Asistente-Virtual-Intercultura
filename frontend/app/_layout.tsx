@@ -16,6 +16,10 @@ export default function RootLayout() {
         <Stack.Screen name="quiz/[id]" options={{ headerShown: true, title: 'Quiz' }} />
         <Stack.Screen name="flashcard-session" options={{ headerShown: true, title: 'Flashcards' }} />
         <Stack.Screen name="ai-exercise" options={{ headerShown: true, title: 'Ejercicio IA' }} />
+        <Stack.Screen name="progress" options={{ headerShown: false }} />
+        <Stack.Screen name="settings" options={{ headerShown: false }} />
+        <Stack.Screen name="help" options={{ headerShown: false }} />
+        <Stack.Screen name="about" options={{ headerShown: false }} />
       </Stack>
     </>
   );

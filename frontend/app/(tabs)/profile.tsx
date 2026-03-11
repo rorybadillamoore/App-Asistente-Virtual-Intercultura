@@ -58,25 +58,25 @@ export default function ProfileScreen() {
       icon: 'stats-chart-outline' as const,
       title: 'Mi Progreso',
       subtitle: 'Ver estadísticas de aprendizaje',
-      onPress: () => router.push('/(tabs)'),
+      onPress: () => router.push('/progress'),
     },
     {
       icon: 'settings-outline' as const,
       title: 'Configuración',
       subtitle: 'Preferencias de la app',
-      onPress: () => showAlert('Configuración', 'Próximamente podrás personalizar tu experiencia de aprendizaje.'),
+      onPress: () => router.push('/settings'),
     },
     {
       icon: 'help-circle-outline' as const,
       title: 'Ayuda',
       subtitle: 'Preguntas frecuentes',
-      onPress: () => showAlert('Ayuda', '¿Necesitas ayuda?\n\nContacta a soporte:\ninfo@intercultura.cr\n\nHorario: Lunes a Viernes 8am - 5pm'),
+      onPress: () => router.push('/help'),
     },
     {
       icon: 'information-circle-outline' as const,
       title: 'Acerca de',
       subtitle: 'Intercultura Costa Rica v1.0',
-      onPress: () => showAlert('Acerca de Intercultura', 'Intercultura Costa Rica\nVersión 1.0\n\nAprende idiomas con metodología Cambridge.\n\n© 2025 Intercultura Costa Rica\nTodos los derechos reservados.'),
+      onPress: () => router.push('/about'),
     },
   ];
 

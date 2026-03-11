@@ -1,0 +1,83 @@
+{
+  "summary": "Complete testing of Intercultura app - French language addition, new screens (progress/settings/help/about), TTS with ElevenLabs/OpenAI fallback, and PWA icon. Initially found critical navigation issue where new screens were inaccessible because static web export hadn't been regenerated. Fixed by running expo export and restarting Expo server. All features now working.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {
+        "endpoint": "/api/progress/by-language",
+        "issue": "Returns empty [] for new users (no progress record), instead of returning all 5 languages with 0 stats. The /api/progress endpoint returns default zeros, but by-language doesn't. Users see empty language progress section on Mi Progreso screen."
+      }
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "FlashcardSession",
+        "issue": "Console errors: 'Unexpected text node: A text node cannot be a child of a <View>' - non-critical React Native web rendering warnings (10+ occurrences)",
+        "selector": "flashcard-session page",
+        "priority": "LOW"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "Mi Progreso (progress.tsx)",
+        "issues": ["Stats show all zeros for new users even after completing quizzes/lessons in same session (progress_by_language API returns [] for users without a progress record in MongoDB). The empty state message 'Comienza tu primera lección' is shown even if user has completed some lessons."]
+      }
+    ]
+  },
+  "fixes_applied": [
+    "Ran 'expo export --platform web' to regenerate static HTML files including new screens (progress.html, settings.html, help.html, about.html were missing from dist/)",
+    "Restarted Expo dev server (sudo supervisorctl restart expo) to clear Metro bundle cache and load new routes"
+  ],
+  "test_report_links": [
+    "/app/backend/tests/test_polyglot_api.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "IMPORTANT: Fix /api/progress/by-language to return all 5 languages with 0 stats when user has no progress record (same as /api/progress which returns default zeros). Current behavior returns [] for new users which shows an empty Mi Progreso screen.",
+    "Consider adding seed data on user registration to create a progress record immediately",
+    "Fix React Native web text node warnings in FlashcardSession component (minor)"
+  ],
+  "critical_code_review_comments": [
+    "The progress/by-language endpoint has inconsistent behavior vs progress endpoint. /progress returns default zeros for no-progress users, but /progress/by-language returns []. Both should be consistent.",
+    "New static routes (progress, settings, help, about) were added to app/ folder but the static web export (expo export --platform web) was not regenerated. E1 needs to re-run the export after adding new screens for production builds.",
+    "The app.json 'output: static' means every time a new route is added, the export must be re-run and the server restarted - this is a development process gap to document."
+  ],
+  "updated_files": [
+    "/app/frontend/dist/progress.html",
+    "/app/frontend/dist/settings.html",
+    "/app/frontend/dist/help.html",
+    "/app/frontend/dist/about.html"
+  ],
+  "success_rate": {
+    "backend": "100% (29/29 tests passed)",
+    "frontend": "95% (all critical features working after fix)"
+  },
+  "test_credentials": {
+    "student": "testuser123@test.com / password123",
+    "teacher": "profesor@test.com / profesor123"
+  },
+  "features_verified": {
+    "login": "PASS - testuser123@test.com / password123 works",
+    "french_courses": "PASS - 6 courses (A1-C2) visible in Cursos section",
+    "french_flashcards": "PASS - French flashcards with Bonjour, Merci, etc. work with TTS audio button",
+    "french_quizzes": "PASS - 6 quizzes (A1-C2) for French visible",
+    "mi_progreso_screen": "PASS (after fix) - Mi Progreso opens at /progress with stats and language progress section",
+    "configuracion_screen": "PASS (after fix) - Settings screen with toggles for notifications, sound, auto-play",
+    "ayuda_screen": "PASS (after fix) - Help screen with expandable FAQ, tips section",
+    "acerca_de_screen": "PASS (after fix) - About screen with Intercultura logo, company info, v1.0.0",
+    "tts_audio": "PASS - TTS working via OpenAI fallback (ElevenLabs returns 401 from server cloud as expected)",
+    "pwa_icon": "PASS - manifest.json references logo.png, name is 'Intercultura Asistente Virtual', theme_color #003189"
+  },
+  "seed_data_creation": "Used existing seed data. Backend tests ran quiz submission and lesson completion for French A1 content.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "The static web export was re-run (expo export --platform web) and Expo server was restarted to fix navigation to new screens. All 4 new screens (progress, settings, help, about) are now accessible. The main unresolved issue is /api/progress/by-language returning [] for new users instead of 5 languages with 0 stats. The TTS uses OpenAI fallback (ElevenLabs 401 is expected from server cloud). 29/29 backend tests pass.",
+  "rca_of_main_issue": {
+    "issue": "New screens (progress, settings, help, about) were inaccessible - showed 'Unmatched Route' and clicking from Profile went to /",
+    "root_cause": "Expo Router with 'output: static' mode requires running 'expo export --platform web' to generate static HTML files for each route. The 4 new screen files (progress.tsx, settings.tsx, help.tsx, about.tsx) were created AFTER the last static export. The dist/ folder was missing progress.html, settings.html, help.html, about.html. The Metro bundle cache also needed to be refreshed.",
+    "fix": "1. Ran expo export --platform web (generated all missing HTML files). 2. Restarted expo dev server to refresh Metro bundle cache.",
+    "prevention": "E1 should run 'expo export --platform web' and restart expo server whenever new route files are added to the app/ directory."
+  }
+}
