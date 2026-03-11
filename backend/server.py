@@ -829,16 +829,17 @@ async def generate_tts(request: TTSRequest):
             raise HTTPException(status_code=500, detail="TTS service not configured")
         
         # Select voice based on language for native-sounding pronunciation
-        # OpenAI voices: alloy, echo, fable, onyx, nova, shimmer
-        # - onyx: Deep, warm - works well for Spanish and Portuguese
-        # - fable: Expressive, dramatic - good for German
-        # - nova: Warm, conversational - good for English
-        # - echo: Soft, clear - alternative for Romance languages
+        # OpenAI TTS voices: alloy, echo, fable, onyx, nova, shimmer
+        # After testing, these voices produce the most natural pronunciation:
+        # - nova: Clear, warm - best for Spanish (sounds most natural)
+        # - shimmer: Soft, expressive - excellent for Portuguese
+        # - nova: Warm conversational - good for English
+        # - onyx: Deep, clear - good for German
         voice_map = {
-            "spanish": "onyx",       # Deep warm voice sounds natural for Spanish
-            "english": "nova",       # Warm conversational for English  
-            "portuguese": "onyx",    # Same deep warmth works well for Portuguese
-            "german": "fable"        # Expressive voice suits German pronunciation
+            "spanish": "nova",        # Nova sounds most natural for Spanish
+            "english": "nova",        # Warm conversational for English  
+            "portuguese": "shimmer",  # Shimmer is softer and better for Portuguese
+            "german": "onyx"          # Deep voice suits German pronunciation
         }
         voice = voice_map.get(request.language.lower(), "nova")
         
@@ -846,11 +847,13 @@ async def generate_tts(request: TTSRequest):
         
         # Generate audio as base64 for easy frontend consumption
         # Using tts-1-hd for higher quality pronunciation
+        # Speed 0.9 for slightly slower, clearer pronunciation
         audio_base64 = await tts.generate_speech_base64(
             text=request.text,
             model="tts-1-hd",
             voice=voice,
-            response_format="mp3"
+            response_format="mp3",
+            speed=0.9  # Slightly slower for clearer pronunciation
         )
         
         return {

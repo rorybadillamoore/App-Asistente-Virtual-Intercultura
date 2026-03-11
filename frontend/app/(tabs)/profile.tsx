@@ -45,6 +45,14 @@ export default function ProfileScreen() {
     }
   };
 
+  const showAlert = (title: string, message: string) => {
+    if (typeof window !== 'undefined') {
+      window.alert(`${title}\n\n${message}`);
+    } else {
+      Alert.alert(title, message);
+    }
+  };
+
   const menuItems = [
     {
       icon: 'stats-chart-outline' as const,
@@ -56,19 +64,19 @@ export default function ProfileScreen() {
       icon: 'settings-outline' as const,
       title: 'Configuración',
       subtitle: 'Preferencias de la app',
-      onPress: () => {},
+      onPress: () => showAlert('Configuración', 'Próximamente podrás personalizar tu experiencia de aprendizaje.'),
     },
     {
       icon: 'help-circle-outline' as const,
       title: 'Ayuda',
       subtitle: 'Preguntas frecuentes',
-      onPress: () => {},
+      onPress: () => showAlert('Ayuda', '¿Necesitas ayuda?\n\nContacta a soporte:\ninfo@intercultura.cr\n\nHorario: Lunes a Viernes 8am - 5pm'),
     },
     {
       icon: 'information-circle-outline' as const,
       title: 'Acerca de',
-      subtitle: 'Polyglot Academy v1.0',
-      onPress: () => {},
+      subtitle: 'Intercultura Costa Rica v1.0',
+      onPress: () => showAlert('Acerca de Intercultura', 'Intercultura Costa Rica\nVersión 1.0\n\nAprende idiomas con metodología Cambridge.\n\n© 2025 Intercultura Costa Rica\nTodos los derechos reservados.'),
     },
   ];
 
@@ -158,7 +166,7 @@ export default function ProfileScreen() {
 
         {/* Footer */}
         <Text style={styles.footerText}>
-          Polyglot Academy © 2025{"\n"}Metodología Cambridge
+          Intercultura Costa Rica © 2025{"\n"}Metodología Cambridge
         </Text>
       </ScrollView>
     </SafeAreaView>

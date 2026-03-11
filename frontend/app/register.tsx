@@ -78,7 +78,7 @@ export default function RegisterScreen() {
               <Ionicons name="person-add" size={40} color={COLORS.white} />
             </View>
             <Text style={styles.title}>Crear Cuenta</Text>
-            <Text style={styles.subtitle}>Únete a Polyglot Academy</Text>
+            <Text style={styles.subtitle}>Únete a Intercultura</Text>
           </View>
 
           <View style={styles.form}>
