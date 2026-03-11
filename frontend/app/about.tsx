@@ -67,16 +67,15 @@ export default function AboutScreen() {
         <Text style={styles.sectionTitle}>La Empresa</Text>
         <View style={styles.companyCard}>
           <Text style={styles.companyText}>
-            Intercultura Costa Rica es una institución educativa dedicada a la enseñanza de idiomas
-            con más de 20 años de experiencia formando profesionales bilingües y multilingües.
+            Recently named one of the "7 Best Spanish Schools in the World", Intercultura Costa Rica has a variety of Spanish programs for all ages and learners.{'\n\n'}You can learn Spanish in Costa Rica with our internationally recognized Spanish programs, offered year-round at both city and beachfront campuses. Each Spanish course is designed for full immersion in real-life contexts and social interactions.
           </Text>
           <View style={styles.contactRow}>
             <Ionicons name="globe-outline" size={16} color={COLORS.primary} />
-            <Text style={styles.contactLink}>www.intercultura.cr</Text>
+            <Text style={styles.contactLink}>www.interculturacostarica.com</Text>
           </View>
           <View style={styles.contactRow}>
             <Ionicons name="mail-outline" size={16} color={COLORS.primary} />
-            <Text style={styles.contactLink}>info@intercultura.cr</Text>
+            <Text style={styles.contactLink}>info@interculturacostarica.com</Text>
           </View>
         </View>
 
