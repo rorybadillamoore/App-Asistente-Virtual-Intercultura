@@ -611,29 +611,37 @@ async def get_progress_by_language(current_user: dict = Depends(get_current_user
     languages = ["spanish", "english", "portuguese", "german"]
     result = []
     
+    # Pre-fetch all lessons and quizzes to avoid N+1 queries
+    all_lesson_ids = [ObjectId(lid) for lid in completed_lessons if ObjectId.is_valid(lid)]
+    all_quiz_ids = [ObjectId(qs["quiz_id"]) for qs in quiz_scores if ObjectId.is_valid(qs.get("quiz_id", ""))]
+    
+    lessons_map = {}
+    if all_lesson_ids:
+        lessons_cursor = db.lessons.find({"_id": {"$in": all_lesson_ids}}, {"_id": 1, "course_id": 1})
+        async for lesson in lessons_cursor:
+            lessons_map[str(lesson["_id"])] = lesson.get("course_id")
+    
+    quizzes_map = {}
+    if all_quiz_ids:
+        quizzes_cursor = db.quizzes.find({"_id": {"$in": all_quiz_ids}}, {"_id": 1, "course_id": 1})
+        async for quiz in quizzes_cursor:
+            quizzes_map[str(quiz["_id"])] = quiz.get("course_id")
+    
     for lang in languages:
         # Get courses for this language
         courses = await db.courses.find({"language": lang}, {"_id": 1}).to_list(None)
         course_ids = [str(c["_id"]) for c in courses]
         
-        # Count lessons completed in this language
-        lang_lessons = 0
-        for lid in completed_lessons:
-            lesson = await db.lessons.find_one({"_id": ObjectId(lid)}, {"course_id": 1})
-            if lesson and lesson.get("course_id") in course_ids:
-                lang_lessons += 1
+        # Count lessons completed in this language (using pre-fetched data)
+        lang_lessons = sum(1 for lid in completed_lessons if lessons_map.get(lid) in course_ids)
         
-        # Count quizzes and scores for this language
-        lang_quiz_scores = []
-        for qs in quiz_scores:
-            quiz = await db.quizzes.find_one({"_id": ObjectId(qs["quiz_id"])}, {"course_id": 1})
-            if quiz and quiz.get("course_id") in course_ids:
-                lang_quiz_scores.append(qs["score"])
+        # Count quizzes and scores for this language (using pre-fetched data)
+        lang_quiz_scores = [qs["score"] for qs in quiz_scores if quizzes_map.get(qs.get("quiz_id")) in course_ids]
         
         avg = sum(lang_quiz_scores) / len(lang_quiz_scores) if lang_quiz_scores else 0.0
         
-        # Get flashcards for this language
-        flashcards = await db.flashcards.find({"language": lang}, {"_id": 1}).to_list(None)
+        # Get flashcards for this language (with limit)
+        flashcards = await db.flashcards.find({"language": lang}, {"_id": 1}).to_list(500)
         flashcard_ids = [str(f["_id"]) for f in flashcards]
         reviewed = len(set(progress.get("flashcards_reviewed", [])) & set(flashcard_ids))
         
