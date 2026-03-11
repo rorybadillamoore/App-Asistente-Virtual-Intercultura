@@ -3,35 +3,12 @@ import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../../src/constants/theme';
 import { useAuthStore } from '../../src/store/authStore';
-import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
-
-const styles = StyleSheet.create({
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F9FAFB',
-  },
-  loadingText: {
-    marginTop: 16,
-    color: '#6B7280',
-    fontSize: 16,
-  },
-});
 
 export default function TabLayout() {
-  const { user, isAuthenticated } = useAuthStore();
+  // Only subscribe to user object, not isAuthenticated
+  // This prevents re-renders when auth state changes during logout
+  const user = useAuthStore((state) => state.user);
   const isTeacher = user?.role === 'teacher';
-  
-  // If not authenticated, show loading screen while redirect happens
-  if (!isAuthenticated) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
-        <Text style={styles.loadingText}>Cerrando sesión...</Text>
-      </View>
-    );
-  }
 
   return (
     <Tabs

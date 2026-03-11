@@ -27,7 +27,8 @@ interface Stats {
 
 export default function TeacherScreen() {
   const router = useRouter();
-  const { user } = useAuthStore();
+  // Use selector to avoid re-renders when other auth state changes
+  const user = useAuthStore((state) => state.user);
   const [students, setStudents] = useState<Student[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [refreshing, setRefreshing] = useState(false);

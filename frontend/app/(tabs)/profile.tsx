@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator } from 'react-native';
 import { Link } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,16 +7,31 @@ import { COLORS, SPACING, APP_NAME } from '../../src/constants/theme';
 import { useAuthStore } from '../../src/store/authStore';
 
 export default function ProfileScreen() {
-  const { user, clearAuth } = useAuthStore();
+  // Get user once, don't subscribe to updates
+  const userRef = useRef(useAuthStore.getState().user);
+  const user = userRef.current;
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = () => {
-    // Clear auth first
-    clearAuth();
-    // Force a full page reload to reset all React state and avoid infinite loops
+    setIsLoggingOut(true);
+    // Navigate to dedicated logout page using full page navigation
+    // This avoids any React state updates that could cause infinite loops
     if (typeof window !== 'undefined') {
-      window.location.href = '/';
+      window.location.href = '/logout';
     }
   };
+
+  // Show loading screen while logging out
+  if (isLoggingOut) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+          <Text style={styles.loadingText}>Cerrando sesión...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -253,6 +268,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: COLORS.error,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: COLORS.background,
+  },
+  loadingText: {
+    marginTop: SPACING.md,
+    fontSize: 16,
+    color: COLORS.gray600,
   },
   footerText: {
     textAlign: 'center',
