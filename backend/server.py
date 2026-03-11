@@ -1256,27 +1256,328 @@ async def seed_full_database():
     await db.flashcards.delete_many({})
     await db.quizzes.delete_many({})
     
-    # Lesson templates per language
+    # Lesson templates per language with full content
     lesson_templates = {
         "spanish": [
-            {"title": "Lección 1: Introducción", "content": "Bienvenido al curso de español. En esta lección aprenderás los fundamentos básicos del idioma."},
-            {"title": "Lección 2: Vocabulario", "content": "Aprende las palabras más importantes y útiles para comunicarte en español."},
-            {"title": "Lección 3: Gramática", "content": "Domina las estructuras gramaticales esenciales del español."},
+            {
+                "title": "Lección 1: Introducción y Saludos",
+                "content": """Bienvenido al curso de español. En esta lección aprenderás los saludos básicos y presentaciones.
+
+**Saludos formales:**
+- Buenos días (Good morning)
+- Buenas tardes (Good afternoon)  
+- Buenas noches (Good evening)
+- ¿Cómo está usted? (How are you? - formal)
+
+**Saludos informales:**
+- ¡Hola! (Hello!)
+- ¿Qué tal? (How's it going?)
+- ¿Cómo estás? (How are you? - informal)
+
+**Presentaciones:**
+- Me llamo... (My name is...)
+- Mucho gusto (Nice to meet you)
+- Encantado/a (Pleased to meet you)""",
+                "vocabulary": [
+                    {"word": "Hola", "translation": "Hello", "example": "¡Hola! ¿Cómo estás?"},
+                    {"word": "Buenos días", "translation": "Good morning", "example": "Buenos días, señor García."},
+                    {"word": "Gracias", "translation": "Thank you", "example": "Muchas gracias por tu ayuda."},
+                    {"word": "Por favor", "translation": "Please", "example": "Un café, por favor."},
+                    {"word": "Adiós", "translation": "Goodbye", "example": "¡Adiós! Hasta mañana."}
+                ],
+                "grammar_points": ["Pronombres personales: yo, tú, él/ella, usted", "Verbo SER en presente: soy, eres, es", "Artículos: el, la, los, las"]
+            },
+            {
+                "title": "Lección 2: Vocabulario Esencial",
+                "content": """En esta lección aprenderás el vocabulario más útil para situaciones cotidianas.
+
+**Números del 1 al 10:**
+uno, dos, tres, cuatro, cinco, seis, siete, ocho, nueve, diez
+
+**Colores básicos:**
+rojo, azul, verde, amarillo, blanco, negro, naranja, rosa
+
+**Días de la semana:**
+lunes, martes, miércoles, jueves, viernes, sábado, domingo
+
+**Lugares comunes:**
+- la casa (the house)
+- la escuela (the school)
+- el trabajo (the work/job)
+- el restaurante (the restaurant)""",
+                "vocabulary": [
+                    {"word": "Casa", "translation": "House", "example": "Mi casa es grande."},
+                    {"word": "Familia", "translation": "Family", "example": "Mi familia es pequeña."},
+                    {"word": "Amigo", "translation": "Friend", "example": "Juan es mi amigo."},
+                    {"word": "Trabajo", "translation": "Work", "example": "Voy al trabajo cada día."},
+                    {"word": "Comida", "translation": "Food", "example": "La comida está deliciosa."}
+                ],
+                "grammar_points": ["Género de sustantivos: masculino y femenino", "Plural de sustantivos: -s, -es", "Adjetivos posesivos: mi, tu, su"]
+            },
+            {
+                "title": "Lección 3: Gramática Fundamental",
+                "content": """Domina las estructuras gramaticales esenciales del español.
+
+**Verbos regulares en presente (-AR):**
+- hablar: hablo, hablas, habla, hablamos, hablan
+- trabajar: trabajo, trabajas, trabaja, trabajamos, trabajan
+
+**Verbos regulares en presente (-ER):**
+- comer: como, comes, come, comemos, comen
+- beber: bebo, bebes, bebe, bebemos, beben
+
+**Verbos regulares en presente (-IR):**
+- vivir: vivo, vives, vive, vivimos, viven
+- escribir: escribo, escribes, escribe, escribimos, escriben
+
+**Estructura de oraciones:**
+Sujeto + Verbo + Complemento
+Ejemplo: Yo hablo español.""",
+                "vocabulary": [
+                    {"word": "Hablar", "translation": "To speak", "example": "Yo hablo español."},
+                    {"word": "Comer", "translation": "To eat", "example": "Nosotros comemos pizza."},
+                    {"word": "Vivir", "translation": "To live", "example": "Ellos viven en Madrid."},
+                    {"word": "Escribir", "translation": "To write", "example": "Tú escribes una carta."},
+                    {"word": "Leer", "translation": "To read", "example": "Ella lee un libro."}
+                ],
+                "grammar_points": ["Conjugación de verbos regulares -AR, -ER, -IR", "Estructura básica de oraciones", "Negación con 'no'"]
+            },
         ],
         "english": [
-            {"title": "Lesson 1: Introduction", "content": "Welcome to the English course. In this lesson you will learn the basic fundamentals of the language."},
-            {"title": "Lesson 2: Vocabulary", "content": "Learn the most important and useful words to communicate in English."},
-            {"title": "Lesson 3: Grammar", "content": "Master the essential grammatical structures of English."},
+            {
+                "title": "Lesson 1: Introduction and Greetings",
+                "content": """Welcome to the English course. In this lesson you will learn basic greetings and introductions.
+
+**Formal greetings:**
+- Good morning
+- Good afternoon
+- Good evening
+- How do you do?
+
+**Informal greetings:**
+- Hello! / Hi!
+- How are you?
+- What's up?
+
+**Introductions:**
+- My name is...
+- Nice to meet you
+- Pleased to meet you""",
+                "vocabulary": [
+                    {"word": "Hello", "translation": "Hola", "example": "Hello! How are you?"},
+                    {"word": "Goodbye", "translation": "Adiós", "example": "Goodbye! See you tomorrow."},
+                    {"word": "Please", "translation": "Por favor", "example": "A coffee, please."},
+                    {"word": "Thank you", "translation": "Gracias", "example": "Thank you very much."},
+                    {"word": "Welcome", "translation": "Bienvenido", "example": "Welcome to our class!"}
+                ],
+                "grammar_points": ["Personal pronouns: I, you, he, she, it, we, they", "Verb TO BE: am, is, are", "Articles: a, an, the"]
+            },
+            {
+                "title": "Lesson 2: Essential Vocabulary",
+                "content": """Learn the most useful vocabulary for everyday situations.
+
+**Numbers 1 to 10:**
+one, two, three, four, five, six, seven, eight, nine, ten
+
+**Basic colors:**
+red, blue, green, yellow, white, black, orange, pink
+
+**Days of the week:**
+Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday
+
+**Common places:**
+- the house
+- the school
+- the office
+- the restaurant""",
+                "vocabulary": [
+                    {"word": "House", "translation": "Casa", "example": "My house is big."},
+                    {"word": "Family", "translation": "Familia", "example": "My family is small."},
+                    {"word": "Friend", "translation": "Amigo", "example": "John is my friend."},
+                    {"word": "Work", "translation": "Trabajo", "example": "I go to work every day."},
+                    {"word": "Food", "translation": "Comida", "example": "The food is delicious."}
+                ],
+                "grammar_points": ["Singular and plural nouns", "Possessive adjectives: my, your, his, her", "There is / There are"]
+            },
+            {
+                "title": "Lesson 3: Fundamental Grammar",
+                "content": """Master the essential grammatical structures of English.
+
+**Present Simple:**
+- I work, you work, he/she works, we work, they work
+- I eat, you eat, he/she eats, we eat, they eat
+
+**Present Continuous:**
+- I am working, you are working, he/she is working
+- I am eating, you are eating, he/she is eating
+
+**Question formation:**
+- Do you speak English?
+- Does he work here?
+- Are you studying?
+
+**Sentence structure:**
+Subject + Verb + Object
+Example: I speak English.""",
+                "vocabulary": [
+                    {"word": "Speak", "translation": "Hablar", "example": "I speak English."},
+                    {"word": "Eat", "translation": "Comer", "example": "We eat pizza."},
+                    {"word": "Live", "translation": "Vivir", "example": "They live in London."},
+                    {"word": "Write", "translation": "Escribir", "example": "You write a letter."},
+                    {"word": "Read", "translation": "Leer", "example": "She reads a book."}
+                ],
+                "grammar_points": ["Present Simple tense", "Present Continuous tense", "Question formation with do/does"]
+            },
         ],
         "portuguese": [
-            {"title": "Lição 1: Introdução", "content": "Bem-vindo ao curso de português. Nesta lição você aprenderá os fundamentos básicos do idioma."},
-            {"title": "Lição 2: Vocabulário", "content": "Aprenda as palavras mais importantes e úteis para se comunicar em português."},
-            {"title": "Lição 3: Gramática", "content": "Domine as estruturas gramaticais essenciais do português."},
+            {
+                "title": "Lição 1: Introdução e Saudações",
+                "content": """Bem-vindo ao curso de português. Nesta lição você aprenderá saudações básicas.
+
+**Saudações formais:**
+- Bom dia (Good morning)
+- Boa tarde (Good afternoon)
+- Boa noite (Good evening)
+- Como vai o senhor/a senhora?
+
+**Saudações informais:**
+- Olá! / Oi!
+- Tudo bem?
+- Como você está?
+
+**Apresentações:**
+- Meu nome é... / Eu me chamo...
+- Prazer em conhecê-lo
+- Muito prazer""",
+                "vocabulary": [
+                    {"word": "Olá", "translation": "Hello", "example": "Olá! Como vai você?"},
+                    {"word": "Tchau", "translation": "Bye", "example": "Tchau! Até amanhã."},
+                    {"word": "Obrigado/a", "translation": "Thank you", "example": "Muito obrigado pela ajuda."},
+                    {"word": "Por favor", "translation": "Please", "example": "Um café, por favor."},
+                    {"word": "Desculpe", "translation": "Sorry", "example": "Desculpe pelo atraso."}
+                ],
+                "grammar_points": ["Pronomes pessoais: eu, tu/você, ele/ela", "Verbo SER: sou, és, é, somos, são", "Artigos: o, a, os, as"]
+            },
+            {
+                "title": "Lição 2: Vocabulário Essencial",
+                "content": """Aprenda o vocabulário mais útil para situações do dia a dia.
+
+**Números de 1 a 10:**
+um, dois, três, quatro, cinco, seis, sete, oito, nove, dez
+
+**Cores básicas:**
+vermelho, azul, verde, amarelo, branco, preto, laranja, rosa
+
+**Dias da semana:**
+segunda-feira, terça-feira, quarta-feira, quinta-feira, sexta-feira, sábado, domingo""",
+                "vocabulary": [
+                    {"word": "Casa", "translation": "House", "example": "A minha casa é grande."},
+                    {"word": "Família", "translation": "Family", "example": "A minha família é pequena."},
+                    {"word": "Amigo", "translation": "Friend", "example": "O João é meu amigo."},
+                    {"word": "Trabalho", "translation": "Work", "example": "Eu vou ao trabalho."},
+                    {"word": "Comida", "translation": "Food", "example": "A comida está deliciosa."}
+                ],
+                "grammar_points": ["Gênero dos substantivos", "Plural dos substantivos", "Adjetivos possessivos: meu, teu, seu"]
+            },
+            {
+                "title": "Lição 3: Gramática Fundamental",
+                "content": """Domine as estruturas gramaticais essenciais do português.
+
+**Verbos regulares em -AR:**
+- falar: falo, falas, fala, falamos, falam
+- trabalhar: trabalho, trabalhas, trabalha, trabalhamos, trabalham
+
+**Verbos regulares em -ER:**
+- comer: como, comes, come, comemos, comem
+- beber: bebo, bebes, bebe, bebemos, bebem
+
+**Verbos regulares em -IR:**
+- partir: parto, partes, parte, partimos, partem""",
+                "vocabulary": [
+                    {"word": "Falar", "translation": "To speak", "example": "Eu falo português."},
+                    {"word": "Comer", "translation": "To eat", "example": "Nós comemos pizza."},
+                    {"word": "Viver", "translation": "To live", "example": "Eles vivem em Lisboa."},
+                    {"word": "Escrever", "translation": "To write", "example": "Tu escreves uma carta."},
+                    {"word": "Ler", "translation": "To read", "example": "Ela lê um livro."}
+                ],
+                "grammar_points": ["Conjugação de verbos regulares -AR, -ER, -IR", "Estrutura básica de frases", "Negação com 'não'"]
+            },
         ],
         "german": [
-            {"title": "Lektion 1: Einführung", "content": "Willkommen zum Deutschkurs. In dieser Lektion lernen Sie die grundlegenden Grundlagen der Sprache."},
-            {"title": "Lektion 2: Wortschatz", "content": "Lernen Sie die wichtigsten und nützlichsten Wörter, um auf Deutsch zu kommunizieren."},
-            {"title": "Lektion 3: Grammatik", "content": "Beherrschen Sie die wesentlichen grammatikalischen Strukturen des Deutschen."},
+            {
+                "title": "Lektion 1: Einführung und Begrüßungen",
+                "content": """Willkommen zum Deutschkurs. In dieser Lektion lernen Sie grundlegende Begrüßungen.
+
+**Formelle Begrüßungen:**
+- Guten Morgen (Good morning)
+- Guten Tag (Good day)
+- Guten Abend (Good evening)
+- Wie geht es Ihnen?
+
+**Informelle Begrüßungen:**
+- Hallo!
+- Wie geht's?
+- Was geht?
+
+**Vorstellungen:**
+- Ich heiße... / Mein Name ist...
+- Freut mich
+- Angenehm""",
+                "vocabulary": [
+                    {"word": "Hallo", "translation": "Hello", "example": "Hallo! Wie geht es dir?"},
+                    {"word": "Tschüss", "translation": "Bye", "example": "Tschüss! Bis morgen."},
+                    {"word": "Danke", "translation": "Thank you", "example": "Vielen Dank für Ihre Hilfe."},
+                    {"word": "Bitte", "translation": "Please/You're welcome", "example": "Einen Kaffee, bitte."},
+                    {"word": "Entschuldigung", "translation": "Sorry/Excuse me", "example": "Entschuldigung, wo ist der Bahnhof?"}
+                ],
+                "grammar_points": ["Personalpronomen: ich, du, er/sie/es, wir, sie", "Verb SEIN: bin, bist, ist, sind", "Artikel: der, die, das"]
+            },
+            {
+                "title": "Lektion 2: Grundwortschatz",
+                "content": """Lernen Sie den wichtigsten Wortschatz für alltägliche Situationen.
+
+**Zahlen von 1 bis 10:**
+eins, zwei, drei, vier, fünf, sechs, sieben, acht, neun, zehn
+
+**Grundfarben:**
+rot, blau, grün, gelb, weiß, schwarz, orange, rosa
+
+**Wochentage:**
+Montag, Dienstag, Mittwoch, Donnerstag, Freitag, Samstag, Sonntag""",
+                "vocabulary": [
+                    {"word": "Haus", "translation": "House", "example": "Mein Haus ist groß."},
+                    {"word": "Familie", "translation": "Family", "example": "Meine Familie ist klein."},
+                    {"word": "Freund", "translation": "Friend", "example": "Hans ist mein Freund."},
+                    {"word": "Arbeit", "translation": "Work", "example": "Ich gehe zur Arbeit."},
+                    {"word": "Essen", "translation": "Food", "example": "Das Essen ist lecker."}
+                ],
+                "grammar_points": ["Genus der Substantive: maskulin, feminin, neutral", "Plural der Substantive", "Possessivartikel: mein, dein, sein"]
+            },
+            {
+                "title": "Lektion 3: Grundgrammatik",
+                "content": """Beherrschen Sie die wesentlichen grammatikalischen Strukturen.
+
+**Regelmäßige Verben im Präsens:**
+- spielen: ich spiele, du spielst, er spielt, wir spielen
+- arbeiten: ich arbeite, du arbeitest, er arbeitet
+- lernen: ich lerne, du lernst, er lernt
+
+**Wichtige unregelmäßige Verben:**
+- haben: ich habe, du hast, er hat
+- sein: ich bin, du bist, er ist
+
+**Satzstruktur:**
+Subjekt + Verb + Objekt
+Beispiel: Ich spreche Deutsch.""",
+                "vocabulary": [
+                    {"word": "Sprechen", "translation": "To speak", "example": "Ich spreche Deutsch."},
+                    {"word": "Essen", "translation": "To eat", "example": "Wir essen Pizza."},
+                    {"word": "Wohnen", "translation": "To live", "example": "Sie wohnen in Berlin."},
+                    {"word": "Schreiben", "translation": "To write", "example": "Du schreibst einen Brief."},
+                    {"word": "Lesen", "translation": "To read", "example": "Sie liest ein Buch."}
+                ],
+                "grammar_points": ["Konjugation regelmäßiger Verben", "Verben haben und sein", "Grundlegende Satzstellung"]
+            },
         ],
     }
     
@@ -1304,8 +1605,8 @@ async def seed_full_database():
                     "course_id": course_id,
                     "title": lesson_template["title"],
                     "content": f"{lesson_template['content']} (Nivel {level})",
-                    "vocabulary": [],
-                    "grammar_points": [],
+                    "vocabulary": lesson_template.get("vocabulary", []),
+                    "grammar_points": lesson_template.get("grammar_points", []),
                     "order": order + 1,
                     "created_at": datetime.utcnow()
                 }
