@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator } from 'react-native';
+import React, { useRef } from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { Link } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,31 +7,9 @@ import { COLORS, SPACING, APP_NAME } from '../../src/constants/theme';
 import { useAuthStore } from '../../src/store/authStore';
 
 export default function ProfileScreen() {
-  // Get user once, don't subscribe to updates
+  // Get user once at mount, don't subscribe to store updates
   const userRef = useRef(useAuthStore.getState().user);
   const user = userRef.current;
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-
-  const handleLogout = () => {
-    setIsLoggingOut(true);
-    // Navigate to dedicated logout page using full page navigation
-    // This avoids any React state updates that could cause infinite loops
-    if (typeof window !== 'undefined') {
-      window.location.href = '/logout';
-    }
-  };
-
-  // Show loading screen while logging out
-  if (isLoggingOut) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
-          <Text style={styles.loadingText}>Cerrando sesión...</Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -118,11 +96,34 @@ export default function ProfileScreen() {
           </Link>
         </View>
 
-        {/* Logout Button */}
-        <Pressable style={styles.logoutButton} onPress={handleLogout}>
-          <Ionicons name="log-out-outline" size={20} color={COLORS.error} />
-          <Text style={styles.logoutButtonText}>Cerrar Sesión</Text>
-        </Pressable>
+        {/* Logout Button - Using static HTML file to completely bypass React */}
+        {typeof window !== 'undefined' && (
+          <a 
+            href="/logout.html" 
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 16,
+              marginTop: 24,
+              marginHorizontal: 16,
+              backgroundColor: '#FEE2E2',
+              borderRadius: 12,
+              textDecoration: 'none',
+              gap: 8,
+            }}
+          >
+            <Ionicons name="log-out-outline" size={20} color={COLORS.error} />
+            <span style={{ color: COLORS.error, fontSize: 16, fontWeight: 600 }}>Cerrar Sesión</span>
+          </a>
+        )}
+        {typeof window === 'undefined' && (
+          <Pressable style={styles.logoutButton} disabled>
+            <Ionicons name="log-out-outline" size={20} color={COLORS.error} />
+            <Text style={styles.logoutButtonText}>Cerrar Sesión</Text>
+          </Pressable>
+        )}
 
         {/* Footer */}
         <Text style={styles.footerText}>{APP_NAME} v1.0{"\n"}© 2025 Metodología Cambridge</Text>
@@ -268,17 +269,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: COLORS.error,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: COLORS.background,
-  },
-  loadingText: {
-    marginTop: SPACING.md,
-    fontSize: 16,
-    color: COLORS.gray600,
   },
   footerText: {
     textAlign: 'center',
