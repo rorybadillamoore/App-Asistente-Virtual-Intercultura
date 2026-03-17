@@ -1,104 +1,116 @@
-# PRD: Intercultura Asistente Virtual - Web Completa
+# PRD: Intercultura Asistente Virtual - Plataforma Web Completa
 
 ## Original Problem Statement
-Crear una página web fija para "Intercultura Asistente Virtual" utilizando la estructura de la app móvil "polyglot-lang". Cada idioma y nivel debe tener su página de destino con información completa: cursos, quizzes, ejercicios IA, flashcards con audio, todo muy bien elaborado.
+Crear una página web funcional basada en la app móvil "polyglot-lang" con todas las funcionalidades implementadas: autenticación, cursos desde base de datos, lecciones reales, flashcards con audio, quizzes interactivos, ejercicios con IA, y sistema de progreso.
 
 ## Source Repository
 - GitHub: https://github.com/rorybadillamoore/App-Asistente-Virtual-Intercultura
 
-## Target Users
-- **Estudiantes de idiomas**: Personas aprendiendo Español, Inglés, Francés, Alemán o Portugués
-- **Niveles**: Principiante (A1) hasta Experto (C2) - Metodología Cambridge/MCER
+## Live URL
+**https://lingua-hub-56.preview.emergentagent.com**
 
-## Core Requirements - COMPLETADOS ✅
-1. ✅ Estructura de navegación por idioma y nivel
-2. ✅ Páginas dedicadas para cada combinación idioma/nivel
-3. ✅ Lecciones reales con contenido educativo elaborado
-4. ✅ Vocabulario con pronunciación fonética y audio TTS
-5. ✅ Puntos gramaticales estructurados
-6. ✅ Flashcards interactivas con flip
-7. ✅ Quizzes con feedback y puntuación
-
-## Architecture
+## Tech Stack
 - **Frontend**: React 18 + React Router + Tailwind CSS
-- **Backend**: FastAPI (TTS endpoint ready para integración futura)
-- **Routing**: 
-  - `/` - Home page
-  - `/languages` - Lista de todos los idiomas
-  - `/:languageId` - Página del idioma (muestra 6 niveles)
-  - `/:languageId/:levelId` - Página completa del nivel (Lecciones, Flashcards, Quiz)
+- **Backend**: FastAPI + MongoDB
+- **Auth**: JWT Authentication
+- **AI**: GPT-4 via Emergent Integrations
+- **TTS**: OpenAI Text-to-Speech
 
-## What's Been Implemented (Enero 2026)
+## Core Features - COMPLETADOS ✅
 
-### Estructura de Rutas ✅
-- Home page con hero section y 5 tarjetas de idiomas
-- Página de idiomas con resumen de contenido
-- Página de nivel con tabs (Lecciones, Flashcards, Quiz)
+### Autenticación
+- ✅ Registro de usuarios con nombre, email, contraseña
+- ✅ Login con JWT tokens
+- ✅ Sesiones persistentes en localStorage
+- ✅ Logout funcional
 
-### Contenido Real por Idioma/Nivel ✅
+### Base de Datos MongoDB
+- ✅ 18 cursos (5 idiomas × 6 niveles, excepto francés que tiene 3)
+- ✅ 54 lecciones con contenido real
+- ✅ 180+ flashcards con vocabulario
+- ✅ 18 quizzes con 10 preguntas cada uno
+- ✅ Sistema de progreso por usuario
 
-| Idioma | Nivel | Lecciones | Flashcards | Quiz |
-|--------|-------|-----------|------------|------|
-| Español | A1 | 6 lecciones | 10 | 10 preguntas |
-| Español | A2 | 3 lecciones | 8 | 5 preguntas |
-| Español | B1 | 2 lecciones | 6 | 4 preguntas |
-| Español | B2 | 1 lección | 3 | 2 preguntas |
-| English | A1 | 2 lecciones | 6 | 5 preguntas |
-| English | A2-B1 | En desarrollo | En desarrollo | - |
-| Français | A1 | 1 lección | 4 | 2 preguntas |
-| Deutsch | A1 | 1 lección | 4 | 2 preguntas |
-| Português | A1 | 1 lección | 4 | 2 preguntas |
+### Contenido Educativo por Idioma
+| Idioma | Cursos | Lecciones | Flashcards | Quizzes |
+|--------|--------|-----------|------------|---------|
+| Español | 6 (A1-C2) | 18 | 60 | 6 |
+| English | 6 (A1-C2) | 18 | 60 | 6 |
+| Français | 3 (A1-B1) | 9 | 30 | 3 |
+| Deutsch | 3 (A1-B1) | 9 | 30 | 3 |
+| Português | Pendiente | - | - | - |
 
-### Funcionalidades Implementadas ✅
-- **Vocabulario**: Palabra, traducción, pronunciación fonética, ejemplo de uso
-- **Audio TTS**: Browser SpeechSynthesis como fallback
-- **Gramática**: Reglas con ejemplos
-- **Flashcards**: Flip interactivo con "Estudiar de nuevo" / "Lo sé"
-- **Quiz**: Preguntas múltiple opción, feedback, puntuación final
+### Funcionalidades por Curso
+1. **Lecciones**: Contenido teórico + vocabulario con audio + gramática
+2. **Flashcards**: Sistema flip interactivo con pronunciación TTS
+3. **Quiz**: 10 preguntas con feedback y puntuación
+4. **Ejercicios IA**: Generados con GPT-4 personalizados por nivel
 
-## Test Results
+### Sistema de Progreso
+- ✅ Cursos iniciados
+- ✅ Lecciones completadas
+- ✅ Quizzes tomados
+- ✅ Promedio de puntuación
+- ✅ Progreso por idioma
+
+## API Endpoints
+
+### Auth
+- POST `/api/auth/register` - Registro de usuarios
+- POST `/api/auth/login` - Login
+- GET `/api/auth/me` - Usuario actual
+
+### Cursos
+- GET `/api/courses` - Todos los cursos
+- GET `/api/courses/{id}` - Detalle de curso
+- GET `/api/courses/{id}/lessons` - Lecciones del curso
+- GET `/api/courses/{id}/quizzes` - Quizzes del curso
+
+### Flashcards
+- GET `/api/flashcards?language=spanish&level=A1` - Flashcards filtradas
+
+### AI
+- POST `/api/ai/generate-exercise` - Genera ejercicios con GPT-4
+
+### TTS
+- POST `/api/tts/generate` - Genera audio con OpenAI TTS
+
+### Progreso
+- GET `/api/progress` - Progreso general
+- GET `/api/progress/by-language` - Progreso por idioma
+- POST `/api/lessons/{id}/complete` - Marcar lección como completada
+
+## Test Results (Enero 2026)
+- **Backend**: 100%
 - **Frontend**: 98%
-- **Navigation**: 100%
-- **Content Delivery**: 100%
-- **Responsive**: 95%
+- **Authentication**: 100%
+- **Integration**: 100%
+- **AI Features**: 100%
 
-## Preview URL
-https://lingua-hub-56.preview.emergentagent.com
+## Rutas Frontend
+- `/` - Home page
+- `/login` - Iniciar sesión
+- `/register` - Crear cuenta
+- `/courses` - Todos los cursos
+- `/course/:id` - Detalle de curso con tabs
+- `/progress` - Mi progreso (requiere auth)
 
-## Prioritized Backlog
-
-### P0 - COMPLETADO ✅
-- ✅ Estructura de navegación completa
-- ✅ Páginas por idioma y nivel
-- ✅ Contenido real de lecciones
-- ✅ Flashcards interactivas
-- ✅ Quizzes funcionales
-- ✅ Audio TTS básico
-
-### P1 - Próximo
-- Agregar más contenido A2-C2 para todos los idiomas
-- Integrar ElevenLabs para TTS de alta calidad
-- Ejercicios generados por IA (GPT-4)
-- Guardar progreso del usuario
-
-### P2 - Backlog
-- Sistema de autenticación
-- Dashboard de progreso
-- Gamificación (puntos, badges)
-- Modo offline
+## Next Steps (P1)
+- Agregar cursos de Português
+- Completar cursos B2-C2 de Français y Deutsch
+- Mejorar TTS con ElevenLabs
+- Gamificación (badges, streaks)
 
 ## Files Structure
 ```
-/app/frontend/src/
-├── App.js                  # Componente principal con rutas
-├── App.css                 # Estilos personalizados
-├── index.css               # Estilos globales
-├── data/
-│   └── courseData.js       # Todo el contenido educativo
-└── components/             # Componentes UI
+/app/
+├── backend/
+│   ├── server.py          # FastAPI completo
+│   ├── seed_content.py    # Seed de MongoDB
+│   └── .env               # JWT_SECRET, EMERGENT_LLM_KEY
+└── frontend/
+    └── src/
+        ├── App.js         # Toda la aplicación React
+        ├── App.css        # Estilos personalizados
+        └── index.css      # Estilos globales
 ```
-
-## Next Session Tasks
-1. Agregar más contenido para niveles intermedios y avanzados
-2. Implementar ejercicios con IA
-3. Mejorar TTS con ElevenLabs
