@@ -1,34 +1,453 @@
-.App-logo {
-    height: 40vmin;
-    pointer-events: none;
+/* App-specific styles for Intercultura Landing */
+
+/* Hero Section */
+.hero-section {
+  min-height: 100vh;
+  background: var(--background);
+  position: relative;
+  overflow: hidden;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-    .App-logo {
-        animation: App-logo-spin infinite 20s linear;
-    }
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 50%;
+  height: 100%;
+  background: radial-gradient(circle at 80% 30%, rgba(182, 201, 50, 0.15) 0%, transparent 50%);
+  pointer-events: none;
 }
 
-.App-header {
-    background-color: #0f0f10;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
+/* Code Phone - CSS Only Mobile Mockup */
+.code-phone {
+  position: relative;
+  border: 8px solid #1a1a1a;
+  border-radius: 2.5rem;
+  height: 580px;
+  width: 280px;
+  background: white;
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    inset 0 0 0 2px rgba(255, 255, 255, 0.1);
+  overflow: hidden;
 }
 
-.App-link {
-    color: #61dafb;
+.code-phone::before {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 24px;
+  background: #1a1a1a;
+  border-radius: 12px;
+  z-index: 10;
 }
 
-@keyframes App-logo-spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+.code-phone-screen {
+  height: 100%;
+  width: 100%;
+  padding-top: 44px;
+  background: linear-gradient(180deg, #F9F9F7 0%, #ffffff 100%);
+  overflow-y: auto;
+}
+
+/* Floating Chat Bubbles */
+.chat-bubble {
+  position: absolute;
+  padding: 8px 16px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.chat-bubble.spanish {
+  top: 15%;
+  right: -30px;
+  animation: bubble-float 4s ease-in-out infinite;
+}
+
+.chat-bubble.english {
+  top: 35%;
+  left: -40px;
+  animation: bubble-float 4.5s ease-in-out infinite 0.5s;
+}
+
+.chat-bubble.french {
+  bottom: 30%;
+  right: -20px;
+  animation: bubble-float 3.5s ease-in-out infinite 1s;
+}
+
+.chat-bubble.german {
+  top: 55%;
+  left: -30px;
+  animation: bubble-float 4.2s ease-in-out infinite 1.5s;
+}
+
+.chat-bubble.portuguese {
+  bottom: 15%;
+  left: -25px;
+  animation: bubble-float 3.8s ease-in-out infinite 0.8s;
+}
+
+/* Ticket Rail - Language Selector */
+.ticket-card {
+  background: white;
+  border: 2px dashed #e5e7eb;
+  border-radius: 16px;
+  padding: 20px 24px;
+  min-width: 160px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.ticket-card::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -10px;
+  width: 20px;
+  height: 20px;
+  background: var(--background);
+  border-radius: 50%;
+  transform: translateY(-50%);
+}
+
+.ticket-card::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -10px;
+  width: 20px;
+  height: 20px;
+  background: var(--background);
+  border-radius: 50%;
+  transform: translateY(-50%);
+}
+
+.ticket-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(34, 149, 91, 0.15);
+  border-color: var(--primary);
+}
+
+.ticket-card.active {
+  border-color: var(--primary);
+  border-style: solid;
+  background: linear-gradient(135deg, rgba(34, 149, 91, 0.05) 0%, white 100%);
+}
+
+/* Metro Line - Level Roadmap */
+.metro-line {
+  position: relative;
+  padding-left: 40px;
+}
+
+.metro-line::before {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, 
+    var(--primary-light) 0%, 
+    var(--primary) 30%,
+    var(--accent-orange) 60%,
+    var(--accent-red) 100%
+  );
+  border-radius: 2px;
+}
+
+.metro-station {
+  position: relative;
+  padding: 24px 0;
+  padding-left: 32px;
+}
+
+.metro-station::before {
+  content: '';
+  position: absolute;
+  left: -25px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  background: white;
+  border: 4px solid var(--primary);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  z-index: 1;
+}
+
+.metro-station:hover::before {
+  transform: translateY(-50%) scale(1.2);
+  box-shadow: 0 0 20px rgba(34, 149, 91, 0.4);
+}
+
+.metro-station.level-a1::before { border-color: #B6C932; }
+.metro-station.level-a2::before { border-color: #8fb82a; }
+.metro-station.level-b1::before { border-color: #fa8a00; }
+.metro-station.level-b2::before { border-color: #f07800; }
+.metro-station.level-c1::before { border-color: #e34b33; }
+.metro-station.level-c2::before { border-color: #c43d2a; }
+
+/* Bento Grid */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.bento-item {
+  background: white;
+  border-radius: 24px;
+  padding: 32px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+.bento-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+}
+
+.bento-item.large {
+  grid-column: span 2;
+}
+
+/* Flashcard */
+.flashcard-container {
+  perspective: 1000px;
+}
+
+.flashcard {
+  width: 320px;
+  height: 200px;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s;
+  cursor: pointer;
+}
+
+.flashcard.flipped {
+  transform: rotateY(180deg);
+}
+
+.flashcard-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.flashcard-front {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: white;
+}
+
+.flashcard-back {
+  background: white;
+  color: var(--text-main);
+  transform: rotateY(180deg);
+  border: 3px solid var(--primary-light);
+}
+
+/* Lesson Card */
+.lesson-card {
+  background: white;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  border-left: 4px solid var(--primary);
+}
+
+.lesson-card:hover {
+  transform: translateX(8px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Vocabulary Item */
+.vocab-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
+}
+
+.vocab-item:hover {
+  background: #f1f5f9;
+  transform: scale(1.02);
+}
+
+/* Grammar Box */
+.grammar-box {
+  background: linear-gradient(135deg, rgba(34, 149, 91, 0.08) 0%, rgba(182, 201, 50, 0.08) 100%);
+  border-radius: 16px;
+  padding: 24px;
+  border-left: 4px solid var(--primary);
+}
+
+/* Section Headers */
+.section-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--primary);
+}
+
+.section-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  color: var(--text-main);
+  line-height: 1.2;
+}
+
+/* Navigation */
+.nav-link {
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: color 0.2s ease;
+  position: relative;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--primary);
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover {
+  color: var(--primary);
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+/* Button Styles */
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  padding: 14px 32px;
+  border-radius: 100px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-primary:hover {
+  background: #1a7346;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(34, 149, 91, 0.3);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--primary);
+  padding: 14px 32px;
+  border-radius: 100px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: 2px solid var(--primary);
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background: var(--primary);
+  color: white;
+}
+
+/* Tabs */
+.tab-button {
+  padding: 10px 20px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.tab-button.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+.tab-button:hover:not(.active) {
+  color: var(--text-main);
+}
+
+/* Footer */
+.footer {
+  background: #1a1a1a;
+  color: white;
+  padding: 80px 0 40px;
+}
+
+.footer a {
+  color: rgba(255, 255, 255, 0.7);
+  transition: color 0.2s ease;
+}
+
+.footer a:hover {
+  color: var(--primary-light);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .bento-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .bento-item.large {
+    grid-column: span 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .code-phone {
+    height: 480px;
+    width: 240px;
+  }
+  
+  .hero-section {
+    min-height: auto;
+    padding: 80px 0;
+  }
+  
+  .chat-bubble {
+    display: none;
+  }
 }
