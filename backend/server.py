@@ -828,32 +828,28 @@ async def generate_tts(request: TTSRequest):
         if not api_key:
             raise HTTPException(status_code=500, detail="TTS service not configured")
         
-        # Select voice based on language for native-sounding pronunciation
         # OpenAI TTS voices: alloy, echo, fable, onyx, nova, shimmer
-        # After testing, these voices produce the most natural pronunciation:
-        # - nova: Clear, warm - best for Spanish (sounds most natural)
-        # - shimmer: Soft, expressive - excellent for Portuguese
-        # - nova: Warm conversational - good for English
-        # - onyx: Deep, clear - good for German
+        # For language learning, we need clear articulation:
+        # - shimmer: Best for clear articulation and pronunciation learning
+        # - Slower speed (0.85) helps with comprehension and learning
         voice_map = {
-            "spanish": "nova",        # Nova sounds most natural for Spanish
-            "english": "nova",        # Warm conversational for English  
-            "portuguese": "shimmer",  # Shimmer is softer and better for Portuguese
-            "german": "onyx"          # Deep voice suits German pronunciation
+            "spanish": "shimmer",     # Clear articulation for Spanish
+            "english": "nova",        # Warm for English  
+            "portuguese": "shimmer",  # Clear articulation for Portuguese
+            "german": "fable"         # Expressive for German
         }
-        voice = voice_map.get(request.language.lower(), "nova")
+        voice = voice_map.get(request.language.lower(), "shimmer")
         
         tts = OpenAITextToSpeech(api_key=api_key)
         
-        # Generate audio as base64 for easy frontend consumption
-        # Using tts-1-hd for higher quality pronunciation
-        # Speed 0.9 for slightly slower, clearer pronunciation
+        # Using tts-1-hd for highest quality
+        # Speed 0.85 for clear, slow pronunciation ideal for language learning
         audio_base64 = await tts.generate_speech_base64(
             text=request.text,
             model="tts-1-hd",
             voice=voice,
             response_format="mp3",
-            speed=0.9  # Slightly slower for clearer pronunciation
+            speed=0.85
         )
         
         return {
