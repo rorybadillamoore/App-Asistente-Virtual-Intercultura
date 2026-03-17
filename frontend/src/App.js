@@ -256,12 +256,14 @@ const CodePhone = ({ selectedLanguage, selectedLevel }) => {
             <button 
               className={`tab-button flex-1 text-xs ${activeTab === 'vocab' ? 'active' : ''}`}
               onClick={() => setActiveTab('vocab')}
+              data-testid="tab-vocab"
             >
               Vocabulario
             </button>
             <button 
               className={`tab-button flex-1 text-xs ${activeTab === 'grammar' ? 'active' : ''}`}
               onClick={() => setActiveTab('grammar')}
+              data-testid="tab-grammar"
             >
               Gramática
             </button>
