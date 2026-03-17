@@ -1,0 +1,135 @@
+{
+  "identity": {
+    "persona": "E1",
+    "tone": "Educational, Organic, Vibrant, Swiss-International",
+    "theme": "light",
+    "design_principles": [
+      "Fusion: Academic Rigor x Tropical Warmth",
+      "Content is King: Real language examples, no Lorem Ipsum",
+      "The Code-Phone: Build the device with CSS, not images",
+      "Swiss Grid: Alignment and typography drive the structure"
+    ]
+  },
+  "typography": {
+    "primary_font": "Manrope",
+    "secondary_font": "DM Serif Display",
+    "font_loading_instruction": "Import fonts from Google Fonts in index.css: @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Manrope:wght@200;300;400;500;600;700;800&display=swap');",
+    "rules": {
+      "headings": "font-serif tracking-tight text-primary-900",
+      "subheadings": "font-sans uppercase tracking-widest text-xs font-bold text-primary-600",
+      "body": "font-sans text-slate-600 leading-relaxed",
+      "ui_text": "font-sans font-medium text-slate-700"
+    }
+  },
+  "colors": {
+    "palette": {
+      "primary": "#22955B",
+      "primary_light": "#B6C932",
+      "accent_red": "#e34b33",
+      "accent_orange": "#fa8a00",
+      "accent_blue": "#003189",
+      "background": "#F9F9F7",
+      "surface": "#FFFFFF",
+      "text_main": "#1a1a1a",
+      "text_muted": "#64748b"
+    },
+    "usage": {
+      "primary": "Main buttons, active states, headers",
+      "primary_light": "Background blobs, secondary highlights",
+      "accent_red": "Error states, urgent notices, 'Hard' difficulty",
+      "accent_orange": "Warnings, 'Medium' difficulty, Flashcards",
+      "accent_blue": "Links, 'Easy' difficulty, Info cards"
+    },
+    "gradients": "No full screen gradients. Use soft radial gradients for backgrounds: radial-gradient(circle at 50% 50%, #B6C93220 0%, transparent 50%)"
+  },
+  "layout": {
+    "grid_system": "Use a 12-column grid for the main container. Marketing sections should use 'The Tetris Grid' (Mode A).",
+    "spacing": "Relaxed. Use p-8 to p-24 for section padding.",
+    "container": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+  },
+  "components": {
+    "Hero": {
+      "name": "The Polyglot Split",
+      "structure": "Split screen. Left: Typography + CTA. Right: The Code-Phone.",
+      "visuals": "Background: #F9F9F7 with subtle noise texture. Foreground: Large serif headline 'Hable el mundo'.",
+      "interaction": "The Code-Phone on the right should float (animate-float). Floating 'Chat Bubbles' with greetings in 5 languages surround it."
+    },
+    "CodePhone": {
+      "description": "A CSS-only mobile phone mockup.",
+      "classes": "relative border-8 border-gray-900 rounded-[2.5rem] h-[600px] w-[300px] bg-white shadow-2xl overflow-hidden",
+      "content": "Inside the phone, render the 'Lesson Preview' component."
+    },
+    "LanguageSelector": {
+      "name": "The Ticket Rail",
+      "structure": "Horizontal scroll or flex-wrap row.",
+      "item_style": "Card appearing like a travel ticket or passport stamp. White bg, dashed border, flag icon, language name.",
+      "interaction": "Hover: Lift up, shadow-lg, border-primary."
+    },
+    "LevelRoadmap": {
+      "name": "The Metro Line",
+      "structure": "Vertical step progress.",
+      "visuals": "A continuous vertical line connecting circles (stations) labeled A1, A2, B1, B2, C1, C2.",
+      "interaction": "Clicking a station expands the details (Accordion style). Active station glows."
+    },
+    "LessonPreview": {
+      "name": "The Live Demo",
+      "structure": "Tabs (Vocab, Grammar, Chat) inside the Code-Phone.",
+      "content": "Real data only. No Lorem Ipsum. Use the provided Content Strategy data."
+    },
+    "Flashcards": {
+      "name": "The Flip Deck",
+      "structure": "A central card stack.",
+      "interaction": "Click to flip (CSS transform: rotateY(180deg)). Buttons for 'Know it' (Green) / 'Study again' (Orange)."
+    },
+    "FeatureGrid": {
+      "name": "Bento Features",
+      "structure": "Grid of 3 items. 1 Large (AI Chat), 2 Small (TTS, Quizzes).",
+      "style": "Bento grid style. Rounded corners, soft background colors."
+    }
+  },
+  "content_strategy": {
+    "languages": [
+      { "code": "ES", "name": "Español", "flag": "🇨🇷", "greeting": "¡Pura Vida!", "color": "text-primary" },
+      { "code": "EN", "name": "Inglés", "flag": "🇺🇸", "greeting": "Hello!", "color": "text-accent_blue" },
+      { "code": "FR", "name": "Francés", "flag": "🇫🇷", "greeting": "Bonjour", "color": "text-indigo-600" },
+      { "code": "DE", "name": "Alemán", "flag": "🇩🇪", "greeting": "Hallo", "color": "text-amber-700" },
+      { "code": "PT", "name": "Portugués", "flag": "🇧🇷", "greeting": "Olá", "color": "text-green-600" }
+    ],
+    "levels": [
+      { "id": "A1", "title": "Acceso (A1)", "desc": "Principiante. Entiende y usa expresiones cotidianas.", "topics": ["Saludos", "Presentación", "Comidas"] },
+      { "id": "A2", "title": "Plataforma (A2)", "desc": "Básico. Se comunica en tareas sencillas y habituales.", "topics": ["Familia", "Compras", "Lugar de trabajo"] },
+      { "id": "B1", "title": "Umbral (B1)", "desc": "Intermedio. Lidiar con situaciones de viaje.", "topics": ["Viajes", "Opiniones", "Eventos"] },
+      { "id": "B2", "title": "Avanzado (B2)", "desc": "Intermedio Alto. Entiende textos complejos y técnicos.", "topics": ["Debates", "Cultura", "Negocios"] },
+      { "id": "C1", "title": "Dominio (C1)", "desc": "Avanzado. Se expresa con fluidez y espontaneidad.", "topics": ["Académico", "Profesional", "Matices"] },
+      { "id": "C2", "title": "Maestría (C2)", "desc": "Experto. Comprende todo lo que oye y lee.", "topics": ["Literatura", "Ciencia", "Nativo"] }
+    ],
+    "lesson_examples": [
+      {
+        "language": "Español",
+        "vocab": [
+          { "word": "La Playa", "translation": "Beach", "icon": "🏖️" },
+          { "word": "La Montaña", "translation": "Mountain", "icon": "⛰️" }
+        ],
+        "grammar": { "title": "Verbo Gustar", "rule": "A mí me gusta la playa. (I like the beach)", "highlight": "me gusta" },
+        "chat": [
+          { "role": "user", "text": "Hola, ¿cómo estás?" },
+          { "role": "bot", "text": "¡Muy bien! ¿Y tú?", "highlight": "true" }
+        ]
+      }
+    ]
+  },
+  "assets": {
+    "icons": "Use lucide-react. Examples: MessageCircle (Chat), Mic (TTS), Brain (AI), BookOpen (Lessons), Plane (Travel/Languages).",
+    "images": {
+      "hero_bg": "Use a subtle CSS pattern. DO NOT use stock photos if specific ones aren't provided. Use 'noise' texture.",
+      "flags": "Use standard Emoji flags for reliability."
+    }
+  },
+  "universal_guidelines": [
+    "Do not use generic 'Inter' font for headings. Use 'DM Serif Display'.",
+    "Do not use full-screen gradients. Use subtle blobs.",
+    "Do not center everything. Use split layouts.",
+    "Use 'sonner' for toasts.",
+    "Use 'lucide-react' for icons."
+  ]
+}
