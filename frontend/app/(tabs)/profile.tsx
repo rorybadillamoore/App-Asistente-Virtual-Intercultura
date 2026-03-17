@@ -1,60 +1,13 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
-import { useRouter } from 'expo-router';
+import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import { Link } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, SHADOWS } from '../../src/constants/theme';
+import { COLORS, SPACING, APP_NAME } from '../../src/constants/theme';
 import { useAuthStore } from '../../src/store/authStore';
-import { Button } from '../../src/components/Button';
 
 export default function ProfileScreen() {
-  const router = useRouter();
   const { user, clearAuth } = useAuthStore();
-
-  const handleLogout = () => {
-    Alert.alert(
-      'Cerrar Sesión',
-      '¿Estás seguro de que quieres cerrar sesión?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Cerrar Sesión',
-          style: 'destructive',
-          onPress: () => {
-            clearAuth();
-            router.replace('/');
-          },
-        },
-      ]
-    );
-  };
-
-  const menuItems = [
-    {
-      icon: 'stats-chart-outline' as const,
-      title: 'Mi Progreso',
-      subtitle: 'Ver estadísticas de aprendizaje',
-      onPress: () => router.push('/(tabs)'),
-    },
-    {
-      icon: 'settings-outline' as const,
-      title: 'Configuración',
-      subtitle: 'Preferencias de la app',
-      onPress: () => {},
-    },
-    {
-      icon: 'help-circle-outline' as const,
-      title: 'Ayuda',
-      subtitle: 'Preguntas frecuentes',
-      onPress: () => {},
-    },
-    {
-      icon: 'information-circle-outline' as const,
-      title: 'Acerca de',
-      subtitle: 'Polyglot Academy v1.0',
-      onPress: () => {},
-    },
-  ];
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -67,25 +20,14 @@ export default function ProfileScreen() {
                 {user?.name?.charAt(0).toUpperCase() || 'U'}
               </Text>
             </View>
-            <View
-              style={[
-                styles.roleBadge,
-                { backgroundColor: user?.role === 'teacher' ? COLORS.secondary : COLORS.primary },
-              ]}
-            >
-              <Ionicons
-                name={user?.role === 'teacher' ? 'school' : 'person'}
-                size={12}
-                color={COLORS.white}
-              />
+            <View style={[styles.roleBadge, { backgroundColor: user?.role === 'teacher' ? COLORS.secondary : COLORS.primary }]}>
+              <Ionicons name={user?.role === 'teacher' ? 'school' : 'person'} size={12} color={COLORS.white} />
             </View>
           </View>
           <Text style={styles.userName}>{user?.name || 'Usuario'}</Text>
           <Text style={styles.userEmail}>{user?.email}</Text>
           <View style={styles.roleContainer}>
-            <Text style={styles.roleText}>
-              {user?.role === 'teacher' ? 'Profesor' : 'Estudiante'}
-            </Text>
+            <Text style={styles.roleText}>{user?.role === 'teacher' ? 'Profesor' : 'Estudiante'}</Text>
           </View>
         </View>
 
@@ -93,7 +35,7 @@ export default function ProfileScreen() {
         <View style={styles.statsCard}>
           <View style={styles.statItem}>
             <Ionicons name="book" size={24} color={COLORS.spanish} />
-            <Text style={styles.statValue}>3</Text>
+            <Text style={styles.statValue}>4</Text>
             <Text style={styles.statLabel}>Idiomas</Text>
           </View>
           <View style={styles.statDivider} />
@@ -112,38 +54,56 @@ export default function ProfileScreen() {
 
         {/* Menu Items */}
         <View style={styles.menuContainer}>
-          {menuItems.map((item, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.menuItem}
-              onPress={item.onPress}
-              activeOpacity={0.7}
-            >
+          <Link href="/(tabs)" asChild>
+            <Pressable style={styles.menuItem}>
               <View style={styles.menuIconContainer}>
-                <Ionicons name={item.icon} size={22} color={COLORS.primary} />
+                <Ionicons name="stats-chart-outline" size={22} color={COLORS.primary} />
               </View>
               <View style={styles.menuContent}>
-                <Text style={styles.menuTitle}>{item.title}</Text>
-                <Text style={styles.menuSubtitle}>{item.subtitle}</Text>
+                <Text style={styles.menuTitle}>Mi Progreso</Text>
+                <Text style={styles.menuSubtitle}>Ver estadísticas de aprendizaje</Text>
               </View>
               <Ionicons name="chevron-forward" size={20} color={COLORS.gray400} />
-            </TouchableOpacity>
-          ))}
+            </Pressable>
+          </Link>
+
+          <Link href="/(tabs)/courses" asChild>
+            <Pressable style={styles.menuItem}>
+              <View style={styles.menuIconContainer}>
+                <Ionicons name="book-outline" size={22} color={COLORS.primary} />
+              </View>
+              <View style={styles.menuContent}>
+                <Text style={styles.menuTitle}>Mis Cursos</Text>
+                <Text style={styles.menuSubtitle}>Ver todos los cursos</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color={COLORS.gray400} />
+            </Pressable>
+          </Link>
+
+          <Link href="/(tabs)/quizzes" asChild>
+            <Pressable style={styles.menuItem}>
+              <View style={styles.menuIconContainer}>
+                <Ionicons name="help-circle-outline" size={22} color={COLORS.primary} />
+              </View>
+              <View style={styles.menuContent}>
+                <Text style={styles.menuTitle}>Mis Quizzes</Text>
+                <Text style={styles.menuSubtitle}>Practicar con quizzes</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color={COLORS.gray400} />
+            </Pressable>
+          </Link>
         </View>
 
         {/* Logout Button */}
-        <Button
-          title="Cerrar Sesión"
-          onPress={handleLogout}
-          variant="outline"
-          style={styles.logoutButton}
-          icon={<Ionicons name="log-out-outline" size={20} color={COLORS.primary} />}
-        />
+        <Link href="/" asChild>
+          <Pressable style={styles.logoutButton} onPress={clearAuth}>
+            <Ionicons name="log-out-outline" size={20} color={COLORS.error} />
+            <Text style={styles.logoutButtonText}>Cerrar Sesión</Text>
+          </Pressable>
+        </Link>
 
         {/* Footer */}
-        <Text style={styles.footerText}>
-          Polyglot Academy © 2025{"\n"}Metodología Cambridge
-        </Text>
+        <Text style={styles.footerText}>{APP_NAME} v1.0{"\n"}© 2025 Metodología Cambridge</Text>
       </ScrollView>
     </SafeAreaView>
   );
@@ -156,13 +116,13 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: SPACING.md,
+    paddingBottom: 100,
   },
   profileHeader: {
     alignItems: 'center',
     marginBottom: SPACING.lg,
   },
   avatarContainer: {
-    position: 'relative',
     marginBottom: SPACING.md,
   },
   avatar: {
@@ -218,7 +178,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: SPACING.lg,
     marginBottom: SPACING.lg,
-    ...SHADOWS.md,
   },
   statItem: {
     flex: 1,
@@ -242,7 +201,6 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     borderRadius: 16,
     marginBottom: SPACING.lg,
-    ...SHADOWS.sm,
   },
   menuItem: {
     flexDirection: 'row',
@@ -273,7 +231,21 @@ const styles = StyleSheet.create({
     color: COLORS.gray500,
   },
   logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.white,
+    padding: SPACING.md,
+    borderRadius: 12,
     marginBottom: SPACING.lg,
+    gap: SPACING.sm,
+    borderWidth: 1,
+    borderColor: COLORS.error,
+  },
+  logoutButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.error,
   },
   footerText: {
     textAlign: 'center',
