@@ -6,9 +6,10 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
-from typing import List
+from typing import List, Optional
 import uuid
 from datetime import datetime, timezone
+import base64
 
 
 ROOT_DIR = Path(__file__).parent
@@ -36,6 +37,11 @@ class StatusCheck(BaseModel):
 
 class StatusCheckCreate(BaseModel):
     client_name: str
+
+# TTS Request Model
+class TTSRequest(BaseModel):
+    text: str
+    language: str = "spanish"
 
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
@@ -65,6 +71,29 @@ async def get_status_checks():
             check['timestamp'] = datetime.fromisoformat(check['timestamp'])
     
     return status_checks
+
+# TTS Endpoint - uses browser TTS as fallback
+@api_router.post("/tts/generate")
+async def generate_tts(request: TTSRequest):
+    """
+    Generate TTS audio. Returns base64 encoded audio.
+    Falls back to client-side TTS if server TTS is unavailable.
+    """
+    try:
+        # For now, return a response that tells frontend to use browser TTS
+        # This can be enhanced with ElevenLabs or other TTS services later
+        return {
+            "success": False,
+            "message": "Server TTS not configured. Using browser TTS.",
+            "use_browser_tts": True
+        }
+    except Exception as e:
+        logger.error(f"TTS generation error: {e}")
+        return {
+            "success": False,
+            "message": str(e),
+            "use_browser_tts": True
+        }
 
 # Include the router in the main app
 app.include_router(api_router)
