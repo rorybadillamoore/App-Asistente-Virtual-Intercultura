@@ -1,123 +1,57 @@
 # Intercultura Asistente Virtual - PRD
 
-## Descripción del Producto
-Aplicación móvil para escuela de idiomas que enseña Español, Inglés, Portugués y Alemán siguiendo la metodología Cambridge.
+## Problem Statement
+Mobile/web application for Intercultura Costa Rica language school. Supports Spanish, English, Portuguese, and German across proficiency levels A1-C2. Features courses, flashcards with TTS audio, AI-powered quizzes/exercises, and separate student/teacher roles.
 
-## Stack Tecnológico
-- **Frontend**: Expo (React Native) con TypeScript
-- **Backend**: FastAPI (Python)
-- **Base de Datos**: MongoDB Atlas (Cloud) ✅ CONFIGURADO
-- **IA**: OpenAI GPT-4o (via Emergent LLM Key)
-- **TTS**: OpenAI TTS (via Emergent LLM Key)
+## Architecture
+- **Frontend**: React Native (Expo) with Expo Router, Zustand for auth state
+- **Backend**: FastAPI + PyMongo (Motor async)
+- **Database**: MongoDB Atlas
+- **Integrations**: OpenAI GPT-4o (AI exercises via Emergent LLM Key), OpenAI TTS tts-1-hd (flashcard audio via Emergent LLM Key)
 
-## Estado del Contenido Educativo
-- **24 cursos** (6 niveles × 4 idiomas)
-- **72 lecciones** (3 por curso)
-- **4 flashcard decks** (1 por idioma nivel A1)
-- **24 quizzes** (1 por curso con 5 preguntas cada uno)
+## Core Requirements
+- 4 languages x 6 levels = 24 courses, each with 6 lessons
+- 10 flashcards per language/level (240 total)
+- 1 quiz per course with 10 questions each (24 quizzes)
+- AI exercise generation (grammar, vocabulary, reading, writing)
+- TTS audio pronunciation for flashcards
+- Student and Teacher roles with separate dashboards
+- Intercultura branding (logo, colors, no Emergent/Polyglot references)
 
-### Cursos por Idioma
-| Idioma | Cursos | Quizzes | Niveles |
-|--------|--------|---------|---------|
-| Español | 6 | 6 | A1-C2 |
-| Inglés | 6 | 6 | A1-C2 |
-| Portugués | 6 | 6 | A1-C2 |
-| Alemán | 6 | 6 | A1-C2 |
+## What's Been Implemented (as of 2026-03-27)
+- [x] Authentication (login, register, logout) - fully stable
+- [x] Database seeded: 24 courses, 144 lessons, 240 flashcards, 24 quizzes
+- [x] All 4 language x 6 level combinations have complete content
+- [x] Courses with 6 lessons each, detailed content with vocabulary and grammar
+- [x] Flashcards with flip animation and TTS audio playback
+- [x] TTS with language-specific voice optimization (nova voice, language context prefixes)
+- [x] Quizzes with 10 questions each, submission and scoring
+- [x] AI exercise generation with GPT-4o (randomized, unique per request)
+- [x] Student dashboard with progress tracking by language
+- [x] Teacher dashboard with student list and statistics
+- [x] Profile page with user info, stats (4 Idiomas, 6 Niveles), and logout
+- [x] Intercultura branding: logo in all assets, PWA config, favicon, title
+- [x] Removed all Emergent/Polyglot placeholder text
+- [x] Optimized N+1 queries in teacher dashboard
+- [x] Fixed infinite loop bug in auth state management
+- [x] Favicon link added in +html.tsx for web
 
-## Funcionalidades Implementadas
+## Backend Testing
+- 27/27 API tests passing (auth, courses, lessons, flashcards, quizzes, TTS, progress, teacher)
 
-### Autenticación
-- [x] Registro de usuarios (estudiantes/profesores)
-- [x] Login con email/contraseña
-- [x] Persistencia de sesión (localStorage)
-- [x] Roles diferenciados (estudiante/profesor)
-- [x] **Logout funcional con redirección** ✅ CORREGIDO
+## Known Limitations
+- Favicon may not show in Expo dev mode (works in production build)
+- French courses exist in DB but not shown in UI (only 4 languages in theme)
+- Custom "Aller" font not yet implemented
 
-### Perfil de Usuario
-- [x] **Menú de perfil funcional** ✅ CORREGIDO
-  - Mi Progreso → Dashboard
-  - Mis Cursos → Cursos
-  - Mis Quizzes → Quizzes
-- [x] **Botón Cerrar Sesión funcionando** ✅ CORREGIDO
+## Remaining Tasks
+### P1
+- Custom "Aller" typeface implementation
 
-### Branding PWA
-- [x] **Logo de Intercultura en Add to Home Screen** ✅ CORREGIDO
-- [x] Favicon, icon, adaptive-icon actualizados
+### P2
+- Mobile app store deployment preparation (.apk/.ipa)
 
-### Estudiantes
-- [x] Dashboard con progreso personal
-- [x] 4 idiomas disponibles (ES, EN, PT, DE)
-- [x] Cursos por idioma y nivel (24 cursos)
-- [x] Sistema de flashcards con audio TTS
-- [x] Quizzes con promedios por idioma
-- [x] Ejercicios generados por IA
-- [x] **Revisión de respuestas con colores** ✅ (verde=correcto, rojo=incorrecto)
-
-### Profesores
-- [x] Panel del Profesor
-- [x] Ver lista de estudiantes
-- [x] Estadísticas generales
-- [x] Progreso individual por estudiante
-
-## Base de Datos
-
-### MongoDB Atlas (Cloud)
-- **Cluster**: cluster0.3ffi81o.mongodb.net
-- **Database**: polyglot_academy
-- **Estado**: ✅ CONECTADO Y FUNCIONANDO
-
-### Endpoints de Seed
-- `POST /api/seed-full` - Poblar base de datos completa
-- `POST /api/seed-quizzes` - Poblar solo quizzes
-
-## API Endpoints
-
-### Autenticación
-- `POST /api/auth/register` - Registro de usuario
-- `POST /api/auth/login` - Login
-- `GET /api/auth/me` - Usuario actual
-
-### Cursos y Contenido
-- `GET /api/courses` - Listar cursos (filtros: language, level)
-- `GET /api/flashcards` - Listar flashcards
-- `POST /api/tts/generate` - Generar audio de pronunciación
-
-### Quizzes
-- `GET /api/quizzes` - Listar todos los quizzes
-- `GET /api/quizzes/{id}` - Obtener quiz
-- `POST /api/quizzes/{id}/submit` - Enviar respuestas
-
-### Progreso
-- `GET /api/progress` - Progreso del usuario
-- `GET /api/progress/by-language` - Progreso por idioma
-
-### Panel Profesor
-- `GET /api/teacher/students` - Lista de estudiantes
-- `GET /api/teacher/stats` - Estadísticas generales
-
-### IA
-- `POST /api/ai/generate-exercise` - Generar ejercicios con IA
-- `POST /api/ai/explain` - Explicar conceptos con IA
-
-## Credenciales de Prueba
-
-### Estudiante
-- Email: testuser123@test.com
-- Password: password123
-
-### Profesor
-- Email: profesor@test.com
-- Password: profesor123
-
-## Tareas Pendientes
-- [ ] Implementar tipografía "Aller" (fuente personalizada)
-- [ ] Preparar builds móviles (.apk/.ipa) con EAS
-
-## Próximos pasos sugeridos
-1. Despliegue a producción (Deploy)
-2. Agregar más flashcards para todos los niveles
-3. Sistema de notificaciones
-4. Exportar reportes de progreso
-
----
-*Última actualización: 11 Marzo 2026*
+## Deployment
+- User must click "Deploy" button in Emergent platform UI to get permanent production URL
+- The preview URL requires the agent session to be active
+- Production deployment gives a fixed URL that works 24/7
