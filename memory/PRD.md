@@ -1,57 +1,39 @@
 # Intercultura Asistente Virtual - PRD
 
 ## Problem Statement
-Mobile/web application for Intercultura Costa Rica language school. Supports Spanish, English, Portuguese, and German across proficiency levels A1-C2. Features courses, flashcards with TTS audio, AI-powered quizzes/exercises, and separate student/teacher roles.
+Mobile/web application for Intercultura Costa Rica language school. Supports Spanish, English, Portuguese, German, and French across proficiency levels A1-C2.
 
 ## Architecture
-- **Frontend**: React Native (Expo) with Expo Router, Zustand for auth state
+- **Frontend**: React Native (Expo) with Expo Router, Zustand for auth
 - **Backend**: FastAPI + PyMongo (Motor async)
 - **Database**: MongoDB Atlas
-- **Integrations**: OpenAI GPT-4o (AI exercises via Emergent LLM Key), OpenAI TTS tts-1-hd (flashcard audio via Emergent LLM Key)
+- **Integrations**: OpenAI GPT-4o (AI exercises), OpenAI TTS tts-1-hd (flashcard audio) via Emergent LLM Key
 
-## Core Requirements
-- 4 languages x 6 levels = 24 courses, each with 6 lessons
-- 10 flashcards per language/level (240 total)
-- 1 quiz per course with 10 questions each (24 quizzes)
-- AI exercise generation (grammar, vocabulary, reading, writing)
-- TTS audio pronunciation for flashcards
-- Student and Teacher roles with separate dashboards
-- Intercultura branding (logo, colors, no Emergent/Polyglot references)
+## Core Data
+- 5 languages × 6 levels = 30 courses
+- 6 lessons per course = 180 lessons (enriched with Cambridge-style content)
+- 10 flashcards per language/level = 300 total
+- 1 quiz per course with 10 questions = 30 quizzes
+- AI exercise generation with GPT-4o
 
 ## What's Been Implemented (as of 2026-03-27)
-- [x] Authentication (login, register, logout) - fully stable
-- [x] Database seeded: 24 courses, 144 lessons, 240 flashcards, 24 quizzes
-- [x] All 4 language x 6 level combinations have complete content
-- [x] Courses with 6 lessons each, detailed content with vocabulary and grammar
-- [x] Flashcards with flip animation and TTS audio playback
-- [x] TTS with language-specific voice optimization (nova voice, language context prefixes)
-- [x] Quizzes with 10 questions each, submission and scoring
-- [x] AI exercise generation with GPT-4o (randomized, unique per request)
-- [x] Student dashboard with progress tracking by language
-- [x] Teacher dashboard with student list and statistics
-- [x] Profile page with user info, stats (4 Idiomas, 6 Niveles), and logout
-- [x] Intercultura branding: logo in all assets, PWA config, favicon, title
-- [x] Removed all Emergent/Polyglot placeholder text
-- [x] Optimized N+1 queries in teacher dashboard
-- [x] Fixed infinite loop bug in auth state management
-- [x] Favicon link added in +html.tsx for web
-
-## Backend Testing
-- 27/27 API tests passing (auth, courses, lessons, flashcards, quizzes, TTS, progress, teacher)
-
-## Known Limitations
-- Favicon may not show in Expo dev mode (works in production build)
-- French courses exist in DB but not shown in UI (only 4 languages in theme)
-- Custom "Aller" font not yet implemented
+- [x] Authentication (login, register, logout) - stable
+- [x] Database: 30 courses, 180 enriched lessons, 300 flashcards, 30 quizzes
+- [x] 5 languages (Spanish, English, Portuguese, German, French) × 6 levels
+- [x] All lesson content enriched with detailed educational material, vocabulary (6+ items), grammar points
+- [x] Flashcards with TTS audio (language-specific voice + context prefixes)
+- [x] Quizzes with scoring
+- [x] AI exercises with GPT-4o
+- [x] Student + Teacher dashboards
+- [x] Profile with Mi Progreso (shows real progress data), 5 Idiomas, logout
+- [x] Intercultura branding throughout (logos, favicon, title, no Emergent refs)
+- [x] 33/33 backend tests passing, 100% frontend verified
 
 ## Remaining Tasks
 ### P1
-- Custom "Aller" typeface implementation
-
+- Custom "Aller" typeface
 ### P2
-- Mobile app store deployment preparation (.apk/.ipa)
+- Mobile app store deployment (.apk/.ipa)
 
 ## Deployment
-- User must click "Deploy" button in Emergent platform UI to get permanent production URL
-- The preview URL requires the agent session to be active
-- Production deployment gives a fixed URL that works 24/7
+User must click "Deploy" button in Emergent platform to get production URL (24/7, no agent needed).
