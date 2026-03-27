@@ -1,186 +1,161 @@
 <analysis>**original_problem_statement:**
-The user wants to create a mobile application for a language school named Intercultura Asistente Virtual.
+The user wants to create a mobile application, Intercultura Asistente Virtual, for a language school. 
 
 PRODUCT REQUIREMENTS:
 - **Languages & Levels**: Support for Spanish, English, Portuguese, and German across all proficiency levels (A1 to C2).
-- **Core Features**:
-    - Courses and lessons with detailed content (vocabulary, phrases, grammar).
-    - Flashcards for vocabulary with audio pronunciation.
-    - AI-powered quizzes to test knowledge.
-- **AI Integration**: AI-powered features for generating exercises and providing assistance.
-- **Authentication**: User registration and login using email and password.
-- **User Roles**: Separate roles and functionalities for students and teachers.
-- **Branding**: The app must use a specific logo, a color palette from a brand book, and the Aller typeface.
-- **Feature Request**: On the AI exercise results screen, display all questions again, highlighting the correct answer in green and the user's incorrect answer (if any) in red.
+- **Core Features**: Courses and lessons with detailed content, Flashcards for vocabulary with audio pronunciation (TTS), and AI-powered quizzes/exercises.
+- **Authentication**: User registration and login using email and password. Separate functionalities for students and teachers.
+- **Branding**: The app MUST use a specific logo (Intercultura Costa Rica) and MUST NOT show any Emergent branding or Polyglot placeholder names anywhere (including PWA icons, dock icons, and browser tabs).
+- **Quality Assurance**: The user demands 100% functional content across ALL languages and levels without missing data, perfectly native-sounding TTS, and no recurring bugs. 
 
-**User's preferred language**: Spanish. The next agent MUST respond in Spanish.
+**User's preferred language**: Spanish. (You MUST respond in the user's preferred language only).
 
-**what currently exists?**
-A full-stack application using Expo (React Native) for the frontend and FastAPI with MongoDB for the backend.
-- **Branding**: The app name, logo, and color scheme are implemented.
-- **Functionality**:
-    - User authentication (register/login) is implemented but has critical, unresolved bugs.
-    - Screens for Dashboard, Courses, Flashcards, AI Tools, and Profile are in place.
-    - The database has been populated with comprehensive course and flashcard content for Spanish, English, Portuguese, and German (A1-C2).
-    - Flashcards include an on-demand audio pronunciation feature using OpenAI TTS.
-    - AI-powered quiz generation is functional and accessible to all users (including non-logged-in ones).
-    - The backend has been made more robust by fixing deployment-readiness issues (missing env vars).
+**what currently exists?** 
+A full-stack application using Expo (React Native) for the frontend and FastAPI for the backend, connected to MongoDB Atlas. Authentication (login/logout/register) is fully functional and stable. The database has been successfully seeded with 24 courses, 144 lessons, 240 flashcards, and 24 quizzes. AI generation for exercises works and randomized prompts are implemented to prevent duplicate questions. However, residual placeholder branding (Emergent/Polyglot) remains in PWA icons, and the user is highly dissatisfied with the TTS audio quality for Spanish/Portuguese flashcards.
 
-**Last working item**:
-- Last item agent was working: The agent was implementing support for the German language. After adding the content to the database and updating the frontend constants, it was discovered that the German language option does not appear in the UI. The agent's last action was to view  to debug why the fourth language is not being rendered.
-- Status: IN PROGRESS
-- Agent Testing Done: N
-- Which testing method agent to use? screenshot tool or frontend testing agent after applying a fix to verify the UI.
-- User Testing Done: N
+**Last working item**: 
+- **Last item agent was working**: The agent was fetching the user-provided Logo intercultura.1.png asset to replace all default Emergent/Expo logos in the frontend (specifically targeting PWA and dock icons).
+- **Status**: IN PROGRESS
+- **Agent Testing Done**: N
+- **Which testing method agent to use?**: manual testing by curl / python -c / screenshot tool (to verify  configuration and asset replacement).
+- **User Testing Done**: N
 
-**All Pending/In progress Issue list**:
-- Issue 1: German language is not visible in the UI (P0)
-- Issue 2: Registration button is unresponsive for the user (P1)
-- Issue 3: User session state is not persisted (P2)
+**All Pending/In progress Issue list**: 
+Issue 1: Emergent/Expo logos still appear in browser tabs and the OS Dock (PWA icons). (P0)
+Issue 2: TTS Audio for Spanish and Portuguese flashcards has poor pronunciation/errors. (P0)
+Issue 3: Deep validation of all DB content per user demand (User fears missing or misaligned data across levels/languages). (P1)
 
-  Issues Detail:
-  - **Issue 1**:
-     - **Description**: The German language content exists in the backend, but the option to select it does not appear in the frontend UI (e.g., on the dashboard or courses screen). The agent suspects a hardcoded layout that only accommodates three languages.
-     - **Attempted fixes**: The agent updated the  and  constants in .
-     - **Next debug checklist**:
-        1.  Analyze  and  to understand how the language selectors/filters are rendered.
-        2.  Identify if the layout logic is static or fails to loop over all four languages from the  constant.
-        3.  Refactor the component to dynamically render all available languages.
-     - **Why fix this issue and what will be achieved with the fix?**: This will complete the German language integration, making all the newly added content accessible to users.
-     - **Status**: IN PROGRESS
-     - **Is recurring issue?**: N
-     - **Should Test frontend/backend/both after fix?**: Frontend.
-     - **Blocked on other issue**: No.
+Issues Detail:
+- **Issue 1: Emergent/Expo logos still appear (PWA icons)**
+   - **Attempted fixes**: The agent fetched the correct logo () using the assets tool but the session ended before implementation.
+   - **Next debug checklist**: 
+      1. Save the fetched image to  (replace , , ).
+      2. Verify  points to the correct asset paths for the web/PWA configuration.
+      3. Restart the Expo server and take a screenshot to verify the favicon/app icon.
+   - **Why fix this issue and what will be achieved with the fix?**: The user has strictly demanded the removal of all Emergent branding. This completes the white-labeling of the app.
+   - **Status**: IN PROGRESS
+   - **Is recurring issue?**: Y
+   - **Should Test frontend/backend/both after fix?**: Frontend
+   - **Blocked on other issue**: None
 
-  - **Issue 2**:
-     - **Description**: A critical carry-over issue. The user reports that the Registrarse button is unresponsive after filling out the form, blocking them from creating an account. The agent's automated tests have previously passed, indicating a discrepancy between the testing environment and the user's experience.
-     - **Attempted fixes**: (In previous forks) Replaced  with ; added a platform-specific check for web. No work was done on this in the current session.
-     - **Next debug checklist**:
-        1. Ask the user for their browser/device details and for any console errors (F12).
-        2. Add  statements to the  handler in  to confirm if the function is triggered on the user's side.
-     - **Why fix this issue and what will be achieved with the fix?**: This is a major blocker preventing user onboarding. Fixing it is essential for the app's usability.
-     - **Status**: NOT STARTED
-     - **Is recurring issue?**: Y
-     - **Should Test frontend/backend/both after fix?**: Frontend, with mandatory user verification.
-     - **Blocked on other issue**: No.
-
-  - **Issue 3**:
-     - **Description**: A carry-over issue. User login sessions are not persisted across browser refreshes. This was an intentional workaround by a previous agent to solve a loading bug.
-     - **Attempted fixes**: (In previous forks) The  middleware in the Zustand store () was disabled. No work was done on this in the current session.
-     - **Next debug checklist**:
-        1. Investigate the original  error related to .
-        2. Re-enable the  middleware in , configuring it to use .
-        3. Ensure the root layout () correctly handles the store's rehydration state.
-     - **Why fix this issue and what will be achieved with the fix?**: To provide a standard user experience where users remain logged in.
-     - **Status**: NOT STARTED
-     - **Is recurring issue?**: N
-     - **Should Test frontend/backend/both after fix?**: Frontend.
-     - **Blocked on other issue**: No.
+- **Issue 2: TTS Audio poor quality in Spanish/Portuguese**
+   - **Attempted fixes**: Changed the OpenAI TTS model to  and tested voices ( and ), but the user still reports mispronunciations in flashcards.
+   - **Next debug checklist**: 
+      1. Review  ( endpoint).
+      2. Check if OpenAI TTS is being given the correct language context or if phonetic spelling/speed adjustments () are needed.
+      3. Ensure the flashcard frontend is correctly passing the target language to the API.
+   - **Why fix this issue and what will be achieved with the fix?**: Core feature for language learning; bad audio ruins the educational value.
+   - **Status**: NOT STARTED
+   - **Is recurring issue?**: Y
+   - **Should Test frontend/backend/both after fix?**: Both
+   - **Blocked on other issue**: None
 
 **In progress Task List**:
-- Task 1: Complete German Language Integration
-  - **Where to resume**: Fix the frontend UI in  and other relevant files to ensure the German language is displayed as a selectable option.
-  - **What will be achieved with this?**: Users will be able to access all German language courses and flashcards.
-  - **Status**: IN PROGRESS
-  - **Should Test frontend/backend/both after fix?**: Frontend.
-  - **Blocked on something**: No.
+Task 1: Replace all Expo/Emergent frontend assets with the Intercultura logo.
+Task Detail:
+- **Task 1: Logo Replacement**
+   - **Where to resume**: Download the asset from the provided URL in the last message's tool result and replace the files in . Update .
+   - **What will be achieved with this?**: Fulfills the user's branding requirements.
+   - **Status**: IN PROGRESS
+   - **Should Test frontend/backend/both after fix?**: Frontend
+   - **Blocked on something**: None
 
 **Upcoming and Future Tasks**
-- **Upcoming Tasks**:
-    - **P0**: Implement Aller Typography: Load and apply the custom Aller font files to the frontend.
-- **Future Tasks**:
-    - **P0**: Implement Teacher Role: Develop the backend and frontend components necessary for the profesores user role, including functionality to create courses and view student progress.
+Upcoming Tasks:
+- **P0**: Explain the Deployment Process. The user keeps asking for the permanent URL without Emergent open. The agent MUST clearly instruct the user to click the Deploy button in the Emergent UI, as the agent cannot trigger the actual production deployment.
+- **P1**: Implement the custom Aller typeface across the frontend (pending from original PRD).
+
+Future Tasks:
+- **P2**: Prepare project for mobile app store deployment (/ builds).
 
 **Completed work in this session**
-- **Content Population**: Added extensive courses, lessons, and flashcards for Spanish, English, and Portuguese. Fixed multiple issues with incorrect or insufficient content.
-- **Flashcard Audio Pronunciation**: Integrated OpenAI TTS to provide on-demand audio for flashcards. Implemented the backend endpoint and the frontend UI button, debugging layout issues to ensure visibility.
-- **AI Feature Accessibility Fix**: Modified AI-related backend endpoints to use optional authentication, fixing a  error and allowing non-logged-in users to use the feature.
-- **Deployment Readiness**: Ran a health check, added missing environment variables (, ), and removed hardcoded values to improve deployment stability.
-- **German Language Addition**: Added a full set of courses and flashcards for German (A1-C2) to the database and updated frontend constants.
+- Restored missing Flashcards via database seeding (DONE)
+- Fixed Infinite Loop Bug on Logout by restoring   with  (DONE)
+- Fixed AI exercises generating repetitive questions (DONE)
+- Optimized Backend N+1 queries in the teacher dashboard for deployment readiness (DONE)
+- Removed Polyglot Academy placeholder text from Profile and Register screens (DONE)
 
 **Earlier issues found/mentioned but not fixed**
-- **Issue 1: Unresponsive Registration Button**: Critical issue from the initial handoff that has not been addressed.
-- **Issue 2: Lack of Session Persistence**: Critical issue from the initial handoff that has not been addressed.
+Issue 1: Custom Aller Font missing
+- **Debug checklist**: Download the font, place it in assets, configure  in , and apply it to the theme.
+- **Why to solve this issue**: Original branding requirement.
+- **Should Test frontend/backend/both after fix**: Frontend
+- **Is recurring issue?**: N
 
 **Known issue recurrence from previous fork**
-- None.
+- **Issue recurrence in previous fork**: Infinite render loops during Authentication state changes.
+- **Recurrence count**: 3+
+- **Status**: RESOLVED
+- **Note**: 🚨 **CRITICAL:** Do NOT modify  or how  handles the auth state. The previous agent spent hours fixing an Maximum update depth exceeded error. It was resolved by using  with  and using  +  directly for web logout. Leave the auth routing architecture exactly as it is.
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
-- **Frontend**: React Native with Expo, Expo Router, Zustand
-- **Backend**: Python with FastAPI
-- **Database**: MongoDB
-- **AI/ML**: OpenAI GPT-4 for quizzes, OpenAI TTS for audio pronunciation.
+- **Frontend**: React Native (Expo), Expo Router, Zustand (with persist middleware for Auth).
+- **Backend**: FastAPI, PyMongo.
+- **Database**: MongoDB Atlas.
+- **Integrations**: OpenAI (GPT-4o) for AI exercises, OpenAI TTS for flashcard audio.
 
 **key DB schema**
-- : { : string, : string, : string, : string }
-- : { : string, : string, : string, : array }
-- : { : string, : string, : string, : array }
+- : {, , }
+- : {, , }
+- : {, , , }
+- : {, , , }
 
 **changes in tech stack**
-- None.  was installed and used for TTS.
+- None.
 
 **All files of reference**
-- : Modified for TTS endpoint and optional authentication on AI routes.
-- : Modified to add the audio pronunciation button and its logic.
-- : Updated to include 'German'.
-- : The primary file to investigate for fixing the German language display bug.
-- : The file related to the critical, unresolved registration bug.
-- : The file where session persistence needs to be re-enabled and fixed.
+-  (Target for logo replacement)
+-  (Target for PWA configuration)
+-  (Target for TTS improvements)
+-  (CRITICAL: Do not modify, recently stabilized)
 
 **Areas that need refactoring**:
-- The language selection components in the frontend (, ) need to be refactored to dynamically display all languages available in  instead of a seemingly hardcoded limit of three.
+- The TTS implementation in  might need phonetic mappings or slower speed settings if OpenAI's default voices cannot natively pronounce Spanish/Portuguese words properly.
 
 **key api endpoints**
-- : **(New)** Generates speech from text for flashcards.
-- : **(Modified)** Authentication is now optional.
-- : **(Modified)** Authentication is now optional.
+- : Handles audio generation.
+- : Drops and recreates all content.
 
 **Critical Info for New Agent**
-- **Prioritize Critical Bugs**: The user is experiencing two major bugs from the very beginning: an unresponsive registration button and no session persistence. While you should finish the German language UI fix, addressing these two issues should be the absolute next priority to unblock the user and provide a baseline usable app.
-- **User is Credit-Sensitive**: The user has expressed frustration over credit usage for tasks that required rework. Be efficient, bundle your changes, and communicate clearly about the work being done to manage expectations.
-- **Confirm Fixes Thoroughly**: Do not assume a fix is working just because it passes an automated test. The registration bug is a key example of this. When fixing UI/UX issues, user confirmation is paramount.
+1. **User Frustration is at MAX LEVEL**: The user is extremely angry about credit consumption and recurring bugs. **DO NOT** use trial-and-error. Write code carefully, maximize parallel tool calls, and test via terminal/curl before showing the user anything. 
+2. **Deployment Confusion**: The user continually asks the agent to give me the permanent URL. **The agent cannot do this.** You must clearly explain to the user that they must manually click the Deploy button in the Emergent platform interface to get the production URL.
+3. **Auth/Logout is Fragile**: Do not refactor  or . It is currently stable.
 
 **documents and test reports created in this job**
--  has been updated multiple times.
+- None created in this specific fork.
 
 **Last 10 User Messages and any pending HUMAN messages**
-10.  (User approved adding the German language.) - **In Progress**
-9.  (User asked for the cost of adding German.) - **Completed**
-8.  (User approved adding more courses and reported that the AI feature was broken.) - **Completed**
-7.  (User requested more courses.) - **Completed**
-6.  (User reported that C1/C2 content was insufficient.) - **Completed**
-5.  (User reported that course content was mixed up between languages.) - **Completed**
-4.  (User requested the link to the app.) - **Completed**
-3.  (User reported that courses were empty shells.) - **Completed**
-2. 
-1. 
+10. (User) Asked for the permanent URL without having Emergent open.
+9. (Agent) Ran deployment agent, found N+1 query blockers.
+8. (Agent) Fixed blockers, ran deployment agent again. App is READY.
+7. (Agent) Explained to the user how to click Deploy.
+6. (User) Complained that auth/logout is broken again and the permanent URL doesn't work. Demanded fixes with minimal credit use.
+5. (Agent) Investigated heavily, restored original Zustand auth logic, fixed the logout bug successfully.
+4. (User) Complained that Polyglot names still appear, TTS audio is still bad, and buttons in profile don't work.
+3. (Agent) Fixed the text references, fixed profile buttons, adjusted TTS voices.
+2. (User) Asked again where the permanent URL is.
+1. (User) FINAL MESSAGE: Demands replacement of Emergent logos with Intercultura logos (specifically PWA dock icons), insists TTS audio is still pronouncing things wrong, demands deep verification of all DB content across all languages/levels, and asks again for the final permanent URL. Emphasizes minimal credit usage.
 
 **Project Health Check:**
-- **Broken**:
-    - User Registration (unresponsive button for the user).
-    - Session Persistence (users are logged out on refresh).
-    - UI for German language selection.
-- **Mocked**:
-    - Teacher Role functionality is non-existent.
+- **Broken**: PWA Web Icons (still show Emergent/Expo defaults). Flashcard TTS pronunciation (poor quality).
+- **Mocked**: None.
 
 **3rd Party Integrations**
-- **OpenAI GPT-4** (AI Quizzes) — uses Emergent LLM Key.
-- **OpenAI TTS** (Flashcard Audio) — uses Emergent LLM Key.
+- OpenAI GPT-4o (AI Exercises) — uses Emergent LLM Key
+- OpenAI TTS (Flashcard Audio) — uses Emergent LLM Key
 
 **Testing status**
-- Testing agent used after significant changes: NO
-- Troubleshoot agent used after agent stuck in loop: NO
-- Test files created: None
-- Known regressions: None new in this session, but the session persistence regression from a previous fork remains unfixed.
+- Testing agent used after significant changes: NO (relied on bash scripts/curl to save user credits).
+- Troubleshoot agent used after agent stuck in loop: YES (used to diagnose the logout infinite loop).
+- Test files created: None.
+- Known regressions: None currently, but Expo Router routing + Zustand is highly sensitive.
 
 **Credentials to test flow:**
-- **Email**: 
-- **Password**: 
+- Student:  / 
+- Teacher:  / 
 
 **What agent forgot to execute**
-- **Fix Critical Bugs**: The agent prioritized new features and content generation over fixing the two foundational bugs (registration and session persistence) that have been present from the start.
-- **Implement Custom Font**: The request to use the Aller font has been ignored.
-- **Implement Teacher Role**: No work has been done on the teacher role functionality, which was part of the original product requirements.</analysis>
+The agent retrieved the URL for the user's custom logo asset () in the very last step but did not have the chance to download it, replace the files in , or update . Addressing this is the immediate next step.</analysis>

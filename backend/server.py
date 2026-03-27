@@ -828,28 +828,36 @@ async def generate_tts(request: TTSRequest):
         if not api_key:
             raise HTTPException(status_code=500, detail="TTS service not configured")
         
-        # OpenAI TTS voices: alloy, echo, fable, onyx, nova, shimmer
-        # For language learning, we need clear articulation:
-        # - shimmer: Best for clear articulation and pronunciation learning
-        # - Slower speed (0.85) helps with comprehension and learning
+        # OpenAI TTS voices optimized per language for native-sounding pronunciation
         voice_map = {
-            "spanish": "shimmer",     # Clear articulation for Spanish
-            "english": "nova",        # Warm for English  
-            "portuguese": "shimmer",  # Clear articulation for Portuguese
-            "german": "fable"         # Expressive for German
+            "spanish": "nova",        # Nova handles Spanish very naturally
+            "english": "nova",        # Nova for clear English
+            "portuguese": "nova",     # Nova for Portuguese
+            "german": "onyx"          # Onyx for clear German articulation
         }
-        voice = voice_map.get(request.language.lower(), "shimmer")
+        voice = voice_map.get(request.language.lower(), "nova")
+        
+        # Language context prefixes help TTS engine detect correct language
+        # This prevents single words from being mispronounced as English
+        lang_context = {
+            "spanish": "En español: ",
+            "english": "",
+            "portuguese": "Em português: ",
+            "german": "Auf Deutsch: "
+        }
+        prefix = lang_context.get(request.language.lower(), "")
+        tts_text = f"{prefix}{request.text}" if prefix else request.text
         
         tts = OpenAITextToSpeech(api_key=api_key)
         
         # Using tts-1-hd for highest quality
-        # Speed 0.85 for clear, slow pronunciation ideal for language learning
+        # Speed 0.9 for clear pronunciation ideal for language learning
         audio_base64 = await tts.generate_speech_base64(
-            text=request.text,
+            text=tts_text,
             model="tts-1-hd",
             voice=voice,
             response_format="mp3",
-            speed=0.85
+            speed=0.9
         )
         
         return {

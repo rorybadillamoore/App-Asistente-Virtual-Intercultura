@@ -117,7 +117,7 @@ export default function ProfileScreen() {
         <View style={styles.statsCard}>
           <View style={styles.statItem}>
             <Ionicons name="book" size={24} color={COLORS.spanish} />
-            <Text style={styles.statValue}>3</Text>
+            <Text style={styles.statValue}>4</Text>
             <Text style={styles.statLabel}>Idiomas</Text>
           </View>
           <View style={styles.statDivider} />
