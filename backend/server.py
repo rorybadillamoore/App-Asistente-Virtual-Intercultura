@@ -613,7 +613,7 @@ async def get_progress_by_language(current_user: dict = Depends(get_current_user
     quiz_scores = progress.get("quiz_scores", [])
     
     # Build language stats
-    languages = ["spanish", "english", "portuguese", "german"]
+    languages = ["spanish", "english", "portuguese", "german", "french"]
     result = []
     
     # Pre-fetch all lessons and quizzes to avoid N+1 queries
@@ -833,7 +833,8 @@ async def generate_tts(request: TTSRequest):
             "spanish": "nova",        # Nova handles Spanish very naturally
             "english": "nova",        # Nova for clear English
             "portuguese": "nova",     # Nova for Portuguese
-            "german": "onyx"          # Onyx for clear German articulation
+            "german": "onyx",         # Onyx for clear German articulation
+            "french": "nova"          # Nova for French pronunciation
         }
         voice = voice_map.get(request.language.lower(), "nova")
         
@@ -843,7 +844,8 @@ async def generate_tts(request: TTSRequest):
             "spanish": "En español: ",
             "english": "",
             "portuguese": "Em português: ",
-            "german": "Auf Deutsch: "
+            "german": "Auf Deutsch: ",
+            "french": "En français : "
         }
         prefix = lang_context.get(request.language.lower(), "")
         tts_text = f"{prefix}{request.text}" if prefix else request.text

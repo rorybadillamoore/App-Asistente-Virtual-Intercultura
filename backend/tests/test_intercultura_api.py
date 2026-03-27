@@ -1,6 +1,7 @@
 """
-Intercultura API Tests
-Tests for language school web app supporting Spanish, English, Portuguese, and German
+Intercultura API Tests - Iteration 2
+Tests for language school web app supporting 5 languages: Spanish, English, Portuguese, German, French
+Includes tests for enriched lesson content with vocabulary arrays and grammar points
 """
 import pytest
 import requests
@@ -13,6 +14,9 @@ STUDENT_EMAIL = "testuser123@test.com"
 STUDENT_PASSWORD = "password123"
 TEACHER_EMAIL = "profesor@test.com"
 TEACHER_PASSWORD = "profesor123"
+
+# French course IDs for testing
+FRENCH_COURSE_A1 = "69b1eed14f5f060694b3f6ed"
 
 
 class TestHealthCheck:
@@ -88,17 +92,16 @@ class TestAuthentication:
 
 
 class TestCourses:
-    """Course endpoint tests - 4 languages x 6 levels = 24 courses expected"""
+    """Course endpoint tests - 5 languages x 6 levels = 30 courses expected"""
     
     def test_get_all_courses(self):
-        """Test getting all courses"""
+        """Test getting all courses - should have 30 courses (5 languages x 6 levels)"""
         response = requests.get(f"{BASE_URL}/api/courses")
         assert response.status_code == 200
         courses = response.json()
         assert isinstance(courses, list)
-        # Should have 24 courses (4 languages x 6 levels) - French courses should be in DB but filtered by frontend
-        assert len(courses) >= 24, f"Expected at least 24 courses, got {len(courses)}"
-        print(f"✓ Got {len(courses)} courses")
+        assert len(courses) == 30, f"Expected 30 courses (5 langs x 6 levels), got {len(courses)}"
+        print(f"✓ Got {len(courses)} courses (5 languages x 6 levels)")
     
     def test_get_courses_by_language_spanish(self):
         """Test filtering courses by Spanish language"""
@@ -134,19 +137,34 @@ class TestCourses:
         assert len(courses) == 6, f"Expected 6 German courses, got {len(courses)}"
         print("✓ German courses filter works (6 courses)")
     
+    def test_get_courses_by_language_french(self):
+        """Test filtering courses by French language - NEW in iteration 2"""
+        response = requests.get(f"{BASE_URL}/api/courses?language=french")
+        assert response.status_code == 200
+        courses = response.json()
+        assert len(courses) == 6, f"Expected 6 French courses, got {len(courses)}"
+        for course in courses:
+            assert course["language"] == "french"
+        # Verify all levels exist
+        levels = [c["level"] for c in courses]
+        assert set(levels) == {"A1", "A2", "B1", "B2", "C1", "C2"}, f"Missing levels: {set(['A1','A2','B1','B2','C1','C2']) - set(levels)}"
+        print("✓ French courses filter works (6 courses, all levels A1-C2)")
+    
     def test_get_courses_by_level(self):
-        """Test filtering courses by level A1"""
+        """Test filtering courses by level A1 - should have 5 courses (one per language)"""
         response = requests.get(f"{BASE_URL}/api/courses?level=A1")
         assert response.status_code == 200
         courses = response.json()
-        # Should have at least 4 A1 courses (one per language)
-        assert len(courses) >= 4, f"Expected at least 4 A1 courses, got {len(courses)}"
+        assert len(courses) == 5, f"Expected 5 A1 courses (one per language), got {len(courses)}"
         for course in courses:
             assert course["level"] == "A1"
-        print(f"✓ Level A1 filter works ({len(courses)} courses)")
+        # Verify all languages have A1 course
+        languages = [c["language"] for c in courses]
+        assert set(languages) == {"spanish", "english", "portuguese", "german", "french"}
+        print(f"✓ Level A1 filter works (5 courses, all languages)")
     
     def test_course_has_lessons(self):
-        """Test that courses have lesson_count field"""
+        """Test that courses have lesson_count field with 6 lessons"""
         response = requests.get(f"{BASE_URL}/api/courses?language=spanish&level=A1")
         assert response.status_code == 200
         courses = response.json()
@@ -158,7 +176,7 @@ class TestCourses:
 
 
 class TestLessons:
-    """Lesson endpoint tests"""
+    """Lesson endpoint tests - including enriched content verification"""
     
     def test_get_lessons_for_course(self):
         """Test getting lessons for a specific course"""
@@ -180,10 +198,55 @@ class TestLessons:
         assert "content" in lesson
         assert "vocabulary" in lesson
         print("✓ Got 6 lessons for course with correct structure")
+    
+    def test_enriched_lesson_content_spanish(self):
+        """Test that Spanish lessons have enriched content (>200 chars, 6+ vocabulary, grammar_points)"""
+        courses_response = requests.get(f"{BASE_URL}/api/courses?language=spanish&level=A1")
+        course_id = courses_response.json()[0]["id"]
+        
+        response = requests.get(f"{BASE_URL}/api/courses/{course_id}/lessons")
+        lessons = response.json()
+        
+        for lesson in lessons:
+            # Content should be > 200 characters
+            content_len = len(lesson.get("content", ""))
+            assert content_len > 200, f"Lesson '{lesson['title']}' content too short: {content_len} chars"
+            
+            # Vocabulary should have 6+ items
+            vocab_count = len(lesson.get("vocabulary", []))
+            assert vocab_count >= 6, f"Lesson '{lesson['title']}' vocabulary too few: {vocab_count} items"
+            
+            # Grammar points should exist
+            grammar_points = lesson.get("grammar_points", [])
+            assert len(grammar_points) > 0, f"Lesson '{lesson['title']}' missing grammar_points"
+        
+        print("✓ Spanish lessons have enriched content (>200 chars, 6+ vocab, grammar_points)")
+    
+    def test_enriched_lesson_content_french(self):
+        """Test that French lessons have enriched content - NEW in iteration 2"""
+        response = requests.get(f"{BASE_URL}/api/courses/{FRENCH_COURSE_A1}/lessons")
+        assert response.status_code == 200
+        lessons = response.json()
+        assert len(lessons) == 6, f"Expected 6 French A1 lessons, got {len(lessons)}"
+        
+        for lesson in lessons:
+            # Content should be > 150 characters (French lessons range 181-253 chars)
+            content_len = len(lesson.get("content", ""))
+            assert content_len > 150, f"French lesson '{lesson['title']}' content too short: {content_len} chars"
+            
+            # Vocabulary should have 6+ items
+            vocab_count = len(lesson.get("vocabulary", []))
+            assert vocab_count >= 6, f"French lesson '{lesson['title']}' vocabulary too few: {vocab_count} items"
+            
+            # Grammar points should exist
+            grammar_points = lesson.get("grammar_points", [])
+            assert len(grammar_points) > 0, f"French lesson '{lesson['title']}' missing grammar_points"
+        
+        print("✓ French lessons have enriched content (>150 chars, 6+ vocab, grammar_points)")
 
 
 class TestFlashcards:
-    """Flashcard endpoint tests"""
+    """Flashcard endpoint tests - all 5 languages"""
     
     def test_get_flashcards_spanish_a1(self):
         """Test getting Spanish A1 flashcards"""
@@ -223,35 +286,62 @@ class TestFlashcards:
         flashcards = response.json()
         assert len(flashcards) > 0
         print(f"✓ Got {len(flashcards)} German flashcards")
+    
+    def test_get_flashcards_french(self):
+        """Test getting French flashcards - NEW in iteration 2"""
+        response = requests.get(f"{BASE_URL}/api/flashcards?language=french&level=A1")
+        assert response.status_code == 200
+        flashcards = response.json()
+        assert len(flashcards) >= 10, f"Expected at least 10 French A1 flashcards, got {len(flashcards)}"
+        
+        # Verify flashcard structure
+        card = flashcards[0]
+        assert card["language"] == "french"
+        assert "word" in card
+        assert "translation" in card
+        assert "example" in card
+        print(f"✓ Got {len(flashcards)} French A1 flashcards")
 
 
 class TestQuizzes:
-    """Quiz endpoint tests"""
+    """Quiz endpoint tests - all 5 languages"""
     
-    def test_get_quizzes_for_course(self):
-        """Test getting quizzes for a course"""
-        # Get a Spanish A1 course
+    def test_get_quizzes_for_spanish_course(self):
+        """Test getting quizzes for a Spanish course"""
         courses_response = requests.get(f"{BASE_URL}/api/courses?language=spanish&level=A1")
         course_id = courses_response.json()[0]["id"]
         
-        # Get quizzes
         response = requests.get(f"{BASE_URL}/api/courses/{course_id}/quizzes")
         assert response.status_code == 200
         quizzes = response.json()
         assert isinstance(quizzes, list)
         assert len(quizzes) >= 1, "Expected at least 1 quiz"
         
-        # Verify quiz structure
         quiz = quizzes[0]
         assert "id" in quiz
         assert "title" in quiz
         assert "questions" in quiz
         assert len(quiz["questions"]) >= 5, "Expected at least 5 questions"
-        print(f"✓ Got quiz with {len(quiz['questions'])} questions")
+        print(f"✓ Got Spanish quiz with {len(quiz['questions'])} questions")
+    
+    def test_get_quizzes_for_french_course(self):
+        """Test getting quizzes for French course - NEW in iteration 2"""
+        response = requests.get(f"{BASE_URL}/api/courses/{FRENCH_COURSE_A1}/quizzes")
+        assert response.status_code == 200
+        quizzes = response.json()
+        assert isinstance(quizzes, list)
+        assert len(quizzes) >= 1, "Expected at least 1 French quiz"
+        
+        quiz = quizzes[0]
+        assert "id" in quiz
+        assert "title" in quiz
+        assert "questions" in quiz
+        assert len(quiz["questions"]) >= 5, f"Expected at least 5 questions, got {len(quiz['questions'])}"
+        print(f"✓ Got French quiz with {len(quiz['questions'])} questions")
 
 
 class TestTTS:
-    """Text-to-Speech endpoint tests"""
+    """Text-to-Speech endpoint tests - all 5 languages"""
     
     def test_tts_spanish(self):
         """Test TTS for Spanish"""
@@ -263,7 +353,7 @@ class TestTTS:
         data = response.json()
         assert data["success"] == True
         assert "audio_base64" in data
-        assert len(data["audio_base64"]) > 100  # Should have substantial audio data
+        assert len(data["audio_base64"]) > 100
         print("✓ TTS Spanish works")
     
     def test_tts_english(self):
@@ -298,6 +388,19 @@ class TestTTS:
         data = response.json()
         assert data["success"] == True
         print("✓ TTS German works")
+    
+    def test_tts_french(self):
+        """Test TTS for French - NEW in iteration 2"""
+        response = requests.post(f"{BASE_URL}/api/tts/generate", json={
+            "text": "Bonjour",
+            "language": "french"
+        })
+        assert response.status_code == 200
+        data = response.json()
+        assert data["success"] == True
+        assert "audio_base64" in data
+        assert len(data["audio_base64"]) > 100, "French TTS audio should have substantial data"
+        print("✓ TTS French works")
 
 
 class TestProgress:
@@ -326,8 +429,8 @@ class TestProgress:
         assert "average_score" in data
         print("✓ Progress endpoint works")
     
-    def test_get_progress_by_language(self, auth_token):
-        """Test getting progress broken down by language"""
+    def test_get_progress_by_language_five_languages(self, auth_token):
+        """Test getting progress broken down by language - should have 5 languages"""
         response = requests.get(
             f"{BASE_URL}/api/progress/by-language",
             headers={"Authorization": f"Bearer {auth_token}"}
@@ -335,14 +438,15 @@ class TestProgress:
         assert response.status_code == 200
         data = response.json()
         assert isinstance(data, list)
-        # Should have progress for 4 languages
-        assert len(data) == 4, f"Expected 4 language progress entries, got {len(data)}"
+        # Should have progress for 5 languages (including French)
+        assert len(data) == 5, f"Expected 5 language progress entries, got {len(data)}"
         languages = [p["language"] for p in data]
         assert "spanish" in languages
         assert "english" in languages
         assert "portuguese" in languages
         assert "german" in languages
-        print("✓ Progress by language works (4 languages)")
+        assert "french" in languages, "French should be in progress by-language"
+        print("✓ Progress by language works (5 languages including French)")
 
 
 class TestTeacherEndpoints:
@@ -379,18 +483,18 @@ class TestTeacherEndpoints:
         assert "total_students" in stats
         assert "total_courses" in stats
         assert "total_quizzes" in stats
-        print("✓ Teacher stats endpoint works")
+        # Verify 30 courses (5 languages x 6 levels)
+        assert stats["total_courses"] == 30, f"Expected 30 courses, got {stats['total_courses']}"
+        print("✓ Teacher stats endpoint works (30 courses)")
     
     def test_student_cannot_access_teacher_endpoints(self):
         """Test that students cannot access teacher endpoints"""
-        # Login as student
         login_response = requests.post(f"{BASE_URL}/api/auth/login", json={
             "email": STUDENT_EMAIL,
             "password": STUDENT_PASSWORD
         })
         student_token = login_response.json()["access_token"]
         
-        # Try to access teacher endpoint
         response = requests.get(
             f"{BASE_URL}/api/teacher/students",
             headers={"Authorization": f"Bearer {student_token}"}

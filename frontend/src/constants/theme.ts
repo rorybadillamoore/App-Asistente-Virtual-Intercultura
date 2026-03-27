@@ -18,6 +18,7 @@ export const COLORS = {
   english: '#22955B',        // Dark green  
   portuguese: '#fa8a00',     // Orange
   german: '#1a1a1a',         // Black (German flag)
+  french: '#002395',         // Blue (French flag)
   
   // Level colors (gradient from green to red)
   a1: '#B6C932',
@@ -105,6 +106,7 @@ export const LANGUAGES = [
   { id: 'english', name: 'English', flag: '🇬🇧', color: COLORS.english },
   { id: 'portuguese', name: 'Português', flag: '🇧🇷', color: COLORS.portuguese },
   { id: 'german', name: 'Deutsch', flag: '🇩🇪', color: COLORS.german },
+  { id: 'french', name: 'Français', flag: '🇫🇷', color: COLORS.french },
 ];
 
 export const LEVELS = [
@@ -122,6 +124,7 @@ export const getLanguageColor = (language: string) => {
     case 'english': return COLORS.english;
     case 'portuguese': return COLORS.portuguese;
     case 'german': return COLORS.german;
+    case 'french': return COLORS.french;
     default: return COLORS.primary;
   }
 };

@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, SHADOWS } from '../../src/constants/theme';
 import { useAuthStore } from '../../src/store/authStore';
+import { progressAPI } from '../../src/api/client';
 import { Button } from '../../src/components/Button';
 
 export default function ProfileScreen() {
@@ -58,7 +59,16 @@ export default function ProfileScreen() {
       icon: 'stats-chart-outline' as const,
       title: 'Mi Progreso',
       subtitle: 'Ver estadísticas de aprendizaje',
-      onPress: () => router.push('/(tabs)'),
+      onPress: async () => {
+        try {
+          const response = await progressAPI.get();
+          const p = response.data;
+          const msg = `Lecciones completadas: ${p.lessons_completed || 0}\nFlashcards revisados: ${p.flashcards_reviewed || 0}\nQuizzes realizados: ${p.quizzes_taken || 0}\nPromedio: ${p.average_score?.toFixed(0) || 0}%\nCursos iniciados: ${p.courses_started || 0}`;
+          showAlert('Mi Progreso', msg);
+        } catch {
+          showAlert('Mi Progreso', 'No se pudo cargar el progreso. Intenta de nuevo.');
+        }
+      },
     },
     {
       icon: 'settings-outline' as const,
@@ -117,7 +127,7 @@ export default function ProfileScreen() {
         <View style={styles.statsCard}>
           <View style={styles.statItem}>
             <Ionicons name="book" size={24} color={COLORS.spanish} />
-            <Text style={styles.statValue}>4</Text>
+            <Text style={styles.statValue}>5</Text>
             <Text style={styles.statLabel}>Idiomas</Text>
           </View>
           <View style={styles.statDivider} />
