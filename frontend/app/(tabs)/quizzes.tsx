@@ -73,7 +73,7 @@ export default function QuizzesScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Progress Overview */}
-        <Text style={styles.sectionTitle}>Tu Promedio por Idioma</Text>
+        <Text style={styles.sectionTitle}>Tu Promedio de Quizzes Completados</Text>
         <View style={styles.progressGrid}>
           {LANGUAGES.map((lang) => {
             const stats = getLanguageStats(lang.id);
