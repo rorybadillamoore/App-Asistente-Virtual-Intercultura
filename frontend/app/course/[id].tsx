@@ -109,7 +109,7 @@ export default function CourseDetailScreen() {
           {/* Lessons Section */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>
-              <Ionicons name="book" size={20} color={COLORS.gray900} /> Lecciones ({lessons.length})
+              <Ionicons name="book" size={20} color={COLORS.gray900} /> Contenidos ({lessons.length})
             </Text>
             {lessons.length === 0 ? (
               <View style={styles.emptyCard}>
