@@ -14,36 +14,52 @@ Mobile/web application for Intercultura Costa Rica language school. Supports Spa
 - 6 lessons per course = 180 lessons (all enriched with real educational content)
 - 10 flashcards per language/level = 300 total
 - 1 quiz per course with 10 questions = 30 quizzes
-- AI exercise generation with GPT-4o
 
-## What's Been Implemented (as of 2026-03-28)
-- [x] Authentication (login, register, logout) - stable
-- [x] Database: 30 courses, 180 enriched lessons, 300 flashcards, 30 quizzes
-- [x] 5 languages (Spanish, English, Portuguese, German, French) x 6 levels
-- [x] ALL lesson content enriched with detailed educational material, vocabulary (6+ items), grammar points
-- [x] ZERO placeholder content across all 5 languages x 6 levels (validated programmatically)
-- [x] Flashcards with TTS audio (language-specific voice + context prefixes)
-- [x] Quizzes with scoring
-- [x] AI exercises with GPT-4o
-- [x] Student + Teacher dashboards
-- [x] Profile with Mi Progreso (shows real progress data), 5 Idiomas, logout
-- [x] Intercultura branding throughout (logos, favicon, title, no Emergent refs)
+## What's Been Implemented
+
+### Authentication
+- [x] Login, Register, Logout (stable - Zustand + AsyncStorage)
+- [x] Student and Teacher roles
+- [x] Change password (POST /api/auth/change-password)
+
+### Content (100% verified - zero placeholders)
+- [x] 30 courses across 5 languages x 6 levels
+- [x] 180 enriched lessons with vocabulary (6+ items) and grammar points
+- [x] 300 flashcards with TTS audio
+- [x] 30 quizzes with 10 questions each
+- [x] AI exercises via GPT-4o
+
+### Profile Section (Updated 2026-03-28)
+- [x] Mi Progreso: real stats from backend
+- [x] Configuracion: functional change password form (3 inputs, validation, API call)
+- [x] Ayuda: real Intercultura contact info (phone, WhatsApp, email, website, 2 campus locations, FAQ)
+- [x] Acerca de: school info (founded 1993, methodology, programs, version)
+
+### Branding
+- [x] Intercultura logo on all assets (favicon, PWA icon, splash, adaptive icon)
+- [x] PWA manifest.json with Intercultura name, theme color, icon
+- [x] apple-touch-icon and meta tags for mobile install
+- [x] No Emergent/Polyglot references anywhere
+
+### Navigation
 - [x] Home buttons on all sub-pages (course, lesson, quiz, ai-exercise, flashcard-session)
-- [x] German A1-C2 vocabulary fully enriched with real educational content
-- [x] French A1-C2 vocabulary fully enriched with real educational content
-- [x] Portuguese A2 content fully enriched
+- [x] Tab navigation: Inicio, Cursos, Quizzes, Flashcards, IA, Perfil
 
-## Content Validation Results (2026-03-28)
+## Content Validation (2026-03-28)
 - Lessons: 30/30 OK (0 placeholders)
-- Flashcards: 30/30 OK (0 empty)
+- Flashcards: 30/30 OK
 - Quizzes: 30/30 OK
-- Total: 90/90 validated items
+
+## Testing Results
+- iteration_1.json: Initial feature tests (PASS)
+- iteration_2.json: Content and navigation tests (PASS)
+- iteration_3.json: Profile features + change password + PWA (10/10 backend, 100% frontend PASS)
 
 ## Remaining Tasks
 ### P1
-- Custom "Aller" typeface
+- Custom "Aller" typeface across frontend
 ### P2
-- Mobile app store deployment (.apk/.ipa)
+- Mobile app store builds (.apk/.ipa)
 
 ## Deployment
-User must click "Deploy" button in Emergent platform to get production URL (24/7, no agent needed).
+User must click "Deploy" in Emergent platform for production URL.
