@@ -178,7 +178,11 @@ export default function QuizScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: quiz.title }} />
+      <Stack.Screen options={{ title: quiz.title, headerRight: () => (
+            <TouchableOpacity onPress={() => router.replace('/(tabs)')} style={{ marginRight: 8 }}>
+              <Ionicons name="home-outline" size={24} color={COLORS.primary} />
+            </TouchableOpacity>
+          ) }} />
       <SafeAreaView style={styles.container} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           {/* Progress */}

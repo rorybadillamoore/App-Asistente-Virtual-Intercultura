@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -75,6 +75,11 @@ export default function LessonDetailScreen() {
           title: lesson.title,
           headerStyle: { backgroundColor: COLORS.white },
           headerTintColor: COLORS.gray900,
+          headerRight: () => (
+            <TouchableOpacity onPress={() => router.replace('/(tabs)')} style={{ marginRight: 8 }}>
+              <Ionicons name="home-outline" size={24} color={COLORS.primary} />
+            </TouchableOpacity>
+          ),
         }}
       />
       <SafeAreaView style={styles.container} edges={['bottom']}>

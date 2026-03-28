@@ -304,7 +304,11 @@ export default function AIExerciseScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: exercise.title || 'Ejercicio IA' }} />
+      <Stack.Screen options={{ title: exercise.title || 'Ejercicio IA', headerRight: () => (
+            <TouchableOpacity onPress={() => router.replace('/(tabs)')} style={{ marginRight: 8 }}>
+              <Ionicons name="home-outline" size={24} color={COLORS.primary} />
+            </TouchableOpacity>
+          ) }} />
       <SafeAreaView style={styles.container} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           {/* Header Badges */}

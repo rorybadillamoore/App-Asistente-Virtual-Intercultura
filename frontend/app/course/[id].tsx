@@ -83,6 +83,11 @@ export default function CourseDetailScreen() {
           title: course.title,
           headerStyle: { backgroundColor: COLORS.white },
           headerTintColor: COLORS.gray900,
+          headerRight: () => (
+            <TouchableOpacity onPress={() => router.replace('/(tabs)')} style={{ marginRight: 8 }}>
+              <Ionicons name="home-outline" size={24} color={COLORS.primary} />
+            </TouchableOpacity>
+          ),
         }}
       />
       <SafeAreaView style={styles.container} edges={['bottom']}>

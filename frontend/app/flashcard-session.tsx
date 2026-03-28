@@ -177,7 +177,11 @@ export default function FlashcardSessionScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: `Flashcards ${level}` }} />
+      <Stack.Screen options={{ title: `Flashcards ${level}`, headerRight: () => (
+            <TouchableOpacity onPress={() => router.replace('/(tabs)')} style={{ marginRight: 8 }}>
+              <Ionicons name="home-outline" size={24} color={COLORS.primary} />
+            </TouchableOpacity>
+          ) }} />
       <SafeAreaView style={styles.container} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Progress */}
