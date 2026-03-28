@@ -1,6 +1,8 @@
 """Fix placeholder vocabulary and grammar in German A2-C2, French A2-C2, and Portuguese A2 lessons."""
 import asyncio
 import os
+from dotenv import load_dotenv
+load_dotenv()
 from motor.motor_asyncio import AsyncIOMotorClient
 
 MONGO_URL = os.environ.get("MONGO_URL")
