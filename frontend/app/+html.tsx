@@ -14,8 +14,12 @@ export default function Root({ children }: PropsWithChildren) {
         />
         <link rel="icon" type="image/png" href="/favicon.png" />
         <link rel="apple-touch-icon" href="/favicon.png" />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Intercultura" />
         <meta name="application-name" content="Intercultura" />
+        <meta name="theme-color" content="#22955B" />
         <title>Intercultura - Asistente Virtual</title>
         {/*
           Disable body scrolling on web to make ScrollView components work correctly.

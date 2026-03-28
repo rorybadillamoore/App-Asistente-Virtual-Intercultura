@@ -271,6 +271,20 @@ async def login(credentials: UserLogin):
         )
     )
 
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+@api_router.post("/auth/change-password")
+async def change_password(req: ChangePasswordRequest, current_user: dict = Depends(get_current_user)):
+    if not verify_password(req.current_password, current_user["password_hash"]):
+        raise HTTPException(status_code=400, detail="Contraseña actual incorrecta")
+    if len(req.new_password) < 6:
+        raise HTTPException(status_code=400, detail="La nueva contraseña debe tener al menos 6 caracteres")
+    new_hash = hash_password(req.new_password)
+    await db.users.update_one({"_id": current_user["_id"]}, {"$set": {"password_hash": new_hash}})
+    return {"message": "Contraseña actualizada exitosamente"}
+
 @api_router.get("/auth/me", response_model=UserResponse)
 async def get_me(current_user: dict = Depends(get_current_user)):
     return UserResponse(

@@ -37,6 +37,8 @@ export const authAPI = {
   login: (data: { email: string; password: string }) =>
     apiClient.post('/auth/login', data),
   getMe: () => apiClient.get('/auth/me'),
+  changePassword: (data: { current_password: string; new_password: string }) =>
+    apiClient.post('/auth/change-password', data),
 };
 
 // Courses API
